@@ -171,6 +171,26 @@ export interface PromoGroup {
   users_count: number;
 }
 
+export type CampaignBonusType = 'balance' | 'subscription' | 'none';
+
+export interface Campaign {
+  id: number;
+  name: string;
+  start_parameter: string;
+  bonus_type: CampaignBonusType;
+  balance_bonus_kopeks: number;
+  subscription_duration_days: number | null;
+  is_active: boolean;
+  deep_link: string;
+}
+
+export interface CampaignStats {
+  registrations_count: number;
+  paying_count: number;
+  conversion_percent: number;
+  revenue_kopeks: number;
+}
+
 export interface AdminDevice {
   hwid: string;
   platform: string;

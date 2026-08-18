@@ -2,6 +2,8 @@ import type {
   AdminDevice,
   AdminUserDetail,
   AdminUserListResponse,
+  Campaign,
+  CampaignStats,
   CohortsResponse,
   LtvResponse,
   OverviewResponse,
@@ -114,6 +116,26 @@ export const PREVIEW_PROMO_GROUPS: PromoGroup[] = [
   { id: 1, name: 'VIP', discount_percent: 20, users_count: 4 },
   { id: 2, name: 'Партнёры', discount_percent: 10, users_count: 12 },
 ];
+
+export const PREVIEW_CAMPAIGNS: Campaign[] = [
+  {
+    id: 1,
+    name: 'Instagram Jan',
+    start_parameter: 'instagram_jan2026',
+    bonus_type: 'balance',
+    balance_bonus_kopeks: 10000,
+    subscription_duration_days: null,
+    is_active: true,
+    deep_link: 'https://t.me/bot?start=instagram_jan2026',
+  },
+];
+
+export const PREVIEW_CAMPAIGN_STATS: CampaignStats = {
+  registrations_count: 34,
+  paying_count: 9,
+  conversion_percent: 26.5,
+  revenue_kopeks: 89500,
+};
 
 export const PREVIEW_DEVICES: AdminDevice[] = [
   { hwid: 'ab12cd34ef56', platform: 'iOS', device_model: 'iPhone 15 Pro', created_at: new Date().toISOString() },

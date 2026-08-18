@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: '/admin', label: 'Дашборд', end: true },
   { to: '/admin/users', label: 'Пользователи' },
   { to: '/admin/promo-groups', label: 'Промогруппы' },
+  { to: '/admin/campaigns', label: 'Кампании' },
   { to: '/admin/ltv', label: 'LTV и когорты' },
   { to: '/admin/growth', label: 'MRR и churn' },
   { to: '/admin/referrals', label: 'Рефералы' },

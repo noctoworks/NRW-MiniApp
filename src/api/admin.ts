@@ -1,5 +1,7 @@
 import { apiClient } from './client';
 import {
+  PREVIEW_CAMPAIGN_STATS,
+  PREVIEW_CAMPAIGNS,
   PREVIEW_COHORTS,
   PREVIEW_DEVICES,
   PREVIEW_LTV,
@@ -17,6 +19,8 @@ import type {
   AdminUserDetail,
   AdminUserFilter,
   AdminUserListResponse,
+  Campaign,
+  CampaignStats,
   CohortsResponse,
   LtvResponse,
   OverviewResponse,
@@ -170,4 +174,38 @@ export async function setUserPromoGroup(userId: number, promoGroupId: number | n
       promo_group_id: promoGroupId,
     })
   ).data;
+}
+
+export async function listCampaigns(): Promise<Campaign[]> {
+  if (isPreview()) return PREVIEW_CAMPAIGNS;
+  return (await apiClient.get<Campaign[]>('/cabinet/admin/campaigns')).data;
+}
+
+export async function createCampaign(payload: {
+  name: string;
+  start_parameter: string;
+  bonus_type: string;
+  balance_bonus_kopeks?: number;
+  subscription_duration_days?: number | null;
+}): Promise<Campaign> {
+  if (isPreview()) return { ...PREVIEW_CAMPAIGNS[0], ...payload, id: Date.now() } as Campaign;
+  return (await apiClient.post<Campaign>('/cabinet/admin/campaigns', payload)).data;
+}
+
+export async function updateCampaign(
+  id: number,
+  payload: { name?: string; is_active?: boolean; balance_bonus_kopeks?: number; subscription_duration_days?: number | null },
+): Promise<Campaign> {
+  if (isPreview()) return { ...PREVIEW_CAMPAIGNS[0], ...payload };
+  return (await apiClient.patch<Campaign>(`/cabinet/admin/campaigns/${id}`, payload)).data;
+}
+
+export async function deleteCampaign(id: number): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'deleted' };
+  return (await apiClient.delete<{ status: string }>(`/cabinet/admin/campaigns/${id}`)).data;
+}
+
+export async function getCampaignStats(id: number): Promise<CampaignStats> {
+  if (isPreview()) return PREVIEW_CAMPAIGN_STATS;
+  return (await apiClient.get<CampaignStats>(`/cabinet/admin/campaigns/${id}/stats`)).data;
 }
