@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Placeholder, Subheadline } from '@telegram-apps/telegram-ui';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getTariff, purchaseSubscription } from '../api/cabinet';
 import PaymentMethodRow from '../components/PaymentMethodRow';
 import PeriodCard from '../components/PeriodCard';
+import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { computeSavingsPercent, formatRub } from '../lib/format';
 
 type Stage = 'idle' | 'submitting' | 'pending' | 'error';
@@ -17,6 +17,9 @@ export default function Payment() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ['tariff'], queryFn: getTariff });
+
+  const goBack = useCallback(() => navigate('/'), [navigate]);
+  useTelegramBackButton(goBack);
 
   const [selectedDays, setSelectedDays] = useState<number | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
@@ -34,7 +37,7 @@ export default function Payment() {
   }, [data]);
 
   if (isLoading || !data) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-muted">Загрузка…</div>;
+    return <div className="flex min-h-screen items-center justify-center text-sm text-[hsl(var(--subtitle-foreground))]">Загрузка…</div>;
   }
 
   const selectedPeriod = data.periods.find((p) => p.days === selectedDays) ?? data.periods[0];
@@ -73,68 +76,73 @@ export default function Payment() {
   };
 
   return (
-    <div className="min-h-screen px-4 pb-8 pt-6">
-      <button type="button" onClick={() => navigate('/')} className="mb-4 text-sm text-muted">
-        ← Назад
-      </button>
+    <main className="bg-gradient-mesh min-h-screen">
+      <div className="flex min-h-screen flex-col pb-24">
+        <div className="flex-1 space-y-6 px-4 py-4">
+          <section>
+            <h2 className="text-subtitle1 mb-3 px-1 text-[hsl(var(--subtitle-foreground))]">Выбор длительности</h2>
+            <div className="space-y-3">
+              {data.periods.map((period) => (
+                <PeriodCard
+                  key={period.days}
+                  period={period}
+                  savingsPercent={computeSavingsPercent(data.periods, period.days, period.price_kopeks)}
+                  popular={period.days === popularDays}
+                  selected={period.days === selectedDays}
+                  onSelect={() => setSelectedDays(period.days)}
+                />
+              ))}
+            </div>
+          </section>
 
-      <Subheadline className="mb-3 text-muted">Выбор длительности</Subheadline>
-      <div className="flex flex-col gap-3">
-        {data.periods.map((period) => (
-          <PeriodCard
-            key={period.days}
-            period={period}
-            savingsPercent={computeSavingsPercent(data.periods, period.days, period.price_kopeks)}
-            popular={period.days === popularDays}
-            selected={period.days === selectedDays}
-            onSelect={() => setSelectedDays(period.days)}
-          />
-        ))}
+          <section>
+            <h2 className="text-subtitle1 mb-3 px-1 text-[hsl(var(--subtitle-foreground))]">Способ оплаты</h2>
+            <div className="space-y-3">
+              {data.payment_methods.map((method) => (
+                <PaymentMethodRow
+                  key={method.id}
+                  method={method}
+                  selected={method.id === selectedMethod}
+                  onSelect={() => setSelectedMethod(method.id)}
+                />
+              ))}
+            </div>
+          </section>
+
+          {stage === 'pending' && (
+            <div className="card !rounded-2xl">
+              <p className="mb-3 text-sm text-[hsl(var(--subtitle-foreground))]">
+                {pendingUrl
+                  ? 'Платёж создан. Завершите оплату по открывшейся ссылке, затем нажмите «Проверить».'
+                  : 'Платёж создан, ожидаем подтверждения.'}
+              </p>
+              <button type="button" className="btn-primary w-full" onClick={handleCheckStatus}>
+                Проверить
+              </button>
+            </div>
+          )}
+
+          {stage === 'error' && (
+            <p className="text-center text-sm text-[hsl(var(--destructive))]">Не удалось оформить платёж, попробуйте ещё раз.</p>
+          )}
+        </div>
+
+        {stage !== 'pending' && (
+          <div
+            className="fixed bottom-0 left-0 right-0 border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-4"
+            style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}
+          >
+            <button
+              type="button"
+              className="btn-primary w-full disabled:opacity-60"
+              disabled={stage === 'submitting' || !selectedPeriod || !selectedMethod}
+              onClick={handlePay}
+            >
+              <span>{stage === 'submitting' ? 'Оформляем…' : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`}</span>
+            </button>
+          </div>
+        )}
       </div>
-
-      <Subheadline className="mb-3 mt-6 text-muted">Способ оплаты</Subheadline>
-      <div className="flex flex-col gap-3">
-        {data.payment_methods.map((method) => (
-          <PaymentMethodRow
-            key={method.id}
-            method={method}
-            selected={method.id === selectedMethod}
-            onSelect={() => setSelectedMethod(method.id)}
-          />
-        ))}
-      </div>
-
-      {stage === 'pending' ? (
-        <Placeholder
-          className="mt-6 rounded-2xl bg-surface"
-          description={
-            pendingUrl
-              ? 'Платёж создан. Завершите оплату по открывшейся ссылке, затем нажмите «Проверить».'
-              : 'Платёж создан, ожидаем подтверждения.'
-          }
-          action={
-            <Button mode="filled" size="m" stretched onClick={handleCheckStatus}>
-              Проверить
-            </Button>
-          }
-        />
-      ) : (
-        <Button
-          mode="filled"
-          size="l"
-          stretched
-          className="mt-6"
-          loading={stage === 'submitting'}
-          disabled={stage === 'submitting' || !selectedPeriod || !selectedMethod}
-          onClick={handlePay}
-        >
-          {stage === 'submitting' ? 'Оформляем…' : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`}
-        </Button>
-      )}
-
-      {stage === 'error' && (
-        <p className="mt-3 text-center text-sm text-red-400">Не удалось оформить платёж, попробуйте ещё раз.</p>
-      )}
-    </div>
+    </main>
   );
 }

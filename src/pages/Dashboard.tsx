@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Button, Caption, Cell } from '@telegram-apps/telegram-ui';
+import { CircleCheck, Settings2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getDashboard } from '../api/cabinet';
@@ -41,54 +41,54 @@ export default function Dashboard() {
       <TopBar />
       <PowerButton connected={isActive} onClick={handleConnect} />
 
-      <div className="flex flex-col gap-3 px-4">
+      <div className="animate-fade-in flex flex-col gap-3 px-4">
         <div className="flex gap-3">
           <IpCard />
           <AppSelect selected={selectedApp} onSelect={setSelectedApp} />
         </div>
 
-        {subscription?.subscription_url && <SubscriptionLink url={subscription.subscription_url} />}
+        <div className="card !py-2.5 !pr-3 !pl-4 flex flex-col gap-3 !rounded-2xl">
+          {subscription?.subscription_url && <SubscriptionLink url={subscription.subscription_url} />}
 
-        {subscription ? (
-          <Cell
-            className="rounded-2xl bg-surface"
-            subtitle={<Caption>{formatTraffic(subscription.traffic_used_gb, subscription.traffic_limit_gb)}</Caption>}
-            after={
-              <div className="text-right">
-                <Caption className="block text-muted">до {formatDate(subscription.end_date)}</Caption>
-                <span className={`text-sm font-semibold ${isActive ? 'text-accent' : 'text-white/50'}`}>
-                  {isActive ? 'Подписка активна' : 'Подписка истекла'}
+          {subscription?.subscription_url && subscription && (
+            <div className="h-px bg-[hsl(var(--border))]" />
+          )}
+
+          {subscription ? (
+            <div className="config-cell">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium">
+                  {formatTraffic(subscription.traffic_used_gb, subscription.traffic_limit_gb)}
                 </span>
+                <span className="text-xs text-[hsl(var(--subtitle-foreground))]">до {formatDate(subscription.end_date)}</span>
               </div>
-            }
-          >
-            Трафик
-          </Cell>
-        ) : (
-          <Cell className="rounded-2xl bg-surface text-muted">Подписка не оформлена</Cell>
-        )}
+              <span
+                className={`flex items-center gap-1.5 text-sm font-semibold ${
+                  isActive ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--subtitle-foreground))]'
+                }`}
+              >
+                <CircleCheck size={16} strokeWidth={2} />
+                {isActive ? 'Активна' : 'Истекла'}
+              </span>
+            </div>
+          ) : (
+            <span className="text-sm text-[hsl(var(--subtitle-foreground))]">Подписка не оформлена</span>
+          )}
+        </div>
 
-        <Button
-          mode="filled"
-          size="l"
-          stretched
+        <button
+          type="button"
+          className="btn-primary flex items-center justify-center gap-2"
           disabled={!subscription?.subscription_url}
           onClick={handleConnect}
-          before={
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22v-5" />
-              <path d="M9 8V2" />
-              <path d="M15 8V2" />
-              <path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" />
-            </svg>
-          }
         >
+          <Settings2 size={17} strokeWidth={2} />
           Подключить VPN
-        </Button>
+        </button>
 
-        <Button mode="gray" size="l" stretched onClick={() => navigate('/payment')}>
+        <button type="button" className="btn-secondary" onClick={() => navigate('/payment')}>
           Продлить подписку
-        </Button>
+        </button>
       </div>
     </div>
   );

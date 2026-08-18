@@ -6,8 +6,9 @@
  * Header/Background/Bottom Bar) — служит дефолтом и для наших собственных
  * --tg-* переменных (см. lib/theme.ts), и для TelegramUI (--tg-theme-* — то,
  * что реальный Telegram-клиент подставляет через telegram-web-app.js; когда
- * бот настроен с теми же цветами в BotFather, значения совпадут и в проде).
- * Вне Telegram (DEV-превью) эти :root-дефолты — единственный источник темы. */
+ * бот настроен с теми же цветами в BotFather, значения придут оттуда и здесь
+ * ничего не изменится). Вне Telegram (DEV-превью) эти :root-дефолты —
+ * единственный источник темы. */
 :root {
   --tg-bg: #19242e;
   --tg-surface: #212e3b;
@@ -47,6 +48,29 @@
   --tgui--secondary_hint_color: rgba(255, 255, 255, 0.4) !important;
   --tgui--divider: rgba(255, 255, 255, 0.08) !important;
   --tgui--outline: rgba(255, 255, 255, 0.1) !important;
+
+  /* === shadcn-style HSL-токены — 1-в-1 с реальным референсом (Gram VPN),
+   * см. диалог: пользователь прислал живой outerHTML+computed CSS. Числа —
+   * дословно оттуда (HSL-тройки без запятых, как того требует hsl(var(--x)))
+   * и совпадают по ощущению с уже принятой BotFather-палитрой выше — держим
+   * оба слоя переменных (--tg-* — наш/TelegramUI, --card/--primary/... —
+   * для новых .card/.btn-primary/.btn-secondary/.user-pill/.config-cell,
+   * которые 1:1 повторяют разметку референса). */
+  --radius: 26px;
+  --background: 210 30% 14%;
+  --foreground: 0 0% 100%;
+  --subtitle-foreground: 200 20% 75%;
+  --card: 210 28% 18%;
+  --card-foreground: 0 0% 100%;
+  --primary: 205 90% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 28% 18%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 210 25% 22%;
+  --muted-foreground: 200 20% 75%;
+  --destructive: 350 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 210 25% 25%;
 }
 
 html,
@@ -63,10 +87,134 @@ body {
 
 /* Точечный фон карты за power-button — упрощённая аппроксимация макета
    (никакого реального картографического ассета, просто повторяющийся
-   узор точек через radial-gradient). */
+   узор точек через radial-gradient). Реальный референс использует настоящий
+   map.svg — оставлено как есть по решению пользователя ("кроме кнопки и
+   заднего фона"), эту часть не переносим 1:1. */
 .dot-map-bg {
   background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.5px);
   background-size: 14px 14px;
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 55%, transparent 100%);
   mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 55%, transparent 100%);
+}
+
+/* === Классы 1-в-1 с реальным Gram VPN (см. диалог, присланный outerHTML) === */
+
+.card {
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.btn-primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 1rem;
+  padding: 0.875rem 1rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: opacity 0.15s ease-out;
+}
+.btn-primary:active {
+  opacity: 0.85;
+}
+
+.btn-secondary {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border-radius: 1rem;
+  padding: 0.875rem 1rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: opacity 0.15s ease-out;
+}
+.btn-secondary:active {
+  opacity: 0.85;
+}
+
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: hsl(var(--secondary));
+  border-radius: 9999px;
+  padding: 0.375rem 1rem 0.375rem 0.375rem;
+}
+
+.user-pill-avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.config-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  color: hsl(var(--card-foreground));
+}
+
+/* === Экран оплаты — 1-в-1 с реальным Gram VPN (см. диалог, присланный outerHTML) === */
+
+.bg-gradient-mesh {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 0%, color-mix(in srgb, hsl(var(--primary)) 16%, transparent), transparent),
+    radial-gradient(ellipse 50% 35% at 100% 20%, color-mix(in srgb, hsl(var(--primary)) 10%, transparent), transparent);
+}
+
+.plan-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-radius: 1.25rem;
+  background: hsl(var(--card));
+  border: 1.5px solid transparent;
+  padding: 0.875rem 1rem;
+  text-align: left;
+  transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
+}
+.plan-card.selected-primary {
+  border-color: hsl(var(--primary));
+  background: color-mix(in srgb, hsl(var(--primary)) 10%, hsl(var(--card)));
+}
+
+.badge {
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.text-subtitle1 {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.text-subtitle2 {
+  font-size: 0.75rem;
+}
+.text-body {
+  font-size: 0.9375rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out;
 }

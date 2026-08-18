@@ -1,4 +1,4 @@
-import { Caption } from '@telegram-apps/telegram-ui';
+import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { VPN_APPS, type VpnApp } from '../lib/deeplink';
 
@@ -18,27 +18,21 @@ export default function AppSelect({ selected, onSelect }: AppSelectProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full flex-col items-start gap-1 rounded-2xl bg-surface px-4 py-3 text-left ${open ? 'ring-1 ring-accent' : ''}`}
+        className={`card !py-2.5 !pr-3 !pl-4 flex w-full flex-col items-start gap-1 !rounded-2xl text-left ${open ? 'ring-1 ring-[hsl(var(--primary))]' : ''}`}
       >
-        <Caption className="text-muted">Приложение</Caption>
+        <span className="text-xs text-[hsl(var(--subtitle-foreground))]">Приложение</span>
         <span className="flex w-full items-center justify-between gap-2 text-sm font-semibold">
           <span className="truncate">{selected.name}</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            className={`shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`}
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+          <ChevronDown
+            size={14}
+            strokeWidth={2.5}
+            className={`shrink-0 text-[hsl(var(--subtitle-foreground))] transition-transform ${open ? 'rotate-180' : ''}`}
+          />
         </span>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+6px)] z-10 w-48 overflow-hidden rounded-2xl bg-surface-2 py-1 shadow-xl">
+        <div className="absolute right-0 top-[calc(100%+6px)] z-10 w-48 overflow-hidden rounded-2xl bg-[hsl(var(--muted))] py-1 shadow-xl">
           {VPN_APPS.map((app) => (
             <button
               key={app.id}
@@ -47,7 +41,7 @@ export default function AppSelect({ selected, onSelect }: AppSelectProps) {
                 onSelect(app);
                 setOpen(false);
               }}
-              className={`block w-full px-4 py-2.5 text-left text-sm ${app.id === selected.id ? 'text-accent' : 'text-white'} active:bg-white/5`}
+              className={`block w-full px-4 py-2.5 text-left text-sm ${app.id === selected.id ? 'text-[hsl(var(--primary))]' : 'text-white'} active:bg-white/5`}
             >
               {app.name}
             </button>
