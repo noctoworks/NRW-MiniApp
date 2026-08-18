@@ -157,6 +157,26 @@ export interface AdminUserDetail {
   transactions: AdminTransaction[];
   referrals_invited_count: number;
   referrals_earned_kopeks: number;
+  referral_commission_percent: number | null;
 }
 
 export type AdminUserFilter = 'all' | 'no_sub' | 'blocked' | 'blocked_bot';
+
+export interface AdminDevice {
+  hwid: string;
+  platform: string;
+  device_model: string;
+  created_at: string | null;
+}
+
+export interface SyncResult {
+  status: string;
+  subscription: AdminSubscription | null;
+}
+
+export interface PaginatedTransactions {
+  items: AdminTransaction[];
+  total: number;
+  page: number;
+  total_pages: number;
+}

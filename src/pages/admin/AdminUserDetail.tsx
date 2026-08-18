@@ -1,7 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Caption, Cell, Section, Switch, Title } from '@telegram-apps/telegram-ui';
 import { useNavigate, useParams } from 'react-router';
-import { adjustBalance, deleteUser, getUserDetail, messageUser, toggleBlock } from '../../api/admin';
+import { adjustBalance, deleteUser, getUserDetail, messageUser, setReferralCommission, toggleBlock } from '../../api/admin';
+import DevicesSection from '../../components/admin/DevicesSection';
+import ReferralCommissionForm from '../../components/admin/ReferralCommissionForm';
+import SyncSection from '../../components/admin/SyncSection';
+import TransactionsSection from '../../components/admin/TransactionsSection';
 import UserBalanceForm from '../../components/admin/UserBalanceForm';
 import UserMessageForm from '../../components/admin/UserMessageForm';
 import { formatDate, formatRub } from '../../lib/format';
@@ -75,6 +79,10 @@ export default function AdminUserDetail() {
         <div className="flex flex-col gap-3 px-4 py-3">
           <UserBalanceForm onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }} />
           <UserMessageForm onSubmit={(text) => messageUser(userId, text).then(() => undefined)} />
+          <ReferralCommissionForm
+            value={data.referral_commission_percent}
+            onSubmit={async (percent) => { await setReferralCommission(userId, percent); await invalidate(); }}
+          />
         </div>
         <Cell after={<Switch checked={data.is_blocked} onChange={handleBlockToggle} />}>Заблокирован</Cell>
         <Cell onClick={handleDelete} className="text-red-400">
@@ -82,21 +90,9 @@ export default function AdminUserDetail() {
         </Cell>
       </Section>
 
-      <Section header="Последние транзакции">
-        {data.transactions.length === 0 ? (
-          <Cell className="text-muted">Транзакций нет</Cell>
-        ) : (
-          data.transactions.map((t) => (
-            <Cell
-              key={t.id}
-              subtitle={<Caption className="text-muted">{formatDate(t.created_at)} · {t.status}</Caption>}
-              after={<span className="font-semibold">{formatRub(t.amount_kopeks)}</span>}
-            >
-              {t.type}
-            </Cell>
-          ))
-        )}
-      </Section>
+      <DevicesSection userId={userId} />
+      <SyncSection userId={userId} />
+      <TransactionsSection userId={userId} />
     </div>
   );
 }

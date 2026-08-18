@@ -1,9 +1,11 @@
 import type {
+  AdminDevice,
   AdminUserDetail,
   AdminUserListResponse,
   CohortsResponse,
   LtvResponse,
   OverviewResponse,
+  PaginatedTransactions,
   ReferralFunnelResponse,
   RevenuePoint,
 } from '../types';
@@ -102,4 +104,17 @@ export const PREVIEW_USER_DETAIL: AdminUserDetail = {
   ],
   referrals_invited_count: 3,
   referrals_earned_kopeks: 1500,
+  referral_commission_percent: null,
+};
+
+export const PREVIEW_DEVICES: AdminDevice[] = [
+  { hwid: 'ab12cd34ef56', platform: 'iOS', device_model: 'iPhone 15 Pro', created_at: new Date().toISOString() },
+  { hwid: '11aa22bb33cc', platform: 'Android', device_model: 'Pixel 8', created_at: new Date().toISOString() },
+];
+
+export const PREVIEW_TRANSACTIONS: PaginatedTransactions = {
+  items: PREVIEW_USER_DETAIL.transactions,
+  total: 1,
+  page: 1,
+  total_pages: 1,
 };

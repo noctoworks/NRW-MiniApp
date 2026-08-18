@@ -1,23 +1,28 @@
 import { apiClient } from './client';
 import {
   PREVIEW_COHORTS,
+  PREVIEW_DEVICES,
   PREVIEW_LTV,
   PREVIEW_OVERVIEW,
   PREVIEW_REFERRAL_FUNNEL,
   PREVIEW_REVENUE_TIMESERIES,
+  PREVIEW_TRANSACTIONS,
   PREVIEW_USER_DETAIL,
   PREVIEW_USERS_LIST,
 } from '../lib/previewAdminData';
 import { useAuthStore } from '../store/auth';
 import type {
+  AdminDevice,
   AdminUserDetail,
   AdminUserFilter,
   AdminUserListResponse,
   CohortsResponse,
   LtvResponse,
   OverviewResponse,
+  PaginatedTransactions,
   ReferralFunnelResponse,
   RevenuePoint,
+  SyncResult,
 } from '../types';
 
 function isPreview(): boolean {
@@ -90,4 +95,43 @@ export async function massban(telegramIds: number[]): Promise<{ blocked_count: n
 export async function deleteUser(id: number): Promise<{ status: string }> {
   if (isPreview()) return { status: 'anonymized' };
   return (await apiClient.delete<{ status: string }>(`/cabinet/admin/users/${id}`)).data;
+}
+
+export async function getUserTransactions(id: number, page: number): Promise<PaginatedTransactions> {
+  if (isPreview()) return PREVIEW_TRANSACTIONS;
+  return (await apiClient.get<PaginatedTransactions>(`/cabinet/admin/users/${id}/transactions`, { params: { page } })).data;
+}
+
+export async function setReferralCommission(id: number, commissionPercent: number | null): Promise<AdminUserDetail> {
+  if (isPreview()) return { ...PREVIEW_USER_DETAIL, referral_commission_percent: commissionPercent };
+  return (
+    await apiClient.post<AdminUserDetail>(`/cabinet/admin/users/${id}/referral-commission`, {
+      commission_percent: commissionPercent,
+    })
+  ).data;
+}
+
+export async function getUserDevices(id: number): Promise<AdminDevice[]> {
+  if (isPreview()) return PREVIEW_DEVICES;
+  return (await apiClient.get<AdminDevice[]>(`/cabinet/admin/users/${id}/devices`)).data;
+}
+
+export async function removeDevice(id: number, hwid: string): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'removed' };
+  return (await apiClient.delete<{ status: string }>(`/cabinet/admin/users/${id}/devices/${hwid}`)).data;
+}
+
+export async function resetDevices(id: number): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'reset' };
+  return (await apiClient.delete<{ status: string }>(`/cabinet/admin/users/${id}/devices`)).data;
+}
+
+export async function syncFromPanel(id: number): Promise<SyncResult> {
+  if (isPreview()) return { status: 'synced', subscription: PREVIEW_USER_DETAIL.subscription };
+  return (await apiClient.post<SyncResult>(`/cabinet/admin/users/${id}/sync/from-panel`)).data;
+}
+
+export async function syncToPanel(id: number): Promise<SyncResult> {
+  if (isPreview()) return { status: 'synced', subscription: PREVIEW_USER_DETAIL.subscription };
+  return (await apiClient.post<SyncResult>(`/cabinet/admin/users/${id}/sync/to-panel`)).data;
 }
