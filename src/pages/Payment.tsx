@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Placeholder, Subheadline } from '@telegram-apps/telegram-ui';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getTariff, purchaseSubscription } from '../api/cabinet';
@@ -77,7 +78,7 @@ export default function Payment() {
         ← Назад
       </button>
 
-      <h1 className="mb-3 text-sm font-medium text-muted">Выбор длительности</h1>
+      <Subheadline className="mb-3 text-muted">Выбор длительности</Subheadline>
       <div className="flex flex-col gap-3">
         {data.periods.map((period) => (
           <PeriodCard
@@ -91,7 +92,7 @@ export default function Payment() {
         ))}
       </div>
 
-      <h1 className="mb-3 mt-6 text-sm font-medium text-muted">Способ оплаты</h1>
+      <Subheadline className="mb-3 mt-6 text-muted">Способ оплаты</Subheadline>
       <div className="flex flex-col gap-3">
         {data.payment_methods.map((method) => (
           <PaymentMethodRow
@@ -104,29 +105,31 @@ export default function Payment() {
       </div>
 
       {stage === 'pending' ? (
-        <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-surface px-4 py-4 text-center">
-          <span className="text-sm text-muted">
-            {pendingUrl
+        <Placeholder
+          className="mt-6 rounded-2xl bg-surface"
+          description={
+            pendingUrl
               ? 'Платёж создан. Завершите оплату по открывшейся ссылке, затем нажмите «Проверить».'
-              : 'Платёж создан, ожидаем подтверждения.'}
-          </span>
-          <button
-            type="button"
-            onClick={handleCheckStatus}
-            className="rounded-2xl bg-accent py-3 text-sm font-semibold text-accent-text"
-          >
-            Проверить
-          </button>
-        </div>
+              : 'Платёж создан, ожидаем подтверждения.'
+          }
+          action={
+            <Button mode="filled" size="m" stretched onClick={handleCheckStatus}>
+              Проверить
+            </Button>
+          }
+        />
       ) : (
-        <button
-          type="button"
-          onClick={handlePay}
+        <Button
+          mode="filled"
+          size="l"
+          stretched
+          className="mt-6"
+          loading={stage === 'submitting'}
           disabled={stage === 'submitting' || !selectedPeriod || !selectedMethod}
-          className="mt-6 w-full rounded-2xl bg-accent py-3.5 text-sm font-semibold text-accent-text disabled:opacity-40"
+          onClick={handlePay}
         >
           {stage === 'submitting' ? 'Оформляем…' : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`}
-        </button>
+        </Button>
       )}
 
       {stage === 'error' && (

@@ -2,17 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Дефолты — используются пока не применился реальный Telegram.WebApp.themeParams
- * (см. lib/theme.ts) или вне Telegram (DEV-превью в обычном браузере). Тёмный
- * вариант, близкий к присланному макету. */
+/* Фирменная палитра (задана пользователем через BotFather Mini App Colors:
+ * Header/Background/Bottom Bar) — служит дефолтом и для наших собственных
+ * --tg-* переменных (см. lib/theme.ts), и для TelegramUI (--tg-theme-* — то,
+ * что реальный Telegram-клиент подставляет через telegram-web-app.js; когда
+ * бот настроен с теми же цветами в BotFather, значения совпадут и в проде).
+ * Вне Telegram (DEV-превью) эти :root-дефолты — единственный источник темы. */
 :root {
-  --tg-bg: #0c1420;
-  --tg-surface: #141d2c;
-  --tg-surface-2: #182338;
+  --tg-bg: #19242e;
+  --tg-surface: #212e3b;
+  --tg-surface-2: #283244;
   --tg-text: #ffffff;
   --tg-hint: rgba(255, 255, 255, 0.55);
-  --tg-accent: #2fa8f0;
+  --tg-accent: #3da8f5;
   --tg-accent-text: #ffffff;
+
+  /* TelegramUI читает тему через --tg-theme-* (с фоллбэком на свои дефолты,
+   * если переменная не задана) — если Telegram-клиент реально настроен под
+   * ту же палитру в BotFather, эти же значения придут оттуда и здесь ничего
+   * не изменится. */
+  --tg-theme-bg-color: var(--tg-bg);
+  --tg-theme-secondary-bg-color: var(--tg-surface);
+  --tg-theme-header-bg-color: var(--tg-surface);
+  --tg-theme-section-bg-color: var(--tg-surface);
+  --tg-theme-button-color: var(--tg-accent);
+  --tg-theme-button-text-color: var(--tg-accent-text);
+  --tg-theme-text-color: var(--tg-text);
+  --tg-theme-hint-color: var(--tg-hint);
+  --tg-theme-link-color: var(--tg-accent);
+  --tg-theme-accent-text-color: var(--tg-accent);
+  --tg-theme-subtitle-text-color: var(--tg-hint);
+  --tg-theme-section-header-text-color: var(--tg-hint);
+  --tg-theme-destructive-text-color: #ff5b5b;
+
+  /* У TelegramUI есть переменные без --tg-theme-*-обвязки (нет "естественного"
+   * способа подсунуть им дефолт через var()-фоллбэк) — переопределяем их
+   * напрямую с !important, иначе останутся хардкодные библиотечные (другой
+   * оттенок тёмно-серого, отсюда и был "разнобой" карточек/списков/сегмент-
+   * контрола между собой). */
+  --tgui--tertiary_bg_color: var(--tg-surface-2) !important;
+  --tgui--quartenary_bg_color: var(--tg-surface-2) !important;
+  --tgui--card_bg_color: var(--tg-surface) !important;
+  --tgui--segmented_control_active_bg: var(--tg-surface-2) !important;
+  --tgui--secondary_hint_color: rgba(255, 255, 255, 0.4) !important;
+  --tgui--divider: rgba(255, 255, 255, 0.08) !important;
+  --tgui--outline: rgba(255, 255, 255, 0.1) !important;
 }
 
 html,

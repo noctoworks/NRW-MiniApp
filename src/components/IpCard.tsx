@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { countryCodeToFlag, getGeoIp } from '../lib/geoip';
+import { Caption } from '@telegram-apps/telegram-ui';
+import { getGeoIp } from '../lib/geoip';
 
 export default function IpCard() {
   const queryClient = useQueryClient();
@@ -12,11 +13,23 @@ export default function IpCard() {
 
   return (
     <div className="flex flex-1 flex-col gap-1 rounded-2xl bg-surface px-4 py-3">
-      <span className="text-xs text-muted">Ваш IP</span>
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold">
-          {data ? `${data.countryCode} ${countryCodeToFlag(data.countryCode)}`.trim() : '—'}
-        </span>
+      <Caption className="text-muted">Ваш IP</Caption>
+      <div className="flex items-center gap-1.5">
+        {data && (
+          <>
+            <span className="text-sm font-semibold">{data.countryCode}</span>
+            {/* Эмодзи-флаг (regional indicator sequence) не рендерится как
+             * пиктограмма на Windows/некоторых шрифтах — превращается в
+             * буквальный текст "PL" ещё раз. Используем растровый флаг. */}
+            <img
+              src={`https://flagcdn.com/16x12/${data.countryCode.toLowerCase()}.png`}
+              alt=""
+              width={16}
+              height={12}
+              className="rounded-[2px]"
+            />
+          </>
+        )}
         <span className="truncate text-sm font-medium">{data?.ip ?? '…'}</span>
         <button
           type="button"

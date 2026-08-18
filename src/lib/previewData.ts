@@ -13,6 +13,8 @@ export const PREVIEW_DASHBOARD: DashboardResponse = {
     device_limit: 5,
     subscription_url: 'https://my.gram.observer/xzjF41QC3gW',
   },
+  // true, чтобы /admin был виден и кликабелен в DEV-превью без бэкенда.
+  is_admin: true,
 };
 
 export const PREVIEW_TARIFF: TariffResponse = {

@@ -20,10 +20,3 @@ export function getGeoIp(forceRefresh = false): Promise<GeoIpResult> {
   }
   return cached;
 }
-
-/** ISO 3166-1 alpha-2 → эмодзи-флаг (regional indicator symbols), напр. 'PL' → 🇵🇱 */
-export function countryCodeToFlag(countryCode: string): string {
-  if (!countryCode || countryCode.length !== 2) return '🏳️';
-  const codePoints = [...countryCode.toUpperCase()].map((char) => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-}
