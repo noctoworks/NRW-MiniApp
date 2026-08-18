@@ -17,6 +17,7 @@ const AdminMobileSummary = lazy(() => import('./pages/admin/AdminMobileSummary')
 const AdminOverview = lazy(() => import('./pages/admin/AdminOverview'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
+const AdminPromoGroups = lazy(() => import('./pages/admin/AdminPromoGroups'));
 const AdminLtv = lazy(() => import('./pages/admin/AdminLtv'));
 const AdminGrowth = lazy(() => import('./pages/admin/AdminGrowth'));
 const AdminReferrals = lazy(() => import('./pages/admin/AdminReferrals'));
@@ -115,6 +116,14 @@ export default function App() {
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminUserDetail />
+            </Suspense>
+          }
+        />
+        <Route
+          path="promo-groups"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminPromoGroups />
             </Suspense>
           }
         />

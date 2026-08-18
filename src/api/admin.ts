@@ -4,6 +4,7 @@ import {
   PREVIEW_DEVICES,
   PREVIEW_LTV,
   PREVIEW_OVERVIEW,
+  PREVIEW_PROMO_GROUPS,
   PREVIEW_REFERRAL_FUNNEL,
   PREVIEW_REVENUE_TIMESERIES,
   PREVIEW_TRANSACTIONS,
@@ -20,6 +21,7 @@ import type {
   LtvResponse,
   OverviewResponse,
   PaginatedTransactions,
+  PromoGroup,
   ReferralFunnelResponse,
   RevenuePoint,
   SyncResult,
@@ -134,4 +136,38 @@ export async function syncFromPanel(id: number): Promise<SyncResult> {
 export async function syncToPanel(id: number): Promise<SyncResult> {
   if (isPreview()) return { status: 'synced', subscription: PREVIEW_USER_DETAIL.subscription };
   return (await apiClient.post<SyncResult>(`/cabinet/admin/users/${id}/sync/to-panel`)).data;
+}
+
+export async function listPromoGroups(): Promise<PromoGroup[]> {
+  if (isPreview()) return PREVIEW_PROMO_GROUPS;
+  return (await apiClient.get<PromoGroup[]>('/cabinet/admin/promo-groups')).data;
+}
+
+export async function createPromoGroup(name: string, discountPercent: number): Promise<PromoGroup> {
+  if (isPreview()) return { id: Date.now(), name, discount_percent: discountPercent, users_count: 0 };
+  return (
+    await apiClient.post<PromoGroup>('/cabinet/admin/promo-groups', { name, discount_percent: discountPercent })
+  ).data;
+}
+
+export async function updatePromoGroup(
+  id: number,
+  payload: { name?: string; discount_percent?: number },
+): Promise<PromoGroup> {
+  if (isPreview()) return { id, name: payload.name ?? 'Группа', discount_percent: payload.discount_percent ?? 0, users_count: 0 };
+  return (await apiClient.patch<PromoGroup>(`/cabinet/admin/promo-groups/${id}`, payload)).data;
+}
+
+export async function deletePromoGroup(id: number): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'deleted' };
+  return (await apiClient.delete<{ status: string }>(`/cabinet/admin/promo-groups/${id}`)).data;
+}
+
+export async function setUserPromoGroup(userId: number, promoGroupId: number | null): Promise<AdminUserDetail> {
+  if (isPreview()) return { ...PREVIEW_USER_DETAIL, promo_group_id: promoGroupId };
+  return (
+    await apiClient.post<AdminUserDetail>(`/cabinet/admin/users/${userId}/promo-group`, {
+      promo_group_id: promoGroupId,
+    })
+  ).data;
 }

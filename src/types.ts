@@ -158,9 +158,18 @@ export interface AdminUserDetail {
   referrals_invited_count: number;
   referrals_earned_kopeks: number;
   referral_commission_percent: number | null;
+  promo_group_id: number | null;
+  promo_group_name: string | null;
 }
 
 export type AdminUserFilter = 'all' | 'no_sub' | 'blocked' | 'blocked_bot';
+
+export interface PromoGroup {
+  id: number;
+  name: string;
+  discount_percent: number;
+  users_count: number;
+}
 
 export interface AdminDevice {
   hwid: string;

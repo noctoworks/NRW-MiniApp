@@ -6,6 +6,7 @@ import type {
   LtvResponse,
   OverviewResponse,
   PaginatedTransactions,
+  PromoGroup,
   ReferralFunnelResponse,
   RevenuePoint,
 } from '../types';
@@ -105,7 +106,14 @@ export const PREVIEW_USER_DETAIL: AdminUserDetail = {
   referrals_invited_count: 3,
   referrals_earned_kopeks: 1500,
   referral_commission_percent: null,
+  promo_group_id: null,
+  promo_group_name: null,
 };
+
+export const PREVIEW_PROMO_GROUPS: PromoGroup[] = [
+  { id: 1, name: 'VIP', discount_percent: 20, users_count: 4 },
+  { id: 2, name: 'Партнёры', discount_percent: 10, users_count: 12 },
+];
 
 export const PREVIEW_DEVICES: AdminDevice[] = [
   { hwid: 'ab12cd34ef56', platform: 'iOS', device_model: 'iPhone 15 Pro', created_at: new Date().toISOString() },

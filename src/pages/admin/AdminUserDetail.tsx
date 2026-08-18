@@ -1,13 +1,22 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Caption, Cell, Section, Switch, Title } from '@telegram-apps/telegram-ui';
 import { useNavigate, useParams } from 'react-router';
-import { adjustBalance, deleteUser, getUserDetail, messageUser, setReferralCommission, toggleBlock } from '../../api/admin';
+import {
+  adjustBalance,
+  deleteUser,
+  getUserDetail,
+  messageUser,
+  setReferralCommission,
+  setUserPromoGroup,
+  toggleBlock,
+} from '../../api/admin';
 import DevicesSection from '../../components/admin/DevicesSection';
 import ReferralCommissionForm from '../../components/admin/ReferralCommissionForm';
 import SyncSection from '../../components/admin/SyncSection';
 import TransactionsSection from '../../components/admin/TransactionsSection';
 import UserBalanceForm from '../../components/admin/UserBalanceForm';
 import UserMessageForm from '../../components/admin/UserMessageForm';
+import UserPromoGroupSelect from '../../components/admin/UserPromoGroupSelect';
 import { formatDate, formatRub } from '../../lib/format';
 
 export default function AdminUserDetail() {
@@ -73,6 +82,9 @@ export default function AdminUserDetail() {
             ? `${data.subscription.traffic_used_gb.toFixed(1)} / ${data.subscription.traffic_limit_gb || '∞'} ГБ`
             : '—'}
         </Cell>
+        <Cell subtitle={<Caption className="text-muted">Промогруппа</Caption>}>
+          {data.promo_group_name ?? 'без скидки'}
+        </Cell>
       </Section>
 
       <Section>
@@ -82,6 +94,10 @@ export default function AdminUserDetail() {
           <ReferralCommissionForm
             value={data.referral_commission_percent}
             onSubmit={async (percent) => { await setReferralCommission(userId, percent); await invalidate(); }}
+          />
+          <UserPromoGroupSelect
+            value={data.promo_group_id}
+            onChange={async (groupId) => { await setUserPromoGroup(userId, groupId); await invalidate(); }}
           />
         </div>
         <Cell after={<Switch checked={data.is_blocked} onChange={handleBlockToggle} />}>Заблокирован</Cell>
