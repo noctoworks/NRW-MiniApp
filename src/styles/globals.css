@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Дефолты — используются пока не применился реальный Telegram.WebApp.themeParams
+ * (см. lib/theme.ts) или вне Telegram (DEV-превью в обычном браузере). Тёмный
+ * вариант, близкий к присланному макету. */
+:root {
+  --tg-bg: #0c1420;
+  --tg-surface: #141d2c;
+  --tg-surface-2: #182338;
+  --tg-text: #ffffff;
+  --tg-hint: rgba(255, 255, 255, 0.55);
+  --tg-accent: #2fa8f0;
+  --tg-accent-text: #ffffff;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--tg-bg);
+  color: var(--tg-text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Точечный фон карты за power-button — упрощённая аппроксимация макета
+   (никакого реального картографического ассета, просто повторяющийся
+   узор точек через radial-gradient). */
+.dot-map-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.5px);
+  background-size: 14px 14px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 55%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 55%, transparent 100%);
+}
