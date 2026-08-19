@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Title } from '@telegram-apps/telegram-ui';
 import { getOverview, getRevenueTimeseries } from '../../api/admin';
 import KpiTile from '../../components/admin/KpiTile';
+import Loader from '../../components/Loader';
 import RevenueChart from '../../components/admin/RevenueChart';
 import { formatRub } from '../../lib/format';
 
@@ -10,7 +11,7 @@ export default function AdminGrowth() {
   const { data: timeseries } = useQuery({ queryKey: ['admin', 'revenue-timeseries'], queryFn: () => getRevenueTimeseries(30) });
 
   if (isLoading || !overview) {
-    return <div className="text-sm text-muted">Загрузка…</div>;
+    return <Loader inline />;
   }
 
   return (

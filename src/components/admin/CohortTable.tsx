@@ -9,7 +9,7 @@ export default function CohortTable({ data }: CohortTableProps) {
   const maxValue = Math.max(1, ...data.cohorts.flatMap((c) => c.revenue_per_user_by_month_offset));
 
   return (
-    <div className="overflow-x-auto rounded-2xl bg-surface p-4">
+    <div className="card overflow-x-auto">
       <span className="mb-3 block text-sm font-medium text-muted">
         Когорты — выручка на пользователя по месяцам с регистрации
       </span>

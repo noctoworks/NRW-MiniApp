@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getTariff, purchaseSubscription } from '../api/cabinet';
+import Loader from '../components/Loader';
 import PaymentMethodRow from '../components/PaymentMethodRow';
 import PeriodCard from '../components/PeriodCard';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
@@ -36,9 +37,7 @@ export default function Payment() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  if (isLoading || !data) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-[hsl(var(--subtitle-foreground))]">Загрузка…</div>;
-  }
+  if (isLoading || !data) return <Loader />;
 
   const selectedPeriod = data.periods.find((p) => p.days === selectedDays) ?? data.periods[0];
   const popularDays = data.periods.some((p) => p.days === POPULAR_PERIOD_DAYS)
@@ -77,10 +76,13 @@ export default function Payment() {
 
   return (
     <main className="bg-gradient-mesh min-h-screen">
-      <div className="flex min-h-screen flex-col pb-24">
-        <div className="flex-1 space-y-6 px-4 py-4">
+      <div className="flex min-h-screen flex-col pb-28">
+        <div
+          className="animate-fade-in flex-1 space-y-6 px-4"
+          style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+        >
           <section>
-            <h2 className="text-subtitle1 mb-3 px-1 text-[hsl(var(--subtitle-foreground))]">Выбор длительности</h2>
+            <h2 className="section-title">Выбор длительности</h2>
             <div className="space-y-3">
               {data.periods.map((period) => (
                 <PeriodCard
@@ -96,7 +98,7 @@ export default function Payment() {
           </section>
 
           <section>
-            <h2 className="text-subtitle1 mb-3 px-1 text-[hsl(var(--subtitle-foreground))]">Способ оплаты</h2>
+            <h2 className="section-title">Способ оплаты</h2>
             <div className="space-y-3">
               {data.payment_methods.map((method) => (
                 <PaymentMethodRow
@@ -110,7 +112,7 @@ export default function Payment() {
           </section>
 
           {stage === 'pending' && (
-            <div className="card !rounded-2xl">
+            <div className="card animate-fade-in">
               <p className="mb-3 text-sm text-[hsl(var(--subtitle-foreground))]">
                 {pendingUrl
                   ? 'Платёж создан. Завершите оплату по открывшейся ссылке, затем нажмите «Проверить».'
@@ -128,17 +130,14 @@ export default function Payment() {
         </div>
 
         {stage !== 'pending' && (
-          <div
-            className="fixed bottom-0 left-0 right-0 border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] px-4 py-4"
-            style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}
-          >
+          <div className="bottom-bar">
             <button
               type="button"
               className="btn-primary w-full disabled:opacity-60"
               disabled={stage === 'submitting' || !selectedPeriod || !selectedMethod}
               onClick={handlePay}
             >
-              <span>{stage === 'submitting' ? 'Оформляем…' : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`}</span>
+              {stage === 'submitting' ? 'Оформляем…' : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`}
             </button>
           </div>
         )}

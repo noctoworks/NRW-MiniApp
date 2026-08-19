@@ -21,11 +21,11 @@ export default function UsersTable({ items }: UsersTableProps) {
   const navigate = useNavigate();
 
   if (items.length === 0) {
-    return <div className="rounded-2xl bg-surface px-4 py-6 text-center text-sm text-muted">Никого не найдено</div>;
+    return <div className="card py-6 text-center text-sm text-muted">Никого не найдено</div>;
   }
 
   return (
-    <List className="overflow-hidden rounded-2xl bg-surface">
+    <List className="card overflow-hidden !p-0">
       {items.map((user) => {
         const label = user.username ? `@${user.username}` : `id${user.telegram_id}`;
         return (

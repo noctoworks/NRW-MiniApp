@@ -13,16 +13,19 @@ export default function TopBar() {
   const { data } = useQuery({ queryKey: ['dashboard'], queryFn: getDashboard });
 
   return (
-    <div className="flex items-center justify-between px-4 pt-4">
+    <div
+      className="grid grid-cols-[1fr_auto_1fr] items-center px-4"
+      style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+    >
       <button
         type="button"
         aria-label="Помощь"
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]"
+        className="icon-button justify-self-start"
       >
         <HelpCircle size={18} strokeWidth={2} />
       </button>
 
-      <div className="user-pill">
+      <div className="user-pill justify-self-center">
         {telegramUser?.photo_url ? (
           <img src={telegramUser.photo_url} alt="" className="user-pill-avatar" />
         ) : (
@@ -33,12 +36,12 @@ export default function TopBar() {
         <span className="text-sm font-medium">{name}</span>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 justify-self-end">
         {data?.is_admin && (
           <Link
             to="/admin"
             aria-label="Админка"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]"
+            className="icon-button"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 3v18h18" />
@@ -49,7 +52,7 @@ export default function TopBar() {
         <button
           type="button"
           aria-label="Уведомления"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]"
+          className="icon-button"
         >
           <Bell size={18} strokeWidth={2} />
         </button>

@@ -17,6 +17,9 @@
   --tg-hint: rgba(255, 255, 255, 0.55);
   --tg-accent: #3da8f5;
   --tg-accent-text: #ffffff;
+  /* Power-button в референсе заметно холоднее/ярче основной кнопки —
+   * отдельный токен, а не --tg-accent. */
+  --power-accent: #22c5f5;
 
   /* TelegramUI читает тему через --tg-theme-* (с фоллбэком на свои дефолты,
    * если переменная не задана) — если Telegram-клиент реально настроен под
@@ -97,6 +100,10 @@ body,
 body {
   background: var(--tg-bg);
   color: var(--tg-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -109,36 +116,148 @@ body {
   min-height: var(--tg-viewport-stable-height, 100dvh);
 }
 
-/* Точечный фон карты за power-button — упрощённая аппроксимация макета
-   (никакого реального картографического ассета, просто повторяющийся
-   узор точек через radial-gradient). Реальный референс использует настоящий
-   map.svg — оставлено как есть по решению пользователя ("кроме кнопки и
-   заднего фона"), эту часть не переносим 1:1. */
-.dot-map-bg {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.5px);
-  background-size: 14px 14px;
-  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 55%, transparent 100%);
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 55%, transparent 100%);
+/* === Power-button 1-в-1 с референсом: точечная карта мира + светящийся
+ * диск с ореолом. map.svg — белый точечный контур материков, поэтому
+ * приглушаем его непрозрачностью, а не перекрашиванием. */
+
+.power-map {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 132%;
+  max-width: none;
+  transform: translate(-50%, -50%);
+  opacity: 0.13;
+  pointer-events: none;
 }
 
-/* === Классы 1-в-1 с реальным Gram VPN (см. диалог, присланный outerHTML) === */
+.power-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 168px;
+  height: 168px;
+  border: 0;
+  padding: 0;
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease-out;
+}
+.power-button:active {
+  transform: scale(0.96);
+}
+
+/* Внешнее кольцо-ореол вокруг диска (заметный зазор + светящийся ободок). */
+.power-button-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    transparent 62%,
+    color-mix(in srgb, var(--power-accent) 60%, transparent) 72%,
+    transparent 84%
+  );
+  filter: blur(5px);
+  transition: opacity 0.25s ease-out;
+}
+.power-button[data-connected='false'] .power-button-halo {
+  opacity: 0.25;
+  filter: blur(5px) grayscale(1);
+}
+
+.power-button-disc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 124px;
+  height: 124px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 34% 26%,
+    color-mix(in srgb, var(--power-accent) 45%, #ffffff),
+    var(--power-accent) 60%,
+    color-mix(in srgb, var(--power-accent) 75%, #000000)
+  );
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--power-accent) 45%, transparent),
+    0 0 72px color-mix(in srgb, var(--power-accent) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: background 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+.power-button[data-connected='false'] .power-button-disc {
+  background: radial-gradient(circle at 34% 26%, #4a5563, #333c48 60%, #262d36);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* === Общие примитивы интерфейса ==========================================
+ * Один источник правды для всех экранов (главный / оплата / админка):
+ * поверхность (.card), вложенное поле (.field), кнопки, заголовки секций,
+ * оболочка страницы. Если что-то выглядит «не как на главной» — почти всегда
+ * это значит, что экран не использует эти классы. */
+
+/* Оболочка страницы: безопасная зона сверху (динамический остров на iOS,
+ * см. TopBar) + одинаковые горизонтальные поля. */
+.page {
+  min-height: 100vh;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Шапка внутренних экранов: «назад» / заголовок по центру / балансир справа.
+ * Grid, а не flex-between, — тогда заголовок стоит ровно по центру независимо
+ * от ширины боковых элементов (та же причина, что и в TopBar). */
+.page-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.page-header-title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
 
 .card {
   background: hsl(var(--card));
   color: hsl(var(--card-foreground));
-  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1.25rem;
   padding: 1rem;
+}
+
+/* Заголовок секции над группой карточек. */
+.section-title {
+  margin-bottom: 0.75rem;
+  padding-left: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: hsl(var(--subtitle-foreground));
+}
+
+.btn-primary,
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 1rem;
+  padding: 0.875rem 1.25rem;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: opacity 0.15s ease-out;
 }
 
 .btn-primary {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  border-radius: 1rem;
-  padding: 0.875rem 1rem;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: opacity 0.15s ease-out;
 }
 .btn-primary:active {
   opacity: 0.85;
@@ -147,12 +266,7 @@ body {
 .btn-secondary {
   background: hsl(var(--secondary));
   color: hsl(var(--secondary-foreground));
-  border-radius: 1rem;
-  padding: 0.875rem 1rem;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  text-decoration: none;
-  transition: opacity 0.15s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .btn-secondary:active {
   opacity: 0.85;
@@ -174,6 +288,41 @@ body {
   object-fit: cover;
 }
 
+/* Вложенное поле внутри карточки (подложка под ссылкой на подписку,
+ * инпуты в админке) — затемнение относительно поверхности карточки. */
+.field {
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: hsl(var(--card-foreground));
+}
+.field:focus,
+.field:focus-within {
+  outline: none;
+  border-color: color-mix(in srgb, hsl(var(--primary)) 55%, transparent);
+}
+.field::placeholder {
+  color: hsl(var(--subtitle-foreground));
+}
+
+/* Круглая иконочная кнопка в шапках (помощь / уведомления / назад). */
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background: hsl(var(--secondary));
+  color: hsl(var(--subtitle-foreground));
+  transition: opacity 0.15s ease-out;
+}
+.icon-button:active {
+  opacity: 0.7;
+}
+
 .config-cell {
   display: flex;
   align-items: center;
@@ -184,7 +333,34 @@ body {
   color: hsl(var(--card-foreground));
 }
 
-/* === Экран оплаты — 1-в-1 с реальным Gram VPN (см. диалог, присланный outerHTML) === */
+/* Спиннер загрузки — общий для всех экранов вместо разнобоя из «Загрузка…». */
+.spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  border: 2.5px solid rgba(255, 255, 255, 0.12);
+  border-top-color: hsl(var(--primary));
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Липкая нижняя панель с главным действием (кнопка «Оплатить»).
+ * Градиент сверху вместо жёсткой линии — контент уходит под панель мягко. */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, hsl(var(--background)) 62%, transparent);
+}
+
+/* === Экран оплаты === */
 
 .bg-gradient-mesh {
   background-color: hsl(var(--background));
@@ -193,18 +369,24 @@ body {
     radial-gradient(ellipse 50% 35% at 100% 20%, color-mix(in srgb, hsl(var(--primary)) 10%, transparent), transparent);
 }
 
+/* Тот же «вид» что и .card (фон/радиус/рамка), плюс состояние выбора.
+ * Рамка 1.5px и в покое — иначе при выборе карточка «прыгает» по размеру. */
 .plan-card {
   position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  min-height: 66px;
   border-radius: 1.25rem;
   background: hsl(var(--card));
-  border: 1.5px solid transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
   padding: 0.875rem 1rem;
   text-align: left;
   transition: border-color 0.15s ease-out, background-color 0.15s ease-out;
+}
+.plan-card:active {
+  background: color-mix(in srgb, #ffffff 4%, hsl(var(--card)));
 }
 .plan-card.selected-primary {
   border-color: hsl(var(--primary));

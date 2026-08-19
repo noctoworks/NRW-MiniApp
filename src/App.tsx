@@ -3,6 +3,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router';
 import { loginTelegram } from './api/auth';
 import AdminGuard from './components/admin/AdminGuard';
+import Loader from './components/Loader';
 import { useIsDesktop } from './hooks/useIsDesktop';
 import { useTelegramInitData } from './hooks/useTelegramInitData';
 import { useTelegramTheme } from './hooks/useTelegramTheme';
@@ -24,7 +25,7 @@ const AdminGrowth = lazy(() => import('./pages/admin/AdminGrowth'));
 const AdminReferrals = lazy(() => import('./pages/admin/AdminReferrals'));
 
 function AdminLoading() {
-  return <div className="flex min-h-screen items-center justify-center text-sm text-muted">Загрузка…</div>;
+  return <Loader />;
 }
 
 function AdminEntry() {
@@ -68,8 +69,8 @@ export default function App() {
   if (authError) {
     return (
       <AppRoot>
-        <div className="flex min-h-screen items-center justify-center bg-bg px-6 text-center text-sm text-muted">
-          {authError}
+        <div className="flex min-h-screen items-center justify-center px-6">
+          <div className="card max-w-sm text-center text-sm text-[hsl(var(--subtitle-foreground))]">{authError}</div>
         </div>
       </AppRoot>
     );
@@ -78,7 +79,7 @@ export default function App() {
   if (!token && !useAuthStore.getState().isPreview) {
     return (
       <AppRoot>
-        <div className="flex min-h-screen items-center justify-center bg-bg text-sm text-muted">Загрузка…</div>
+        <Loader />
       </AppRoot>
     );
   }

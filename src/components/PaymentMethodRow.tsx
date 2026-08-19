@@ -48,7 +48,7 @@ export default function PaymentMethodRow({ method, selected, onSelect }: Payment
   const [emoji] = method.label.split(' ');
 
   return (
-    <button type="button" onClick={onSelect} className={`plan-card w-full !items-center ${selected ? 'selected-primary' : ''}`}>
+    <button type="button" onClick={onSelect} className={`plan-card w-full ${selected ? 'selected-primary' : ''}`}>
       <div className="flex items-center gap-3">
         <MethodIcon id={method.id} emoji={emoji} />
         <div className="text-left">

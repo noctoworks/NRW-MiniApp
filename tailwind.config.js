@@ -3,27 +3,23 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      // Алиасы намеренно указывают на те же токены, что и .card/.btn-* в
+      // globals.css: админка написана в этих утилитах, главный экран — в
+      // компонентных классах, и палитра у них должна быть буквально одна.
       colors: {
-        bg: 'var(--tg-bg)',
-        surface: 'var(--tg-surface)',
-        'surface-2': 'var(--tg-surface-2)',
+        bg: 'hsl(var(--background))',
+        surface: 'hsl(var(--card))',
+        'surface-2': 'hsl(var(--muted))',
         border: 'rgba(255,255,255,0.06)',
         accent: {
-          DEFAULT: 'var(--tg-accent)',
-          text: 'var(--tg-accent-text)',
+          DEFAULT: 'hsl(var(--primary))',
+          text: 'hsl(var(--primary-foreground))',
         },
-        success: '#3ecf7e',
-        muted: 'var(--tg-hint)',
+        success: '#21c45d',
+        muted: 'hsl(var(--subtitle-foreground))',
       },
       borderRadius: {
         xl2: '20px',
-      },
-      boxShadow: {
-        glow: '0 0 60px color-mix(in srgb, var(--tg-accent) 45%, transparent)',
-        'glow-sm': '0 0 24px color-mix(in srgb, var(--tg-accent) 35%, transparent)',
-      },
-      backgroundImage: {
-        'power-gradient': 'radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--tg-accent) 60%, white), var(--tg-accent) 70%)',
       },
     },
   },
