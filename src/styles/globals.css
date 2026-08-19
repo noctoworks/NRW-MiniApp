@@ -73,16 +73,40 @@
   --border: 210 25% 25%;
 }
 
+/* Двойной тап по интерфейсу не должен зумить страницу (Telegram WebView
+ * этого сам не отключает — проверено по исходнику telegram-web-app.js,
+ * там нет touch-action/preventDefault для зума, это стандартная веб-задача
+ * самого приложения). touch-action: manipulation убирает именно
+ * double-tap-to-zoom, но не ломает обычный скролл/пинч. */
+html {
+  touch-action: manipulation;
+}
+
 html,
 body,
 #root {
   height: 100%;
+  /* Telegram сам прописывает --tg-viewport-stable-height на <html> через
+   * telegram-web-app.js (см. setCssProperty в исходнике) — это реальная
+   * видимая высота Mini App, которая НЕ всегда совпадает с window.innerHeight/
+   * 100%, из-за чего вёрстка "не подгонялась" (низ экрана обрезался или
+   * оставался лишний пустой хвост). 100dvh — фоллбэк вне Telegram (dev-превью). */
+  height: var(--tg-viewport-stable-height, 100dvh);
 }
 
 body {
   background: var(--tg-bg);
   color: var(--tg-text);
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Оверрайд Tailwind-утилиты min-h-screen (жёстко 100vh) — тем же источником
+ * высоты, что и html/body/#root выше, иначе экраны Dashboard/Payment/загрузки
+ * продолжат считать высоту по window.innerHeight вместо реального вьюпорта
+ * Mini App. */
+.min-h-screen {
+  min-height: 100dvh;
+  min-height: var(--tg-viewport-stable-height, 100dvh);
 }
 
 /* Точечный фон карты за power-button — упрощённая аппроксимация макета
