@@ -22,7 +22,7 @@ export default function PeriodCard({ period, savingsPercent, popular, selected, 
   const perMonth = period.days >= 30 ? formatRub((period.price_kopeks / period.days) * 30) : formatRub(period.price_kopeks);
 
   return (
-    <button type="button" onClick={onSelect} className={`plan-card w-full !items-center ${selected ? 'selected-primary' : ''}`}>
+    <button type="button" onClick={onSelect} className={`plan-card w-full ${selected ? 'selected-primary' : ''}`}>
       {popular && (
         <div className="badge absolute -top-2 right-8 bg-[hsl(var(--primary))] px-2.5 py-0.5 text-white">Популярный</div>
       )}

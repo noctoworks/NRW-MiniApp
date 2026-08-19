@@ -3,6 +3,7 @@ import { Cell, Section, Title } from '@telegram-apps/telegram-ui';
 import { getCohorts, getLtv } from '../../api/admin';
 import CohortTable from '../../components/admin/CohortTable';
 import KpiTile from '../../components/admin/KpiTile';
+import Loader from '../../components/Loader';
 import { formatRub } from '../../lib/format';
 
 export default function AdminLtv() {
@@ -10,7 +11,7 @@ export default function AdminLtv() {
   const { data: cohorts } = useQuery({ queryKey: ['admin', 'cohorts'], queryFn: getCohorts });
 
   if (isLoading || !ltv) {
-    return <div className="text-sm text-muted">Загрузка…</div>;
+    return <Loader inline />;
   }
 
   return (

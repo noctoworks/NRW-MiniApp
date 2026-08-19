@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { CircleCheck, Settings2 } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getDashboard } from '../api/cabinet';
 import AppSelect from '../components/AppSelect';
 import IpCard from '../components/IpCard';
+import Loader from '../components/Loader';
 import PowerButton from '../components/PowerButton';
 import SubscriptionLink from '../components/SubscriptionLink';
 import TopBar from '../components/TopBar';
@@ -32,9 +33,7 @@ export default function Dashboard() {
     }
   };
 
-  if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-muted">Загрузка…</div>;
-  }
+  if (isLoading) return <Loader />;
 
   return (
     <div className="min-h-screen pb-8">
@@ -47,29 +46,27 @@ export default function Dashboard() {
           <AppSelect selected={selectedApp} onSelect={setSelectedApp} />
         </div>
 
-        <div className="card !py-2.5 !pr-3 !pl-4 flex flex-col gap-3 !rounded-2xl">
-          {subscription?.subscription_url && <SubscriptionLink url={subscription.subscription_url} />}
-
-          {subscription?.subscription_url && subscription && (
-            <div className="h-px bg-[hsl(var(--border))]" />
+        <div className="card">
+          {subscription?.subscription_url && (
+            <div className="mb-3">
+              <SubscriptionLink url={subscription.subscription_url} />
+            </div>
           )}
 
           {subscription ? (
-            <div className="config-cell">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium">
+            <div className="flex items-center justify-between px-1 text-[15px] leading-6">
+              <div>
+                <div className="font-semibold">Трафик</div>
+                <div className="text-[hsl(var(--subtitle-foreground))]">
                   {formatTraffic(subscription.traffic_used_gb, subscription.traffic_limit_gb)}
-                </span>
-                <span className="text-xs text-[hsl(var(--subtitle-foreground))]">до {formatDate(subscription.end_date)}</span>
+                </div>
               </div>
-              <span
-                className={`flex items-center gap-1.5 text-sm font-semibold ${
-                  isActive ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--subtitle-foreground))]'
-                }`}
-              >
-                <CircleCheck size={16} strokeWidth={2} />
-                {isActive ? 'Активна' : 'Истекла'}
-              </span>
+              <div className="text-right">
+                <div className="font-semibold">до {formatDate(subscription.end_date)}</div>
+                <div className={`font-medium ${isActive ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--subtitle-foreground))]'}`}>
+                  {isActive ? 'Подписка активна' : 'Подписка истекла'}
+                </div>
+              </div>
             </div>
           ) : (
             <span className="text-sm text-[hsl(var(--subtitle-foreground))]">Подписка не оформлена</span>

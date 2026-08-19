@@ -2,13 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { Cell, Section, Title } from '@telegram-apps/telegram-ui';
 import { getReferralFunnel } from '../../api/admin';
 import KpiTile from '../../components/admin/KpiTile';
+import Loader from '../../components/Loader';
 import { formatRub } from '../../lib/format';
 
 export default function AdminReferrals() {
   const { data, isLoading } = useQuery({ queryKey: ['admin', 'referrals'], queryFn: getReferralFunnel });
 
   if (isLoading || !data) {
-    return <div className="text-sm text-muted">Загрузка…</div>;
+    return <Loader inline />;
   }
 
   return (
