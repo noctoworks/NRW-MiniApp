@@ -1,21 +1,64 @@
-import { Modal, Placeholder } from '@telegram-apps/telegram-ui';
-import { Check, Copy, QrCode } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
-import { useState } from 'react';
+import { Check, Copy, QrCode, X } from 'lucide-react';
+import QRCodeStyling from 'qr-code-styling';
+import { useEffect, useRef, useState } from 'react';
 import { copyToClipboard } from '../lib/clipboard';
+import { hapticImpact, hapticNotification } from '../lib/haptics';
 
 interface SubscriptionLinkProps {
   url: string;
 }
 
+const QR_SIZE = 220;
+
 export default function SubscriptionLink({ url }: SubscriptionLinkProps) {
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
+  const qrContainerRef = useRef<HTMLDivElement>(null);
+  const qrInstanceRef = useRef<QRCodeStyling | null>(null);
 
   const handleCopy = async () => {
     await copyToClipboard(url);
+    hapticNotification('success');
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  useEffect(() => {
+    if (!showQr) return;
+
+    if (!qrInstanceRef.current) {
+      // Стиль как в самом Telegram (инвайт-ссылки чатов/каналов): точки
+      // вместо квадратов, скруглённые "глаза" по углам.
+      qrInstanceRef.current = new QRCodeStyling({
+        width: QR_SIZE,
+        height: QR_SIZE,
+        data: url,
+        margin: 0,
+        type: 'svg',
+        dotsOptions: { type: 'dots', color: '#000000' },
+        cornersSquareOptions: { type: 'extra-rounded', color: '#000000' },
+        cornersDotOptions: { type: 'dot', color: '#000000' },
+        backgroundOptions: { color: 'transparent' },
+        qrOptions: { errorCorrectionLevel: 'M' },
+      });
+    } else {
+      qrInstanceRef.current.update({ data: url });
+    }
+
+    if (qrContainerRef.current) {
+      qrContainerRef.current.innerHTML = '';
+      qrInstanceRef.current.append(qrContainerRef.current);
+    }
+  }, [showQr, url]);
+
+  const handleOpen = () => {
+    hapticImpact('light');
+    setShowQr(true);
+  };
+
+  const handleClose = () => {
+    hapticImpact('light');
+    setShowQr(false);
   };
 
   return (
@@ -35,7 +78,7 @@ export default function SubscriptionLink({ url }: SubscriptionLinkProps) {
         <button
           type="button"
           aria-label="QR-код"
-          onClick={() => setShowQr(true)}
+          onClick={handleOpen}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[hsl(var(--subtitle-foreground))] active:bg-white/10"
         >
           <QrCode size={20} strokeWidth={2} />
@@ -50,13 +93,35 @@ export default function SubscriptionLink({ url }: SubscriptionLinkProps) {
         </button>
       </div>
 
-      <Modal open={showQr} onOpenChange={setShowQr}>
-        <Placeholder>
-          <div className="rounded-2xl bg-white p-5">
-            <QRCodeSVG value={url} size={220} />
+      {showQr && (
+        // Центрированный оверлей вместо шторки снизу — код виден целиком
+        // сразу, без выезжания и перекрытия клавиатурой/жестом.
+        <div
+          className="animate-fade-in fixed inset-0 flex items-center justify-center p-6"
+          style={{ zIndex: 70, background: 'rgba(9, 13, 19, 0.82)' }}
+          onClick={handleClose}
+        >
+          <div
+            className="card relative flex flex-col items-center gap-4 !p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Закрыть"
+              onClick={handleClose}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-[hsl(var(--subtitle-foreground))] active:bg-white/10"
+            >
+              <X size={18} strokeWidth={2} />
+            </button>
+            <div className="rounded-2xl bg-white p-4" style={{ width: QR_SIZE + 32, height: QR_SIZE + 32 }}>
+              <div ref={qrContainerRef} style={{ width: QR_SIZE, height: QR_SIZE }} />
+            </div>
+            <span className="max-w-[26ch] text-center text-sm text-[hsl(var(--subtitle-foreground))]">
+              Отсканируйте камерой, чтобы открыть ссылку на другом устройстве
+            </span>
           </div>
-        </Placeholder>
-      </Modal>
+        </div>
+      )}
     </>
   );
 }

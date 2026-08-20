@@ -1,3 +1,5 @@
+import { hapticImpact } from '../lib/haptics';
+
 interface PowerButtonProps {
   connected: boolean;
   onClick: () => void;
@@ -12,7 +14,10 @@ export default function PowerButton({ connected, onClick }: PowerButtonProps) {
 
       <button
         type="button"
-        onClick={onClick}
+        onClick={() => {
+          hapticImpact('medium');
+          onClick();
+        }}
         className="power-button"
         data-connected={connected ? 'true' : 'false'}
         aria-label={connected ? 'Отключить VPN' : 'Подключить VPN'}

@@ -101,4 +101,12 @@ export function applyTelegramTheme(): void {
   }
 
   root.dataset.tgColorScheme = webApp.colorScheme;
+
+  // В fullscreen (Bot API 8.0+) шапка Telegram становится прозрачной — доке
+  // рекомендует явно задать setHeaderColor(), иначе цвет иконок статус-бара
+  // может не совпасть с нашим тёмным фоном. 'bg_color' — не хардкод, а
+  // ключевое слово темы Telegram: значение сихронизировано с тем же
+  // themeParams.bg_color, что мы уже читаем выше.
+  webApp.setHeaderColor?.('bg_color');
+  webApp.setBackgroundColor?.('bg_color');
 }

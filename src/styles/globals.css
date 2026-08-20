@@ -74,6 +74,20 @@
   --destructive: 350 84% 60%;
   --destructive-foreground: 0 0% 100%;
   --border: 210 25% 25%;
+
+  /* Официальный способ Telegram под безопасные отступы (Bot API 8.0+, см.
+   * https://core.telegram.org/bots/webapps): telegram-web-app.js сам
+   * прописывает --tg-safe-area-inset-* (физическая чёлка/статус-бар
+   * устройства) и --tg-content-safe-area-inset-* (доп. отступ под
+   * СОБСТВЕННЫЕ элементы Telegram — плавающую шапку/кнопку сворачивания в
+   * fullscreen) — реактивно, по событиям safeAreaChanged/contentSafeAreaChanged,
+   * без нашего JS. Раньше здесь были подобранные вручную константы (56px,
+   * потом 12px) — с этими переменными подбирать больше не нужно ни при каких
+   * настройках Mini App у пользователя (FullSize и т.п.). Фоллбэк —
+   * стандартный web env(safe-area-inset-*) для DEV-превью вне Telegram, где
+   * --tg-safe-area-inset-* просто не установлена. */
+  --tg-total-safe-top: calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + var(--tg-content-safe-area-inset-top, 0px));
+  --tg-total-safe-bottom: calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + var(--tg-content-safe-area-inset-bottom, 0px));
 }
 
 /* Двойной тап по интерфейсу не должен зумить страницу (Telegram WebView
@@ -95,6 +109,12 @@ body,
    * 100%, из-за чего вёрстка "не подгонялась" (низ экрана обрезался или
    * оставался лишний пустой хвост). 100dvh — фоллбэк вне Telegram (dev-превью). */
   height: var(--tg-viewport-stable-height, 100dvh);
+  /* Убирает "резиновый" bounce-скролл/pull-to-refresh WebView при fullscreen
+   * (см. диалог: "чтобы не было прокрутки") — легитимный внутренний скролл
+   * контента, который реально выше экрана (например список шагов подключения
+   * на /connect), при этом не ломается: overscroll-behavior гасит только
+   * оттягивание ЗА пределы контента, а не сам скролл. */
+  overscroll-behavior: none;
 }
 
 body {
@@ -205,8 +225,8 @@ body {
   min-height: 100vh;
   padding-left: 1rem;
   padding-right: 1rem;
-  padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  padding-top: calc(1.5rem + var(--tg-total-safe-top, 0px));
+  padding-bottom: calc(2rem + var(--tg-total-safe-bottom, 0px));
 }
 
 /* Шапка внутренних экранов: «назад» / заголовок по центру / балансир справа.
@@ -348,17 +368,6 @@ body {
   }
 }
 
-/* Липкая нижняя панель с главным действием (кнопка «Оплатить»).
- * Градиент сверху вместо жёсткой линии — контент уходит под панель мягко. */
-.bottom-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 1rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(to top, hsl(var(--background)) 62%, transparent);
-}
 
 /* === Экран оплаты === */
 

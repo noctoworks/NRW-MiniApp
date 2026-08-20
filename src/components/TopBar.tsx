@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Bell, HelpCircle } from 'lucide-react';
+import { HelpCircle, Settings, Users } from 'lucide-react';
 import { Link } from 'react-router';
 import { getDashboard } from '../api/cabinet';
+import { hapticImpact } from '../lib/haptics';
 import { useAuthStore } from '../store/auth';
 
 export default function TopBar() {
@@ -15,17 +16,22 @@ export default function TopBar() {
   return (
     <div
       className="grid grid-cols-[1fr_auto_1fr] items-center px-4"
-      style={{ paddingTop: 'calc(16px + env(safe-area-inset-top, 0px))' }}
+      // --tg-total-safe-top (globals.css) — официальный механизм Telegram
+      // (Bot API 8.0+, safeAreaInset + contentSafeAreaInset) вместо
+      // подобранных вручную констант: сам реагирует на fullscreen/обычный
+      // режим и на смену устройства, без хардкода на нашей стороне.
+      style={{ paddingTop: 'calc(12px + var(--tg-total-safe-top, 0px))' }}
     >
-      <button
-        type="button"
-        aria-label="Помощь"
+      <Link
+        to="/about"
+        onClick={() => hapticImpact('light')}
+        aria-label="О сервисе"
         className="icon-button justify-self-start"
       >
         <HelpCircle size={18} strokeWidth={2} />
-      </button>
+      </Link>
 
-      <div className="user-pill justify-self-center">
+      <Link to="/profile" onClick={() => hapticImpact('light')} className="user-pill justify-self-center">
         {telegramUser?.photo_url ? (
           <img src={telegramUser.photo_url} alt="" className="user-pill-avatar" />
         ) : (
@@ -34,9 +40,9 @@ export default function TopBar() {
           </span>
         )}
         <span className="text-sm font-medium">{name}</span>
-      </div>
+      </Link>
 
-      <div className="flex items-center gap-2 justify-self-end">
+      <div id="tour-topbar-icons" className="flex items-center gap-2 justify-self-end">
         {data?.is_admin && (
           <Link
             to="/admin"
@@ -49,13 +55,22 @@ export default function TopBar() {
             </svg>
           </Link>
         )}
-        <button
-          type="button"
-          aria-label="Уведомления"
+        <Link
+          to="/referral"
+          onClick={() => hapticImpact('light')}
+          aria-label="Пригласить друзей"
           className="icon-button"
         >
-          <Bell size={18} strokeWidth={2} />
-        </button>
+          <Users size={18} strokeWidth={2} />
+        </Link>
+        <Link
+          to="/settings"
+          onClick={() => hapticImpact('light')}
+          aria-label="Настройки"
+          className="icon-button"
+        >
+          <Settings size={18} strokeWidth={2} />
+        </Link>
       </div>
     </div>
   );

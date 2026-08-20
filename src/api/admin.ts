@@ -79,6 +79,11 @@ export async function adjustBalance(id: number, amountRub: number): Promise<Admi
   return (await apiClient.post<AdminUserDetail>(`/cabinet/admin/users/${id}/balance`, { amount_rub: amountRub })).data;
 }
 
+export async function adjustSubscriptionDays(id: number, days: number): Promise<AdminUserDetail> {
+  if (isPreview()) return PREVIEW_USER_DETAIL;
+  return (await apiClient.post<AdminUserDetail>(`/cabinet/admin/users/${id}/subscription-days`, { days })).data;
+}
+
 export async function toggleBlock(id: number, blocked: boolean): Promise<AdminUserDetail> {
   if (isPreview()) return { ...PREVIEW_USER_DETAIL, is_blocked: blocked };
   return (await apiClient.post<AdminUserDetail>(`/cabinet/admin/users/${id}/block`, { blocked })).data;

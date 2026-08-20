@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createCampaign, deleteCampaign, getCampaignStats, listCampaigns, updateCampaign } from '../../api/admin';
 import { copyToClipboard } from '../../lib/clipboard';
 import { formatRub } from '../../lib/format';
+import { confirmDialog } from '../../lib/nativeDialogs';
 import type { Campaign, CampaignBonusType } from '../../types';
 
 const BONUS_LABELS: Record<CampaignBonusType, string> = {
@@ -43,7 +44,7 @@ function CampaignRow({ campaign }: { campaign: Campaign }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Удалить кампанию «${campaign.name}»?`)) return;
+    if (!(await confirmDialog(`Удалить кампанию «${campaign.name}»?`))) return;
     await deleteCampaign(campaign.id);
     await invalidate();
   };

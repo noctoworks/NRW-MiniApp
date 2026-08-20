@@ -7,14 +7,20 @@ import Loader from './components/Loader';
 import { useIsDesktop } from './hooks/useIsDesktop';
 import { useTelegramInitData } from './hooks/useTelegramInitData';
 import { useTelegramTheme } from './hooks/useTelegramTheme';
+import About from './pages/About';
+import Connect from './pages/Connect';
 import Dashboard from './pages/Dashboard';
+import Devices from './pages/Devices';
 import Payment from './pages/Payment';
+import Profile from './pages/Profile';
+import Referral from './pages/Referral';
+import Settings from './pages/Settings';
 import { useAuthStore } from './store/auth';
 
 // Ленивая загрузка — recharts (в admin-графиках) заметно раздувает бандл,
 // обычным пользователям (не админам) он вообще не нужен.
 const AdminDesktopLayout = lazy(() => import('./pages/admin/AdminDesktopLayout'));
-const AdminMobileSummary = lazy(() => import('./pages/admin/AdminMobileSummary'));
+const AdminMobileLayout = lazy(() => import('./pages/admin/AdminMobileLayout'));
 const AdminOverview = lazy(() => import('./pages/admin/AdminOverview'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
@@ -29,11 +35,12 @@ function AdminLoading() {
 }
 
 function AdminEntry() {
-  // Мобильный экран — только сводка (AdminMobileSummary), без вложенных
-  // /admin/* маршрутов. Десктоп — полный layout с сайдбаром и <Outlet/>.
+  // Десктоп — сайдбар (AdminDesktopLayout), мобильный — горизонтальные вкладки
+  // (AdminMobileLayout) — у обоих одинаковый набор разделов через <Outlet/>,
+  // отличается только "рама" вокруг них.
   const isDesktop = useIsDesktop();
   return (
-    <Suspense fallback={<AdminLoading />}>{isDesktop ? <AdminDesktopLayout /> : <AdminMobileSummary />}</Suspense>
+    <Suspense fallback={<AdminLoading />}>{isDesktop ? <AdminDesktopLayout /> : <AdminMobileLayout />}</Suspense>
   );
 }
 
@@ -44,12 +51,24 @@ export default function App() {
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!ready || token) return;
+    if (!ready) return;
 
     if (isPreview && telegramUser) {
       setPreview(telegramUser);
       return;
     }
+
+    // telegramUser (имя/аватар из initDataUnsafe.user) — ставим в стор ВСЕГДА,
+    // как только он есть, независимо от того, есть ли уже token. Раньше это
+    // было внутри `if (!ready || token) return`, поэтому при повторном
+    // открытии Mini App в рамках того же Telegram-сеанса (token уже лежит в
+    // sessionStorage — см. store/auth.ts) весь блок пропускался целиком, и
+    // telegramUser в сторе так и оставался null — TopBar показывал фолбэк
+    // «Пользователь» вместо реального имени. Именно поэтому баг был не
+    // всегда, а «иногда».
+    if (telegramUser) setTelegramUser(telegramUser);
+
+    if (token) return; // уже авторизованы — повторный логин не нужен
 
     if (!initData) {
       setAuthError('Откройте приложение через кнопку в Telegram-боте.');
@@ -57,10 +76,7 @@ export default function App() {
     }
 
     loginTelegram(initData)
-      .then((accessToken) => {
-        if (telegramUser) setTelegramUser(telegramUser);
-        setToken(accessToken);
-      })
+      .then((accessToken) => setToken(accessToken))
       .catch(() => setAuthError('Не удалось авторизоваться. Попробуйте открыть приложение заново.'));
   }, [ready, initData, telegramUser, isPreview, token, setToken, setTelegramUser, setPreview]);
 
@@ -89,6 +105,12 @@ export default function App() {
       <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/payment" element={<Payment />} />
+      <Route path="/connect" element={<Connect />} />
+      <Route path="/referral" element={<Referral />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/devices" element={<Devices />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/settings" element={<Settings />} />
       <Route
         path="/admin"
         element={

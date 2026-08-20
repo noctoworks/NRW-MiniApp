@@ -1,17 +1,28 @@
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { VPN_APPS, type VpnApp } from '../lib/deeplink';
+import { hapticSelection } from '../lib/haptics';
+
+interface AppOption {
+  id: string;
+  name: string;
+}
 
 interface AppSelectProps {
-  selected: VpnApp;
-  onSelect: (app: VpnApp) => void;
+  options: AppOption[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
 }
 
 // Нативный <select> (даже стилизованный через TelegramUI Select) не даёт
 // отрисовать выпадающий список под макет — попап всегда браузерный. Поэтому
-// здесь свой дропдаун, а не telegram-ui/Select.
-export default function AppSelect({ selected, onSelect }: AppSelectProps) {
+// здесь свой дропдаун, а не telegram-ui/Select. Список приложений теперь
+// приходит с бэкенда (Subpage Builder Remnawave, см. api/cabinet.ts::getConnectApps),
+// а не захардкожен — раньше половина схем подключения в нём была неверна.
+export default function AppSelect({ options, selectedId, onSelect }: AppSelectProps) {
   const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.id === selectedId) ?? options[0];
+
+  if (!selected) return null;
 
   return (
     <div className="relative flex-1">
@@ -33,17 +44,18 @@ export default function AppSelect({ selected, onSelect }: AppSelectProps) {
 
       {open && (
         <div className="absolute right-0 top-[calc(100%+6px)] z-10 w-48 overflow-hidden rounded-2xl bg-[hsl(var(--muted))] py-1 shadow-xl">
-          {VPN_APPS.map((app) => (
+          {options.map((opt) => (
             <button
-              key={app.id}
+              key={opt.id}
               type="button"
               onClick={() => {
-                onSelect(app);
+                if (opt.id !== selected.id) hapticSelection();
+                onSelect(opt.id);
                 setOpen(false);
               }}
-              className={`block w-full px-4 py-2.5 text-left text-sm ${app.id === selected.id ? 'text-[hsl(var(--primary))]' : 'text-white'} active:bg-white/5`}
+              className={`block w-full px-4 py-2.5 text-left text-sm ${opt.id === selected.id ? 'text-[hsl(var(--primary))]' : 'text-white'} active:bg-white/5`}
             >
-              {app.name}
+              {opt.name}
             </button>
           ))}
         </div>

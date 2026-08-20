@@ -45,12 +45,98 @@ export interface PurchaseResponse {
   subscription: SubscriptionOut | null;
 }
 
+export interface ConnectButton {
+  type: 'external' | 'subscriptionLink' | string;
+  label: string;
+  url: string;
+}
+
+export interface ConnectBlock {
+  title: string;
+  description: string;
+  icon_key: string;
+  icon_color: string;
+  buttons: ConnectButton[];
+}
+
+export interface ConnectApp {
+  id: string;
+  name: string;
+  featured: boolean;
+  blocks: ConnectBlock[];
+}
+
+export interface ConnectPlatform {
+  key: string;
+  label: string;
+  apps: ConnectApp[];
+}
+
+export interface ConnectAppsResponse {
+  platforms: ConnectPlatform[];
+}
+
+export interface ReferralResponse {
+  referral_link: string;
+  percent: number;
+  invited_count: number;
+  earned_kopeks: number;
+  next_milestone_at: number | null;
+  next_milestone_bonus_days: number | null;
+}
+
+export interface ProfileResponse {
+  telegram_id: number;
+  username: string | null;
+  full_name: string | null;
+  language: string;
+  balance_kopeks: number;
+  created_at: string;
+}
+
+export interface TransactionItem {
+  id: number;
+  type: string;
+  amount_kopeks: number;
+  status: string;
+  description: string | null;
+  created_at: string;
+}
+
+export interface PaginatedTransactionsResponse {
+  items: TransactionItem[];
+  total: number;
+  page: number;
+  total_pages: number;
+}
+
+export interface Device {
+  hwid: string;
+  platform: string;
+  device_model: string;
+  created_at: string | null;
+}
+
+export interface PromoCodeActivateResult {
+  type: 'balance' | 'days' | string;
+  value: number;
+}
+
+export interface GiftPurchaseResult {
+  status: 'success' | 'pending';
+  gift_link: string | null;
+  payment_url: string | null;
+}
+
+export type AppLanguage = 'ru' | 'en';
+
 // === Admin =====================================================================
 
 export interface OverviewResponse {
   revenue_today_kopeks: number;
   revenue_7d_kopeks: number;
   revenue_30d_kopeks: number;
+  revenue_all_time_kopeks: number;
   active_subscriptions: number;
   total_users: number;
   new_users_7d: number;
@@ -113,8 +199,10 @@ export interface AdminUserListItem {
   id: number;
   telegram_id: number;
   username: string | null;
+  full_name: string | null;
   is_blocked: boolean;
   has_active_subscription: boolean;
+  is_trial: boolean;
   last_activity_at: string | null;
   created_at: string;
 }
@@ -132,6 +220,7 @@ export interface AdminSubscription {
   traffic_limit_gb: number;
   traffic_used_gb: number;
   device_limit: number;
+  is_trial: boolean;
 }
 
 export interface AdminTransaction {
@@ -147,6 +236,7 @@ export interface AdminUserDetail {
   id: number;
   telegram_id: number;
   username: string | null;
+  full_name: string | null;
   language: string;
   is_blocked: boolean;
   blocked_bot: boolean;

@@ -3,6 +3,7 @@ import { Badge, Caption, Cell, Section, Switch, Title } from '@telegram-apps/tel
 import { useNavigate, useParams } from 'react-router';
 import {
   adjustBalance,
+  adjustSubscriptionDays,
   deleteUser,
   getUserDetail,
   messageUser,
@@ -11,13 +12,24 @@ import {
   toggleBlock,
 } from '../../api/admin';
 import DevicesSection from '../../components/admin/DevicesSection';
+import DualActionAmountForm from '../../components/admin/DualActionAmountForm';
 import ReferralCommissionForm from '../../components/admin/ReferralCommissionForm';
 import SyncSection from '../../components/admin/SyncSection';
 import TransactionsSection from '../../components/admin/TransactionsSection';
-import UserBalanceForm from '../../components/admin/UserBalanceForm';
 import UserMessageForm from '../../components/admin/UserMessageForm';
 import UserPromoGroupSelect from '../../components/admin/UserPromoGroupSelect';
 import { formatDate, formatRub } from '../../lib/format';
+import { confirmDialog } from '../../lib/nativeDialogs';
+
+function parsePositiveRub(raw: string): number | null {
+  const amount = Number.parseFloat(raw.replace(',', '.'));
+  return amount > 0 ? amount : null;
+}
+
+function parsePositiveDays(raw: string): number | null {
+  const days = Math.trunc(Number(raw));
+  return days > 0 ? days : null;
+}
 
 export default function AdminUserDetail() {
   const { id } = useParams<{ id: string }>();
@@ -43,7 +55,7 @@ export default function AdminUserDetail() {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Заблокировать и обезличить пользователя? Финансовая история сохранится.')) return;
+    if (!(await confirmDialog('Заблокировать и обезличить пользователя? Финансовая история сохранится.'))) return;
     await deleteUser(userId);
     navigate('/admin/users');
   };
@@ -57,12 +69,12 @@ export default function AdminUserDetail() {
       <div>
         <div className="mb-1 flex items-center gap-2">
           <Title level="2" weight="2">
-            {data.username ? `@${data.username}` : `id${data.telegram_id}`}
+            {data.full_name || (data.username ? `@${data.username}` : `id${data.telegram_id}`)}
           </Title>
           <Badge type="dot" mode={data.is_blocked ? 'critical' : 'primary'} />
         </div>
         <Caption className="text-muted">
-          telegram_id {data.telegram_id} · регистрация {formatDate(data.created_at)}
+          {data.username && `@${data.username} · `}telegram_id {data.telegram_id} · регистрация {formatDate(data.created_at)}
         </Caption>
         {data.blocked_bot && (
           <p className="mt-2 text-sm text-yellow-400">⚠️ Пользователь заблокировал бота — сообщения не доставляются.</p>
@@ -75,7 +87,9 @@ export default function AdminUserDetail() {
           {data.referrals_invited_count} · {formatRub(data.referrals_earned_kopeks)}
         </Cell>
         <Cell subtitle={<Caption className="text-muted">Подписка</Caption>}>
-          {data.subscription ? `${data.subscription.status} до ${formatDate(data.subscription.end_date)}` : 'нет'}
+          {data.subscription
+            ? `${data.subscription.is_trial ? '🎁 триал' : '💎 ' + data.subscription.status} до ${formatDate(data.subscription.end_date)}`
+            : 'нет'}
         </Cell>
         <Cell subtitle={<Caption className="text-muted">Трафик</Caption>}>
           {data.subscription
@@ -88,8 +102,31 @@ export default function AdminUserDetail() {
       </Section>
 
       <Section>
-        <div className="flex flex-col gap-3 px-4 py-3">
-          <UserBalanceForm onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }} />
+        <div className="flex flex-col gap-4 px-4 py-3">
+          <div>
+            <div className="section-title !mb-2 !px-0">Баланс</div>
+            <DualActionAmountForm
+              positiveLabel="Начислить"
+              negativeLabel="Списать"
+              inputHeader="Сумма"
+              placeholder="Сумма в ₽"
+              parse={parsePositiveRub}
+              onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }}
+            />
+          </div>
+
+          <div>
+            <div className="section-title !mb-2 !px-0">Подписка</div>
+            <DualActionAmountForm
+              positiveLabel="Продлить"
+              negativeLabel="Сократить"
+              inputHeader="Дни"
+              placeholder="Количество дней"
+              parse={parsePositiveDays}
+              onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
+            />
+          </div>
+
           <UserMessageForm onSubmit={(text) => messageUser(userId, text).then(() => undefined)} />
           <ReferralCommissionForm
             value={data.referral_commission_percent}

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Cell, IconButton, Section } from '@telegram-apps/telegram-ui';
 import { getUserDevices, removeDevice, resetDevices } from '../../api/admin';
 import { formatDate } from '../../lib/format';
+import { confirmDialog } from '../../lib/nativeDialogs';
 
 interface DevicesSectionProps {
   userId: number;
@@ -19,7 +20,7 @@ export default function DevicesSection({ userId }: DevicesSectionProps) {
   };
 
   const handleResetAll = async () => {
-    if (!window.confirm('Сбросить все устройства пользователя?')) return;
+    if (!(await confirmDialog('Сбросить все устройства пользователя?'))) return;
     await resetDevices(userId);
     await invalidate();
   };

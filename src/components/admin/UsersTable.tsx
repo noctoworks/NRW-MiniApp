@@ -27,12 +27,12 @@ export default function UsersTable({ items }: UsersTableProps) {
   return (
     <List className="card overflow-hidden !p-0">
       {items.map((user) => {
-        const label = user.username ? `@${user.username}` : `id${user.telegram_id}`;
+        const label = user.full_name || (user.username ? `@${user.username}` : `id${user.telegram_id}`);
         return (
           <Cell
             key={user.id}
             onClick={() => navigate(`/admin/users/${user.id}`)}
-            before={<Avatar size={40} acronym={label.replace('@', '').charAt(0).toUpperCase()} />}
+            before={<Avatar size={40} acronym={label.charAt(0).toUpperCase()} />}
             subtitle={<Caption className="text-muted">{user.telegram_id} · {timeAgo(user.last_activity_at)}</Caption>}
             after={
               user.is_blocked ? (
@@ -42,6 +42,7 @@ export default function UsersTable({ items }: UsersTableProps) {
               ) : undefined
             }
           >
+            {user.has_active_subscription && (user.is_trial ? '🎁 ' : '💎 ')}
             {label}
           </Cell>
         );

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Cell, IconButton, Input, Section, Title } from '@telegram-apps/telegram-ui';
 import { useState } from 'react';
 import { createPromoGroup, deletePromoGroup, listPromoGroups, updatePromoGroup } from '../../api/admin';
+import { confirmDialog } from '../../lib/nativeDialogs';
 import type { PromoGroup } from '../../types';
 
 function GroupRow({ group }: { group: PromoGroup }) {
@@ -21,7 +22,7 @@ function GroupRow({ group }: { group: PromoGroup }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm(`Удалить группу «${group.name}»? Юзеры вернутся к обычной цене.`)) return;
+    if (!(await confirmDialog(`Удалить группу «${group.name}»? Юзеры вернутся к обычной цене.`))) return;
     await deletePromoGroup(group.id);
     await invalidate();
   };
