@@ -6,7 +6,11 @@ export default function IpCard() {
   const queryClient = useQueryClient();
   const { data, isFetching } = useQuery({
     queryKey: ['geoip'],
-    queryFn: () => getGeoIp(),
+    // forceRefresh: true — эта queryFn перезапускается только через явный
+    // invalidateQueries по клику на кнопку ниже (staleTime: Infinity блокирует
+    // любой другой рефетч), так что "обновить" всегда должно означать
+    // настоящий новый запрос, а не отдать старый закэшированный промис (см. ревью).
+    queryFn: () => getGeoIp(true),
     staleTime: Infinity,
     retry: 1,
   });

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Cell, Section, Title } from '@telegram-apps/telegram-ui';
+import AdminEmptyState from '../../components/admin/AdminEmptyState';
 import { getReferralFunnel } from '../../api/admin';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
@@ -25,7 +26,7 @@ export default function AdminReferrals() {
 
       <Section header="Топ рефереров">
         {data.top_referrers.length === 0 ? (
-          <Cell className="text-muted">Пока никто не заработал на рефералах</Cell>
+          <AdminEmptyState text="Пока никто не заработал на рефералах" />
         ) : (
           data.top_referrers.map((referrer, i) => (
             <Cell
@@ -33,7 +34,7 @@ export default function AdminReferrals() {
               subtitle={`привёл ${referrer.referred_count}`}
               after={<span className="font-semibold">{formatRub(referrer.earnings_kopeks)}</span>}
             >
-              {i + 1}. {referrer.username ? `@${referrer.username}` : `id${referrer.telegram_id}`}
+              {i + 1}. {referrer.full_name || (referrer.username ? `@${referrer.username}` : `id${referrer.telegram_id}`)}
             </Cell>
           ))
         )}

@@ -64,7 +64,7 @@ function detectPlatformKey(): string {
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data, isLoading } = useQuery({ queryKey: ['dashboard'], queryFn: getDashboard });
+  const { data, isLoading, isError } = useQuery({ queryKey: ['dashboard'], queryFn: getDashboard });
   const subscription = data?.subscription ?? null;
   const isActive = subscription?.status === 'active';
 
@@ -81,7 +81,17 @@ export default function Dashboard() {
   // что и страница /referral, так что при переходе туда данные уже тёплые.
   const { data: referral } = useQuery({ queryKey: ['referral'], queryFn: getReferral });
 
-  const platformKey = useMemo(() => detectPlatformKey(), []);
+  // Валидируем определённую платформу против реального списка с панели —
+  // раньше бралась "как есть" (detectPlatformKey() мог не совпасть ни с одним
+  // реальным platform.key, например пока Telegram.WebApp.platform ещё не
+  // успел проставиться), и выбор приложения рядом с IpCard просто пропадал
+  // без единого сообщения. Тот же баг чинили в Connect.tsx — здесь чинили не был.
+  const platformKey = useMemo(() => {
+    const detected = detectPlatformKey();
+    if (!connectData) return detected;
+    if (connectData.platforms.some((p) => p.key === detected)) return detected;
+    return connectData.platforms[0]?.key ?? detected;
+  }, [connectData]);
   const platformApps = useMemo(
     () => connectData?.platforms.find((p) => p.key === platformKey)?.apps ?? [],
     [connectData, platformKey],
@@ -113,16 +123,27 @@ export default function Dashboard() {
   const replayRequested = Boolean((location.state as { replayTour?: boolean } | null)?.replayTour);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || isError) return;
     // Ждём ответ CloudStorage — иначе на секунду мигнёт тур тому, кто уже
     // прошёл его на другом устройстве.
     if (!tourHydrated && !replayRequested) return;
     if (hasSeenTour && !replayRequested) return;
     setTourActive(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, tourHydrated, hasSeenTour, replayRequested]);
+  }, [isLoading, isError, tourHydrated, hasSeenTour, replayRequested]);
 
   if (isLoading) return <Loader />;
+
+  if (isError) {
+    // Без этого сбой сети неотличим от "подписки нет" (data остаётся
+    // undefined) — платящий клиент видел бы, будто подписки не существует
+    // вовсе, см. ревью.
+    return (
+      <p className="px-4 py-10 text-center text-sm text-[hsl(var(--destructive))]">
+        Не удалось загрузить данные. Попробуйте открыть приложение ещё раз чуть позже.
+      </p>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-8">

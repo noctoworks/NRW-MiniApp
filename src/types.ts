@@ -157,6 +157,7 @@ export interface TopPayer {
   user_id: number;
   telegram_id: number;
   username: string | null;
+  full_name: string | null;
   total_kopeks: number;
 }
 
@@ -183,6 +184,7 @@ export interface TopReferrer {
   user_id: number;
   telegram_id: number;
   username: string | null;
+  full_name: string | null;
   earnings_kopeks: number;
   referred_count: number;
 }

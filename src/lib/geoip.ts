@@ -16,7 +16,14 @@ let cached: Promise<GeoIpResult> | null = null;
 
 export function getGeoIp(forceRefresh = false): Promise<GeoIpResult> {
   if (forceRefresh || !cached) {
-    cached = fetchGeoIp();
+    const promise = fetchGeoIp();
+    // Не кешируем отклонённый промис — иначе один неудачный запрос (например
+    // временный сбой сети) навсегда "залипает" в cached, и обновление IP
+    // молча перестаёт работать до перезагрузки страницы (см. ревью).
+    promise.catch(() => {
+      if (cached === promise) cached = null;
+    });
+    cached = promise;
   }
   return cached;
 }

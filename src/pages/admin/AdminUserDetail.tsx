@@ -31,7 +31,19 @@ function parsePositiveDays(raw: string): number | null {
   return days > 0 ? days : null;
 }
 
+/** Обёртка форсирует полный ремаунт AdminUserDetailContent при переходе на
+ * другого пользователя (смена :id) — React Router САМ ПО СЕБЕ этого не
+ * делает, переиспользует тот же инстанс компонента. Без key useState внутри
+ * DualActionAmountForm/ReferralCommissionForm/UserMessageForm/
+ * TransactionsSection переживает переход между юзерами: не отправленный
+ * черновик суммы/сообщения/комиссии для юзера A может уйти юзеру B при
+ * следующей отправке — см. ревью. */
 export default function AdminUserDetail() {
+  const { id } = useParams<{ id: string }>();
+  return <AdminUserDetailContent key={id} />;
+}
+
+function AdminUserDetailContent() {
   const { id } = useParams<{ id: string }>();
   const userId = Number(id);
   const navigate = useNavigate();

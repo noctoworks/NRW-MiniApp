@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Caption, Cell, IconButton, Input, Section, SegmentedControl, Switch, Title } from '@telegram-apps/telegram-ui';
+import { Button, Caption, Cell, Input, Section, SegmentedControl, Switch, Title } from '@telegram-apps/telegram-ui';
+import AdminEmptyState from '../../components/admin/AdminEmptyState';
 import { useState } from 'react';
 import { createCampaign, deleteCampaign, getCampaignStats, listCampaigns, updateCampaign } from '../../api/admin';
 import { copyToClipboard } from '../../lib/clipboard';
@@ -65,35 +66,54 @@ function CampaignRow({ campaign }: { campaign: Campaign }) {
             {campaign.bonus_type === 'subscription' && ` · ${campaign.subscription_duration_days} дн.`}
           </Caption>
         }
-        after={
-          <div className="flex items-center gap-1">
-            <IconButton mode="plain" size="s" aria-label="Копировать ссылку" onClick={handleCopyLink}>
-              {copied ? (
-                <span className="text-xs text-success">✓</span>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-              )}
-            </IconButton>
-            <IconButton mode="plain" size="s" aria-label="Статистика" onClick={() => setShowStats((v) => !v)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 3v18h18" />
-                <path d="M18 17V9M13 17V5M8 17v-5" />
-              </svg>
-            </IconButton>
-            <Switch checked={campaign.is_active} onChange={handleToggle} />
-            <IconButton mode="plain" size="s" aria-label="Удалить" onClick={handleDelete}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6 6 18M6 6l12 12" />
-              </svg>
-            </IconButton>
-          </div>
-        }
+        after={<Switch checked={campaign.is_active} onChange={handleToggle} />}
       >
         {campaign.name}
       </Cell>
+      {/* Отдельная строка под второстепенные действия — раньше все четыре
+       * (копировать/статистика/переключатель/удалить) стояли вплотную в
+       * size="s", включая деструктивное "удалить" рядом с безобидными —
+       * на телефоне легко промахнуться (см. диалог: "удобство на телефоне"). */}
+      <div className="flex items-center gap-2 px-4 pb-3">
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--secondary))] px-3 py-2 text-xs font-medium text-[hsl(var(--subtitle-foreground))] active:opacity-70"
+        >
+          {copied ? (
+            <span className="text-success">✓ Скопировано</span>
+          ) : (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              Ссылка
+            </>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowStats((v) => !v)}
+          className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--secondary))] px-3 py-2 text-xs font-medium text-[hsl(var(--subtitle-foreground))] active:opacity-70"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 3v18h18" />
+            <path d="M18 17V9M13 17V5M8 17v-5" />
+          </svg>
+          Статистика
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="ml-auto flex items-center gap-1.5 rounded-full bg-[hsl(var(--destructive)/0.12)] px-3 py-2 text-xs font-medium text-[hsl(var(--destructive))] active:opacity-70"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+          Удалить
+        </button>
+      </div>
       {showStats && <CampaignStatsRow campaignId={campaign.id} />}
     </>
   );
@@ -186,7 +206,7 @@ export default function AdminCampaigns() {
         ) : data && data.length > 0 ? (
           data.map((campaign) => <CampaignRow key={campaign.id} campaign={campaign} />)
         ) : (
-          <Cell className="text-muted">Кампаний ещё нет</Cell>
+          <AdminEmptyState text="Кампаний ещё нет" />
         )}
       </Section>
     </div>

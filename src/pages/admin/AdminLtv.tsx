@@ -28,7 +28,7 @@ export default function AdminLtv() {
       <Section header="Топ-плательщики">
         {ltv.top_payers.map((payer, i) => (
           <Cell key={payer.user_id} after={<span className="font-semibold">{formatRub(payer.total_kopeks)}</span>}>
-            {i + 1}. {payer.username ? `@${payer.username}` : `id${payer.telegram_id}`}
+            {i + 1}. {payer.full_name || (payer.username ? `@${payer.username}` : `id${payer.telegram_id}`)}
           </Cell>
         ))}
       </Section>

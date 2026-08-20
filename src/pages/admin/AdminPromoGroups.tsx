@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Cell, IconButton, Input, Section, Title } from '@telegram-apps/telegram-ui';
+import { Button, Cell, Input, Section, Title } from '@telegram-apps/telegram-ui';
+import AdminEmptyState from '../../components/admin/AdminEmptyState';
 import { useState } from 'react';
 import { createPromoGroup, deletePromoGroup, listPromoGroups, updatePromoGroup } from '../../api/admin';
 import { confirmDialog } from '../../lib/nativeDialogs';
@@ -52,23 +53,30 @@ function GroupRow({ group }: { group: PromoGroup }) {
   return (
     <Cell
       subtitle={`${group.users_count} юзеров`}
-      after={
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-accent">-{group.discount_percent}%</span>
-          <IconButton mode="plain" size="s" aria-label="Редактировать" onClick={() => setEditing(true)}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-            </svg>
-          </IconButton>
-          <IconButton mode="plain" size="s" aria-label="Удалить" onClick={handleDelete}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </IconButton>
-        </div>
-      }
+      after={<span className="font-semibold text-accent">-{group.discount_percent}%</span>}
+      onClick={() => setEditing(true)}
     >
-      {group.name}
+      <div className="flex items-center justify-between gap-2">
+        {group.name}
+        {/* Раньше редактировать/удалить были парой мелких (size="s") иконок
+         * вплотную друг к другу — на телефоне легко промахнуться между ними
+         * (см. диалог: "удобство на телефоне"). Открытие редактирования теперь
+         * по тапу на всю строку (см. onClick выше), удаление — отдельная,
+         * заметно отделённая кнопка. */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            void handleDelete();
+          }}
+          aria-label="Удалить группу"
+          className="shrink-0 rounded-full bg-[hsl(var(--destructive)/0.12)] p-2 text-[hsl(var(--destructive))] active:opacity-70"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </Cell>
   );
 }
@@ -128,7 +136,7 @@ export default function AdminPromoGroups() {
         ) : data && data.length > 0 ? (
           data.map((group) => <GroupRow key={group.id} group={group} />)
         ) : (
-          <Cell className="text-muted">Групп ещё нет</Cell>
+          <AdminEmptyState text="Групп ещё нет" />
         )}
       </Section>
     </div>

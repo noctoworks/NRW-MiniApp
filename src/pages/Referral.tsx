@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Camera, Share2, Users } from 'lucide-react';
+import { Camera, Share2 } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { getReferral } from '../api/cabinet';
@@ -67,9 +67,7 @@ export default function Referral() {
       {!isLoading && !isError && data && (
         <div className="animate-fade-in mt-4 flex flex-col gap-3 px-4">
           <div className="card flex flex-col items-center gap-2 py-6 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[hsl(var(--primary)/0.15)]">
-              <Users size={24} strokeWidth={2} className="text-[hsl(var(--primary))]" />
-            </span>
+            <img src="/emoji/handshake.webp" alt="" aria-hidden className="h-14 w-14" />
             <p className="text-lg font-bold text-white">
               Получайте {data.percent}% с каждой оплаты друга
             </p>

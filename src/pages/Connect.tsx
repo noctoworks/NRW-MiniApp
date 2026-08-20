@@ -64,7 +64,17 @@ export default function Connect() {
   const [appId, setAppId] = useState<string | null>(navState?.appId ?? null);
 
   useEffect(() => {
-    if (!data || platformKey !== null) return;
+    if (!data) return;
+    // Раньше проверялось только "platformKey ещё не задан" — но при переходе
+    // с главного экрана (Dashboard.tsx::handleConnect передаёт platform через
+    // navigate state) он ВСЕГДА уже задан, и эта проверка ни разу не
+    // срабатывала. Если платформа, определённая на Dashboard (например из-за
+    // того, что Telegram.WebApp.platform ещё не успел проставиться на момент
+    // detectPlatformKey()), не совпадает ни с одним реальным platform.key с
+    // панели — экран оставался почти пустым (заголовок есть, инструкций и
+    // кнопок нет), без единого явного сообщения. Теперь валидируем ЛЮБОЕ
+    // значение platformKey против реальных данных, а не только "не задано".
+    if (platformKey !== null && data.platforms.some((p) => p.key === platformKey)) return;
     const detected = detectPlatformKey();
     const hasDetected = data.platforms.some((p) => p.key === detected);
     setPlatformKey(hasDetected ? detected : (data.platforms[0]?.key ?? null));
@@ -87,7 +97,10 @@ export default function Connect() {
         // См. TopBar.tsx / globals.css — официальный --tg-total-safe-top.
         style={{ paddingTop: 'calc(12px + var(--tg-total-safe-top, 0px))' }}
       >
-        <h1 className="text-xl font-bold text-white">Настройка VPN</h1>
+        <h1 className="flex items-center gap-1.5 text-xl font-bold text-white">
+          <img src="/emoji/rocket.webp" alt="" aria-hidden className="h-6 w-6" />
+          Настройка VPN
+        </h1>
         {data && data.platforms.length > 0 && (
           <PlatformPicker
             options={data.platforms.map((p) => ({ key: p.key, label: p.label }))}
@@ -113,6 +126,17 @@ export default function Connect() {
         <p className="px-4 py-10 text-center text-sm text-[hsl(var(--subtitle-foreground))]">
           Список приложений временно недоступен — скопируйте ссылку подписки вручную на главном
           экране.
+        </p>
+      )}
+
+      {!isLoading && !isError && data && data.platforms.length > 0 && !platform && (
+        // Страховка на случай, если platformKey всё же не совпал ни с одной
+        // реальной платформой (например прямо во время первого рендера, до
+        // того как сработает валидирующий useEffect выше) — раньше в этом
+        // состоянии контентная область оставалась полностью пустой без
+        // единого сообщения, см. диалог ("открывается пустая страница").
+        <p className="px-4 py-10 text-center text-sm text-[hsl(var(--subtitle-foreground))]">
+          Не удалось определить платформу — выберите её вручную вверху экрана.
         </p>
       )}
 

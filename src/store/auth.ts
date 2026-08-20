@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { safeGetItem, safeRemoveItem, safeSetItem } from '../lib/safeStorage';
 import type { TelegramUser } from '../types';
 
 const TOKEN_STORAGE_KEY = 'bedolaga_cabinet_token';
@@ -17,17 +18,17 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: sessionStorage.getItem(TOKEN_STORAGE_KEY),
+  token: safeGetItem(sessionStorage, TOKEN_STORAGE_KEY),
   telegramUser: null,
   isPreview: false,
   setToken: (token) => {
-    sessionStorage.setItem(TOKEN_STORAGE_KEY, token);
+    safeSetItem(sessionStorage, TOKEN_STORAGE_KEY, token);
     set({ token });
   },
   setTelegramUser: (telegramUser) => set({ telegramUser }),
   setPreview: (telegramUser) => set({ isPreview: true, telegramUser }),
   logout: () => {
-    sessionStorage.removeItem(TOKEN_STORAGE_KEY);
+    safeRemoveItem(sessionStorage, TOKEN_STORAGE_KEY);
     set({ token: null, isPreview: false });
   },
 }));

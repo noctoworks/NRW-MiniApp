@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
 import { applyTelegramTheme } from '../lib/theme';
 
+/** Оформление фиксированное (см. lib/theme.ts) — реагировать на themeChanged
+ * незачем, применяем один раз при монтировании. */
 export function useTelegramTheme(): void {
   useEffect(() => {
     applyTelegramTheme();
-    const webApp = window.Telegram?.WebApp;
-    webApp?.onEvent('themeChanged', applyTelegramTheme);
-    return () => webApp?.offEvent('themeChanged', applyTelegramTheme);
   }, []);
 }

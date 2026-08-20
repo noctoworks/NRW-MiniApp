@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import Redirect from './pages/Redirect';
 import '@telegram-apps/telegram-ui/dist/styles.css';
 import './styles/globals.css';
@@ -26,17 +27,21 @@ const root = ReactDOM.createRoot(document.getElementById('root')!);
 if (window.location.pathname === '/redirect') {
   root.render(
     <React.StrictMode>
-      <Redirect />
+      <ErrorBoundary>
+        <Redirect />
+      </ErrorBoundary>
     </React.StrictMode>,
   );
 } else {
   root.render(
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </QueryClientProvider>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ErrorBoundary>
     </React.StrictMode>,
   );
 }

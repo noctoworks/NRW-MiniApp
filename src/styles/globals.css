@@ -136,28 +136,18 @@ body {
   min-height: var(--tg-viewport-stable-height, 100dvh);
 }
 
-/* === Power-button 1-в-1 с референсом: точечная карта мира + светящийся
- * диск с ореолом. map.svg — белый точечный контур материков, поэтому
- * приглушаем его непрозрачностью, а не перекрашиванием. */
-
-.power-map {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 132%;
-  max-width: none;
-  transform: translate(-50%, -50%);
-  opacity: 0.13;
-  pointer-events: none;
-}
+/* === Power-button: кольцо-трек + светящийся диск с ореолом и глянцевым
+ * бликом. Раньше был плоский градиентный круг без структуры ("колхозно",
+ * см. диалог) — добавлена глубина (внутренние тени диска, блик, трек) и
+ * лёгкое "дыхание" свечения в подключённом состоянии. */
 
 .power-button {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 168px;
-  height: 168px;
+  width: 172px;
+  height: 172px;
   border: 0;
   padding: 0;
   border-radius: 9999px;
@@ -169,23 +159,49 @@ body {
   transform: scale(0.96);
 }
 
-/* Внешнее кольцо-ореол вокруг диска (заметный зазор + светящийся ободок). */
+/* Тонкое кольцо-трек — структурная деталь, задаёт диску "посадочное место",
+ * ярче в подключённом состоянии, еле заметное в отключённом. */
+.power-button::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in srgb, var(--power-accent) 35%, transparent);
+  transition: border-color 0.25s ease-out;
+}
+.power-button[data-connected='false']::before {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Внешний ореол вокруг диска. */
 .power-button-halo {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
   background: radial-gradient(
     circle,
-    transparent 62%,
-    color-mix(in srgb, var(--power-accent) 60%, transparent) 72%,
-    transparent 84%
+    transparent 58%,
+    color-mix(in srgb, var(--power-accent) 55%, transparent) 68%,
+    transparent 82%
   );
-  filter: blur(5px);
+  filter: blur(9px);
   transition: opacity 0.25s ease-out;
 }
+.power-button[data-connected='true'] .power-button-halo {
+  animation: power-breathe 3.2s ease-in-out infinite;
+}
 .power-button[data-connected='false'] .power-button-halo {
-  opacity: 0.25;
-  filter: blur(5px) grayscale(1);
+  opacity: 0.18;
+  filter: blur(9px) grayscale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .power-button[data-connected='true'] .power-button-halo {
+    animation: none;
+  }
+}
+@keyframes power-breathe {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.045); }
 }
 
 .power-button-disc {
@@ -196,21 +212,30 @@ body {
   width: 124px;
   height: 124px;
   border-radius: 9999px;
+  overflow: hidden;
   background: radial-gradient(
-    circle at 34% 26%,
-    color-mix(in srgb, var(--power-accent) 45%, #ffffff),
-    var(--power-accent) 60%,
-    color-mix(in srgb, var(--power-accent) 75%, #000000)
+    circle at 32% 24%,
+    color-mix(in srgb, var(--power-accent) 55%, #ffffff) 0%,
+    var(--power-accent) 45%,
+    color-mix(in srgb, var(--power-accent) 78%, #000000) 100%
   );
   box-shadow:
-    0 0 30px color-mix(in srgb, var(--power-accent) 45%, transparent),
-    0 0 72px color-mix(in srgb, var(--power-accent) 25%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    0 0 34px color-mix(in srgb, var(--power-accent) 50%, transparent),
+    0 10px 28px -8px color-mix(in srgb, var(--power-accent) 60%, transparent),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -14px 24px -12px rgba(0, 0, 0, 0.35);
   transition: background 0.25s ease-out, box-shadow 0.25s ease-out;
 }
 .power-button[data-connected='false'] .power-button-disc {
-  background: radial-gradient(circle at 34% 26%, #4a5563, #333c48 60%, #262d36);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  background: radial-gradient(circle at 32% 24%, #4d5766, #333c48 55%, #23282f 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -14px 22px -12px rgba(0, 0, 0, 0.4);
+}
+
+.power-button-icon {
+  position: relative;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
 }
 
 /* === Общие примитивы интерфейса ==========================================

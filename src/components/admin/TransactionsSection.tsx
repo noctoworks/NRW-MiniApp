@@ -3,6 +3,7 @@ import { Caption, Cell, Pagination, Section } from '@telegram-apps/telegram-ui';
 import { useState } from 'react';
 import { getUserTransactions } from '../../api/admin';
 import { formatDate, formatRub } from '../../lib/format';
+import AdminEmptyState from './AdminEmptyState';
 
 interface TransactionsSectionProps {
   userId: number;
@@ -20,7 +21,7 @@ export default function TransactionsSection({ userId }: TransactionsSectionProps
       {isLoading || !data ? (
         <Cell className="text-muted">Загрузка…</Cell>
       ) : data.items.length === 0 ? (
-        <Cell className="text-muted">Транзакций нет</Cell>
+        <AdminEmptyState text="Транзакций нет" />
       ) : (
         data.items.map((t) => (
           <Cell

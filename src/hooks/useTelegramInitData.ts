@@ -33,15 +33,12 @@ export function useTelegramInitData(): InitDataState {
     if (webApp?.initData) {
       webApp.ready();
       webApp.expand();
-      // Настоящий edge-to-edge fullscreen (Bot API 8.0+, см. диалог: "у меня
-      // стоит FullSize") — без него expand() лишь разворачивает приложение
-      // внутри собственной "плавающей" шапки Telegram (close/меню сверху),
-      // из-за которой контенту требовался искусственный отступ. disableVerticalSwipes
-      // — чтобы жест закрытия свайпом вниз не конфликтовал со скроллом
-      // контента у самого верха. Оба — опциональные (старые клиенты Telegram
-      // их не поддерживают), поэтому через опциональную цепочку, без проверки
-      // версии Bot API.
-      webApp.requestFullscreen?.();
+      // requestFullscreen() (edge-to-edge, без "плавающей" шапки Telegram) —
+      // сознательно убрано по просьбе пользователя, приложение снова
+      // открывается в обычном (не fullscreen) режиме, expand() просто
+      // разворачивает его на весь доступный экран как раньше.
+      // disableVerticalSwipes — опционален (старые клиенты Telegram его не
+      // поддерживают), через опциональную цепочку, без проверки версии Bot API.
       webApp.disableVerticalSwipes?.();
       setState({
         ready: true,

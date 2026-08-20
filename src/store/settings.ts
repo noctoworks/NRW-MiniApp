@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+import { safeGetItem, safeSetItem } from '../lib/safeStorage';
 
 const HAPTICS_STORAGE_KEY = 'nrw_haptics_enabled';
 
 function readHapticsEnabled(): boolean {
-  const stored = localStorage.getItem(HAPTICS_STORAGE_KEY);
+  const stored = safeGetItem(localStorage, HAPTICS_STORAGE_KEY);
   return stored === null ? true : stored === '1';
 }
 
@@ -17,7 +18,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>((set) => ({
   hapticsEnabled: readHapticsEnabled(),
   setHapticsEnabled: (enabled) => {
-    localStorage.setItem(HAPTICS_STORAGE_KEY, enabled ? '1' : '0');
+    safeSetItem(localStorage, HAPTICS_STORAGE_KEY, enabled ? '1' : '0');
     set({ hapticsEnabled: enabled });
   },
 }));

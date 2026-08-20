@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { safeGetItem, safeSetItem } from '../lib/safeStorage';
 
 const STORAGE_KEY = 'nrw_dashboard_tour_seen';
 
@@ -26,7 +27,7 @@ function persistSeen(value: boolean) {
   if (cloud) {
     cloud.setItem(STORAGE_KEY, raw);
   } else {
-    localStorage.setItem(STORAGE_KEY, raw);
+    safeSetItem(localStorage, STORAGE_KEY, raw);
   }
 }
 
@@ -44,7 +45,7 @@ export const useOnboardingStore = create<OnboardingState>((set) => {
   return {
     // Синхронный фолбэк для клиентов без CloudStorage вообще (десктоп/старые
     // версии) — используем localStorage как раньше, сразу hydrated.
-    hasSeenDashboardTour: cloud ? false : localStorage.getItem(STORAGE_KEY) === '1',
+    hasSeenDashboardTour: cloud ? false : safeGetItem(localStorage, STORAGE_KEY) === '1',
     hydrated: !cloud,
     markDashboardTourSeen: () => {
       persistSeen(true);

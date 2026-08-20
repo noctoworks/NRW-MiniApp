@@ -46,9 +46,9 @@ export const PREVIEW_LTV: LtvResponse = {
   median_ltv_kopeks: 39900,
   paying_users_count: 128,
   top_payers: [
-    { user_id: 1, telegram_id: 577437701, username: 'danilvolkov666', total_kopeks: 134300 },
-    { user_id: 2, telegram_id: 6299028501, username: 'nocto_support', total_kopeks: 26000 },
-    { user_id: 3, telegram_id: 1054309519, username: 'mistorid', total_kopeks: 10000 },
+    { user_id: 1, telegram_id: 577437701, username: 'danilvolkov666', full_name: null, total_kopeks: 134300 },
+    { user_id: 2, telegram_id: 6299028501, username: 'nocto_support', full_name: null, total_kopeks: 26000 },
+    { user_id: 3, telegram_id: 1054309519, username: 'mistorid', full_name: null, total_kopeks: 10000 },
   ],
 };
 
@@ -66,7 +66,7 @@ export const PREVIEW_REFERRAL_FUNNEL: ReferralFunnelResponse = {
   referred_paying_count: 22,
   conversion_percent: 22.9,
   total_earnings_kopeks: 45600,
-  top_referrers: [{ user_id: 2, telegram_id: 6299028501, username: 'nocto_support', earnings_kopeks: 1500, referred_count: 1 }],
+  top_referrers: [{ user_id: 2, telegram_id: 6299028501, username: 'nocto_support', full_name: null, earnings_kopeks: 1500, referred_count: 1 }],
 };
 
 export const PREVIEW_USERS_LIST: AdminUserListResponse = {
