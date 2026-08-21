@@ -3,6 +3,7 @@ import { Cell, IconButton, Section } from '@telegram-apps/telegram-ui';
 import { getUserDevices, removeDevice, resetDevices } from '../../api/admin';
 import { formatDate } from '../../lib/format';
 import { confirmDialog } from '../../lib/nativeDialogs';
+import { AdminErrorState } from './AdminEmptyState';
 
 interface DevicesSectionProps {
   userId: number;
@@ -10,7 +11,10 @@ interface DevicesSectionProps {
 
 export default function DevicesSection({ userId }: DevicesSectionProps) {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'user', userId, 'devices'], queryFn: () => getUserDevices(userId) });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['admin', 'user', userId, 'devices'],
+    queryFn: () => getUserDevices(userId),
+  });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin', 'user', userId, 'devices'] });
 
@@ -29,6 +33,8 @@ export default function DevicesSection({ userId }: DevicesSectionProps) {
     <Section header="Устройства" footer={data && data.length > 0 ? undefined : 'Нет активных устройств или подписка не оформлена'}>
       {isLoading ? (
         <Cell className="text-muted">Загрузка…</Cell>
+      ) : isError ? (
+        <AdminErrorState onRetry={() => refetch()} />
       ) : (
         data?.map((device) => (
           <Cell

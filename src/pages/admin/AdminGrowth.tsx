@@ -1,17 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
 import { Title } from '@telegram-apps/telegram-ui';
 import { getOverview, getRevenueTimeseries } from '../../api/admin';
+import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
 import RevenueChart from '../../components/admin/RevenueChart';
 import { formatRub } from '../../lib/format';
 
 export default function AdminGrowth() {
-  const { data: overview, isLoading } = useQuery({ queryKey: ['admin', 'overview'], queryFn: getOverview });
+  const { data: overview, isLoading, isError, refetch } = useQuery({
+    queryKey: ['admin', 'overview'],
+    queryFn: getOverview,
+  });
   const { data: timeseries } = useQuery({ queryKey: ['admin', 'revenue-timeseries'], queryFn: () => getRevenueTimeseries(30) });
 
-  if (isLoading || !overview) {
+  if (isLoading) {
     return <Loader inline />;
+  }
+
+  if (isError || !overview) {
+    return <AdminErrorState onRetry={() => refetch()} />;
   }
 
   return (

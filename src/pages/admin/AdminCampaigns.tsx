@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Caption, Cell, Input, Section, SegmentedControl, Switch, Title } from '@telegram-apps/telegram-ui';
-import AdminEmptyState from '../../components/admin/AdminEmptyState';
+import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import { useState } from 'react';
 import { createCampaign, deleteCampaign, getCampaignStats, listCampaigns, updateCampaign } from '../../api/admin';
 import { copyToClipboard } from '../../lib/clipboard';
@@ -187,7 +187,10 @@ function CreateCampaignForm() {
 }
 
 export default function AdminCampaigns() {
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'campaigns'], queryFn: listCampaigns });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['admin', 'campaigns'],
+    queryFn: listCampaigns,
+  });
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
@@ -203,7 +206,9 @@ export default function AdminCampaigns() {
         <CreateCampaignForm />
         {isLoading ? (
           <Cell className="text-muted">Загрузка…</Cell>
-        ) : data && data.length > 0 ? (
+        ) : isError || !data ? (
+          <AdminErrorState onRetry={() => refetch()} />
+        ) : data.length > 0 ? (
           data.map((campaign) => <CampaignRow key={campaign.id} campaign={campaign} />)
         ) : (
           <AdminEmptyState text="Кампаний ещё нет" />

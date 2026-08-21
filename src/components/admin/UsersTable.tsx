@@ -1,6 +1,7 @@
 import { Avatar, Badge, Caption, Cell, List } from '@telegram-apps/telegram-ui';
 import { useNavigate } from 'react-router';
 import type { AdminUserListItem } from '../../types';
+import AdminEmptyState from './AdminEmptyState';
 
 function timeAgo(iso: string | null): string {
   if (!iso) return '—';
@@ -21,7 +22,11 @@ export default function UsersTable({ items }: UsersTableProps) {
   const navigate = useNavigate();
 
   if (items.length === 0) {
-    return <div className="card py-6 text-center text-sm text-muted">Никого не найдено</div>;
+    return (
+      <div className="card !p-0">
+        <AdminEmptyState text="Никого не найдено" />
+      </div>
+    );
   }
 
   return (

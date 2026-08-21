@@ -1,16 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
-import { Cell, Section, Title } from '@telegram-apps/telegram-ui';
-import AdminEmptyState from '../../components/admin/AdminEmptyState';
+import { Title } from '@telegram-apps/telegram-ui';
+import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import { getReferralFunnel } from '../../api/admin';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
 import { formatRub } from '../../lib/format';
 
 export default function AdminReferrals() {
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'referrals'], queryFn: getReferralFunnel });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['admin', 'referrals'],
+    queryFn: getReferralFunnel,
+  });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return <Loader inline />;
+  }
+
+  if (isError || !data) {
+    return <AdminErrorState onRetry={() => refetch()} />;
   }
 
   return (
@@ -24,21 +31,26 @@ export default function AdminReferrals() {
         <KpiTile label="Выплачено рефереров" value={formatRub(data.total_earnings_kopeks)} />
       </div>
 
-      <Section header="Топ рефереров">
-        {data.top_referrers.length === 0 ? (
-          <AdminEmptyState text="Пока никто не заработал на рефералах" />
-        ) : (
-          data.top_referrers.map((referrer, i) => (
-            <Cell
-              key={referrer.user_id}
-              subtitle={`привёл ${referrer.referred_count}`}
-              after={<span className="font-semibold">{formatRub(referrer.earnings_kopeks)}</span>}
-            >
-              {i + 1}. {referrer.full_name || (referrer.username ? `@${referrer.username}` : `id${referrer.telegram_id}`)}
-            </Cell>
-          ))
-        )}
-      </Section>
+      <div>
+        <div className="section-title">Топ рефереров</div>
+        <div className="card !p-0">
+          {data.top_referrers.length === 0 ? (
+            <AdminEmptyState text="Пока никто не заработал на рефералах" />
+          ) : (
+            <div className="flex flex-col gap-3 p-4">
+              {data.top_referrers.map((referrer, i) => (
+                <div key={referrer.user_id} className="flex items-center justify-between text-sm">
+                  <span>
+                    {i + 1}. {referrer.full_name || (referrer.username ? `@${referrer.username}` : `id${referrer.telegram_id}`)}
+                    <span className="text-[hsl(var(--subtitle-foreground))]"> · привёл {referrer.referred_count}</span>
+                  </span>
+                  <span className="font-semibold text-white">{formatRub(referrer.earnings_kopeks)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

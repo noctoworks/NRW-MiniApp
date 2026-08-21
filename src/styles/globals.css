@@ -136,10 +136,24 @@ body {
   min-height: var(--tg-viewport-stable-height, 100dvh);
 }
 
-/* === Power-button: кольцо-трек + светящийся диск с ореолом и глянцевым
- * бликом. Раньше был плоский градиентный круг без структуры ("колхозно",
- * см. диалог) — добавлена глубина (внутренние тени диска, блик, трек) и
- * лёгкое "дыхание" свечения в подключённом состоянии. */
+/* === Power-button: плоская заливка в духе телеграмных круглых кнопок
+ * (звонок/отправка) — сплошной диагональный градиент акцента, без ореола
+ * и без объёмных bevel-эффектов, только мягкая тень под диском (см. диалог —
+ * до этого перебирали glossy-выпуклый и neumorphic-вогнутый варианты). */
+
+/* Точечный фон за кнопкой (см. диалог — раньше была точечная карта мира
+ * /map.svg, убрана при редизайне; это её более простой преемник, тем же
+ * приёмом "точки" — обычная сетка точек чистым CSS, без ассета). Радиальная
+ * маска гасит её к краям, чтобы не резалась прямоугольником контейнера. */
+.power-button-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px);
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(circle, black 0%, black 35%, transparent 72%);
+  mask-image: radial-gradient(circle, black 0%, black 35%, transparent 72%);
+  pointer-events: none;
+}
 
 .power-button {
   position: relative;
@@ -159,51 +173,6 @@ body {
   transform: scale(0.96);
 }
 
-/* Тонкое кольцо-трек — структурная деталь, задаёт диску "посадочное место",
- * ярче в подключённом состоянии, еле заметное в отключённом. */
-.power-button::before {
-  content: '';
-  position: absolute;
-  inset: 7px;
-  border-radius: 9999px;
-  border: 1.5px solid color-mix(in srgb, var(--power-accent) 35%, transparent);
-  transition: border-color 0.25s ease-out;
-}
-.power-button[data-connected='false']::before {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-/* Внешний ореол вокруг диска. */
-.power-button-halo {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: radial-gradient(
-    circle,
-    transparent 58%,
-    color-mix(in srgb, var(--power-accent) 55%, transparent) 68%,
-    transparent 82%
-  );
-  filter: blur(9px);
-  transition: opacity 0.25s ease-out;
-}
-.power-button[data-connected='true'] .power-button-halo {
-  animation: power-breathe 3.2s ease-in-out infinite;
-}
-.power-button[data-connected='false'] .power-button-halo {
-  opacity: 0.18;
-  filter: blur(9px) grayscale(1);
-}
-@media (prefers-reduced-motion: reduce) {
-  .power-button[data-connected='true'] .power-button-halo {
-    animation: none;
-  }
-}
-@keyframes power-breathe {
-  0%, 100% { opacity: 0.75; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.045); }
-}
-
 .power-button-disc {
   position: relative;
   display: flex;
@@ -212,30 +181,13 @@ body {
   width: 124px;
   height: 124px;
   border-radius: 9999px;
-  overflow: hidden;
-  background: radial-gradient(
-    circle at 32% 24%,
-    color-mix(in srgb, var(--power-accent) 55%, #ffffff) 0%,
-    var(--power-accent) 45%,
-    color-mix(in srgb, var(--power-accent) 78%, #000000) 100%
-  );
-  box-shadow:
-    0 0 34px color-mix(in srgb, var(--power-accent) 50%, transparent),
-    0 10px 28px -8px color-mix(in srgb, var(--power-accent) 60%, transparent),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -14px 24px -12px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, var(--power-accent) 0%, color-mix(in srgb, var(--power-accent) 78%, #000000) 100%);
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--power-accent) 45%, transparent);
   transition: background 0.25s ease-out, box-shadow 0.25s ease-out;
 }
 .power-button[data-connected='false'] .power-button-disc {
-  background: radial-gradient(circle at 32% 24%, #4d5766, #333c48 55%, #23282f 100%);
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -14px 22px -12px rgba(0, 0, 0, 0.4);
-}
-
-.power-button-icon {
-  position: relative;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  background: linear-gradient(135deg, #4d5766 0%, #262b33 100%);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.4);
 }
 
 /* === Общие примитивы интерфейса ==========================================

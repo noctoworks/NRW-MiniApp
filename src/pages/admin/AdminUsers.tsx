@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Input, Pagination, SegmentedControl, Title } from '@telegram-apps/telegram-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { listUsers } from '../../api/admin';
+import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import UsersTable from '../../components/admin/UsersTable';
 import type { AdminUserFilter } from '../../types';
 
@@ -12,12 +13,24 @@ const FILTERS: { id: AdminUserFilter; label: string }[] = [
   { id: 'blocked_bot', label: 'Заблокировали бота' },
 ];
 
+/** Поиск бьёт по бэкенду при каждом изменении query — без дебаунса это
+ * запрос на каждое нажатие клавиши (см. диалог/аудит). 400мс — стандартная
+ * задержка для search-инпутов, достаточно, чтобы не долбить бэк во время
+ * набора, но не ощущается как лаг после того, как перестал печатать. */
+const SEARCH_DEBOUNCE_MS = 400;
+
 export default function AdminUsers() {
+  const [queryInput, setQueryInput] = useState('');
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<AdminUserFilter>('all');
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = useQuery({
+  useEffect(() => {
+    const timer = setTimeout(() => setQuery(queryInput), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [queryInput]);
+
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin', 'users', query, filter, page],
     queryFn: () => listUsers({ query: query || undefined, filter, page }),
   });
@@ -31,9 +44,9 @@ export default function AdminUsers() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="w-64">
           <Input
-            value={query}
+            value={queryInput}
             onChange={(e) => {
-              setQuery(e.target.value);
+              setQueryInput(e.target.value);
               setPage(1);
             }}
             placeholder="Поиск по username или telegram_id"
@@ -55,8 +68,10 @@ export default function AdminUsers() {
         </SegmentedControl>
       </div>
 
-      {isLoading || !data ? (
+      {isLoading ? (
         <div className="text-sm text-muted">Загрузка…</div>
+      ) : isError || !data ? (
+        <AdminErrorState onRetry={() => refetch()} />
       ) : (
         <>
           <UsersTable items={data.items} />

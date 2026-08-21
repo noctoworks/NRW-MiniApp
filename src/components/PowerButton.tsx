@@ -8,6 +8,7 @@ interface PowerButtonProps {
 export default function PowerButton({ connected, onClick }: PowerButtonProps) {
   return (
     <div className="relative flex h-64 items-center justify-center overflow-hidden">
+      <span className="power-button-dots" aria-hidden />
       <button
         type="button"
         onClick={() => {
@@ -18,10 +19,8 @@ export default function PowerButton({ connected, onClick }: PowerButtonProps) {
         data-connected={connected ? 'true' : 'false'}
         aria-label={connected ? 'Отключить VPN' : 'Подключить VPN'}
       >
-        <span className="power-button-halo" />
         <span className="power-button-disc">
           <svg
-            className="power-button-icon"
             width="42"
             height="42"
             viewBox="0 0 24 24"

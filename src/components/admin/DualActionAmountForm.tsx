@@ -13,6 +13,11 @@ interface DualActionAmountFormProps {
    * (пусто/не число/≤0) — знак применяет сама форма по нажатой кнопке. */
   parse: (raw: string) => number | null;
   onSubmit: (signedAmount: number) => Promise<void>;
+  /** Быстрые пресеты значения (например [100, 500, 1000] для ₽ или [7, 30]
+   * для дней) — по практике админ-панелей типовое начисление/продление на
+   * "круглую" сумму должно занимать один тап, а не набор числа руками (см.
+   * диалог "давай поправим админку" / research по грантам баланса). */
+  presets: number[];
 }
 
 /** Две кнопки ("списать"/"начислить" или "сократить"/"продлить"), каждая
@@ -28,6 +33,7 @@ export default function DualActionAmountForm({
   placeholder,
   parse,
   onSubmit,
+  presets,
 }: DualActionAmountFormProps) {
   const [mode, setMode] = useState<'positive' | 'negative' | null>(null);
   const [value, setValue] = useState('');
@@ -83,27 +89,50 @@ export default function DualActionAmountForm({
       </div>
 
       {mode && (
-        <div className="animate-fade-in flex items-end gap-2">
-          <div className="flex-1">
-            <Input
-              header={inputHeader}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={placeholder}
-              inputMode="decimal"
-              autoFocus
-            />
+        <div className="animate-fade-in flex flex-col gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {presets.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => {
+                  hapticImpact('light');
+                  setValue(String(preset));
+                }}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  value === String(preset)
+                    ? mode === 'positive'
+                      ? 'bg-[hsl(var(--primary))] text-white'
+                      : 'bg-[hsl(var(--destructive))] text-white'
+                    : 'bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]'
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
           </div>
-          <button
-            type="button"
-            disabled={submitting || !parse(value)}
-            onClick={handleConfirm}
-            className={`h-[52px] shrink-0 rounded-xl px-4 text-sm font-semibold text-white transition-opacity disabled:opacity-40 ${
-              mode === 'positive' ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive))]'
-            }`}
-          >
-            {mode === 'positive' ? positiveLabel : negativeLabel}
-          </button>
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <Input
+                header={inputHeader}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={placeholder}
+                inputMode="decimal"
+                autoFocus
+              />
+            </div>
+            <button
+              type="button"
+              disabled={submitting || !parse(value)}
+              onClick={handleConfirm}
+              className={`h-[52px] shrink-0 rounded-xl px-4 text-sm font-semibold text-white transition-opacity disabled:opacity-40 ${
+                mode === 'positive' ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive))]'
+              }`}
+            >
+              {mode === 'positive' ? positiveLabel : negativeLabel}
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -18,10 +18,11 @@ interface PaymentMethodRowProps {
   onSelect: () => void;
 }
 
-function MethodIcon({ id, emoji }: { id: string; emoji: string }) {
-  // Реальный SVG-логотип есть только для СБП (единственный подключённый провайдер,
-  // см. решение "Только Platega (СБП/карты)") — для остальных, если backend
-  // когда-нибудь их вернёт, используем эмодзи-плейсхолдер вместо чужого бренд-лого.
+function MethodIcon({ id }: { id: string }) {
+  // Реальный SVG-логотип для каждого подключённого способа оплаты — раньше
+  // для crypto/stars был эмодзи-плейсхолдер в сером квадрате, СБП выделялся
+  // на их фоне (см. диалог "давай добавим картинки"). Свои иконки, не чужие
+  // бренд-лого один в один — только опознаваемая форма/цвет.
   if (id === 'platega') {
     return (
       <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 rounded-lg">
@@ -37,20 +38,57 @@ function MethodIcon({ id, emoji }: { id: string; emoji: string }) {
       </svg>
     );
   }
+
+  if (id === 'cryptobot') {
+    return (
+      <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 rounded-lg">
+        <defs>
+          <linearGradient id="crypto-bg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#4A90E2" />
+            <stop offset="1" stopColor="#357ABD" />
+          </linearGradient>
+        </defs>
+        <rect width="40" height="40" fill="url(#crypto-bg)" rx="8" />
+        <circle cx="20" cy="20" r="10.5" fill="none" stroke="#fff" strokeWidth="1.6" opacity="0.9" />
+        <text x="20" y="25" textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff" fontFamily="sans-serif">
+          ₿
+        </text>
+      </svg>
+    );
+  }
+
+  if (id === 'stars') {
+    return (
+      <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 rounded-lg">
+        <defs>
+          <linearGradient id="stars-bg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#FFC94A" />
+            <stop offset="1" stopColor="#FF9F0A" />
+          </linearGradient>
+        </defs>
+        <rect width="40" height="40" fill="url(#stars-bg)" rx="8" />
+        {/* Четырёхлучевая звезда-искра — тот же силуэт, что у иконки Telegram
+         * Stars, не растровая копия оригинала. */}
+        <path
+          fill="#fff"
+          d="M20 8c.7 4.2 2.1 6.9 4.4 8.6 2.3 1.7 5.1 2.4 7.6 2.4-2.5 0-5.3.7-7.6 2.4-2.3 1.7-3.7 4.4-4.4 8.6-.7-4.2-2.1-6.9-4.4-8.6C13.3 20.1 10.5 19.4 8 19.4c2.5 0 5.3-.7 7.6-2.4 2.3-1.7 3.7-4.4 4.4-8.6z"
+        />
+      </svg>
+    );
+  }
+
   return (
     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--muted))] text-lg">
-      {emoji}
+      💳
     </span>
   );
 }
 
 export default function PaymentMethodRow({ method, selected, onSelect }: PaymentMethodRowProps) {
-  const [emoji] = method.label.split(' ');
-
   return (
     <button type="button" onClick={onSelect} className={`plan-card w-full ${selected ? 'selected-primary' : ''}`}>
       <div className="flex items-center gap-3">
-        <MethodIcon id={method.id} emoji={emoji} />
+        <MethodIcon id={method.id} />
         <div className="text-left">
           <div className="text-body font-semibold text-white">{TITLES[method.id] ?? method.label}</div>
           <div className="text-subtitle2 text-[hsl(var(--subtitle-foreground))]">{SUBTITLES[method.id] ?? ''}</div>

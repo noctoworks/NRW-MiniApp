@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { ChevronRight, Settings2, Smartphone, Users } from 'lucide-react';
+import { ChevronRight, Rocket, Settings2, Smartphone, Users } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { getConnectApps, getDashboard, getReferral } from '../api/cabinet';
 import AppSelect from '../components/AppSelect';
 import IpCard from '../components/IpCard';
 import Loader from '../components/Loader';
+import NoSubscriptionSteps from '../components/NoSubscriptionSteps';
 import PowerButton from '../components/PowerButton';
 import SubscriptionLink from '../components/SubscriptionLink';
 import TopBar from '../components/TopBar';
@@ -107,7 +108,14 @@ export default function Dashboard() {
   // PowerButton вибрирует сам (см. components/PowerButton.tsx) — здесь не
   // дублируем, чтобы тап по кругу не давал двойной отклик.
   const handleConnect = () => {
-    if (!subscription?.subscription_url) return;
+    // isActive, не subscription_url: у истёкшей подписки ссылка в записи
+    // может остаться от прошлого активного периода (не очищается сама) —
+    // проверка по url пропускала на /connect уже неактивных юзеров вместо
+    // /payment (найдено вживую, см. диалог).
+    if (!isActive) {
+      navigate('/payment');
+      return;
+    }
     navigate('/connect', { state: { platform: platformKey, appId: selectedAppId ?? undefined } });
   };
 
@@ -152,41 +160,43 @@ export default function Dashboard() {
         <PowerButton connected={isActive} onClick={handleConnect} />
       </div>
 
-      <div className="animate-fade-in flex flex-col gap-3 px-4">
-        <div className="flex gap-3">
-          <IpCard />
-          {platformApps.length > 0 && (
-            <AppSelect options={platformApps} selectedId={selectedAppId} onSelect={setSelectedAppId} />
-          )}
-        </div>
+      <div className={`animate-fade-in flex flex-col px-4 ${isActive ? 'gap-3' : 'gap-8'}`}>
+        {!isActive && (
+          <div className="mt-2">
+            <NoSubscriptionSteps />
+          </div>
+        )}
 
-        <div id="tour-subscription-card" className="card">
-          {subscription?.subscription_url && (
-            <div className="mb-3">
-              <SubscriptionLink url={subscription.subscription_url} />
-            </div>
-          )}
+        {isActive && (
+          <div className="flex gap-3">
+            <IpCard />
+            {platformApps.length > 0 && (
+              <AppSelect options={platformApps} selectedId={selectedAppId} onSelect={setSelectedAppId} />
+            )}
+          </div>
+        )}
 
-          {subscription ? (
+        {isActive && (
+          <div id="tour-subscription-card" className="card">
+            {subscription?.subscription_url && (
+              <div className="mb-3">
+                <SubscriptionLink url={subscription.subscription_url} />
+              </div>
+            )}
+
             <div className="flex items-center justify-between px-1 text-[15px] leading-6">
               <div>
                 <div className="font-semibold">Трафик</div>
                 <div className="text-[hsl(var(--subtitle-foreground))]">
-                  {formatTraffic(subscription.traffic_used_gb, subscription.traffic_limit_gb)}
+                  {formatTraffic(subscription!.traffic_used_gb, subscription!.traffic_limit_gb)}
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-semibold">до {formatDate(subscription.end_date)}</div>
-                <div className={`font-medium ${isActive ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--subtitle-foreground))]'}`}>
-                  {isActive ? 'Подписка активна' : 'Подписка истекла'}
-                </div>
+                <div className="font-semibold">до {formatDate(subscription!.end_date)}</div>
+                <div className="font-medium text-[hsl(var(--primary))]">Подписка активна</div>
               </div>
             </div>
-          ) : (
-            <span className="text-sm text-[hsl(var(--subtitle-foreground))]">Подписка не оформлена</span>
-          )}
 
-          {subscription && (
             <button
               id="tour-devices-row"
               type="button"
@@ -198,40 +208,57 @@ export default function Dashboard() {
             >
               <span className="flex items-center gap-2 text-sm text-[hsl(var(--subtitle-foreground))]">
                 <Smartphone size={16} strokeWidth={2} />
-                Устройства · {subscription.device_limit > 0 ? `лимит ${subscription.device_limit}` : 'без лимита'}
+                Устройства · {subscription!.device_limit > 0 ? `лимит ${subscription!.device_limit}` : 'без лимита'}
               </span>
               <ChevronRight size={16} strokeWidth={2} className="text-[hsl(var(--subtitle-foreground))]" />
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
-        <button
-          id="tour-connect-button"
-          type="button"
-          className="btn-primary flex items-center justify-center gap-2"
-          disabled={!subscription?.subscription_url}
-          onClick={() => {
-            hapticImpact('light');
-            handleConnect();
-          }}
-        >
-          <Settings2 size={17} strokeWidth={2} />
-          Подключить VPN
-        </button>
+        {isActive ? (
+          <>
+            <button
+              id="tour-connect-button"
+              type="button"
+              className="btn-primary flex items-center justify-center gap-2"
+              disabled={!subscription?.subscription_url}
+              onClick={() => {
+                hapticImpact('light');
+                handleConnect();
+              }}
+            >
+              <Settings2 size={17} strokeWidth={2} />
+              Подключить VPN
+            </button>
 
-        <button
-          id="tour-renew-button"
-          type="button"
-          className="btn-secondary"
-          onClick={() => {
-            hapticImpact('light');
-            navigate('/payment');
-          }}
-        >
-          Продлить подписку
-        </button>
+            <button
+              id="tour-renew-button"
+              type="button"
+              className="btn-secondary"
+              onClick={() => {
+                hapticImpact('light');
+                navigate('/payment');
+              }}
+            >
+              Продлить подписку
+            </button>
+          </>
+        ) : (
+          <button
+            id="tour-connect-button"
+            type="button"
+            className="btn-primary flex items-center justify-center gap-2"
+            onClick={() => {
+              hapticImpact('light');
+              navigate('/payment');
+            }}
+          >
+            <Rocket size={17} strokeWidth={2} />
+            Смотреть тарифы
+          </button>
+        )}
 
-        {referral && (
+        {isActive && referral && (
           <button
             id="tour-referral-banner"
             type="button"

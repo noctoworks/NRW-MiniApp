@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Cell, Input, Section, Title } from '@telegram-apps/telegram-ui';
-import AdminEmptyState from '../../components/admin/AdminEmptyState';
+import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import { useState } from 'react';
 import { createPromoGroup, deletePromoGroup, listPromoGroups, updatePromoGroup } from '../../api/admin';
 import { confirmDialog } from '../../lib/nativeDialogs';
@@ -117,7 +117,10 @@ function CreateGroupForm() {
 }
 
 export default function AdminPromoGroups() {
-  const { data, isLoading } = useQuery({ queryKey: ['admin', 'promo-groups'], queryFn: listPromoGroups });
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['admin', 'promo-groups'],
+    queryFn: listPromoGroups,
+  });
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
@@ -133,7 +136,9 @@ export default function AdminPromoGroups() {
         <CreateGroupForm />
         {isLoading ? (
           <Cell className="text-muted">Загрузка…</Cell>
-        ) : data && data.length > 0 ? (
+        ) : isError || !data ? (
+          <AdminErrorState onRetry={() => refetch()} />
+        ) : data.length > 0 ? (
           data.map((group) => <GroupRow key={group.id} group={group} />)
         ) : (
           <AdminEmptyState text="Групп ещё нет" />

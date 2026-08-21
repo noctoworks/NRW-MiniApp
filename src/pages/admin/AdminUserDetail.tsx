@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Caption, Cell, Section, Switch, Title } from '@telegram-apps/telegram-ui';
+import { Badge, Caption, Cell, Section, SegmentedControl, Switch, Title } from '@telegram-apps/telegram-ui';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   adjustBalance,
@@ -11,6 +12,7 @@ import {
   setUserPromoGroup,
   toggleBlock,
 } from '../../api/admin';
+import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import DevicesSection from '../../components/admin/DevicesSection';
 import DualActionAmountForm from '../../components/admin/DualActionAmountForm';
 import ReferralCommissionForm from '../../components/admin/ReferralCommissionForm';
@@ -20,6 +22,15 @@ import UserMessageForm from '../../components/admin/UserMessageForm';
 import UserPromoGroupSelect from '../../components/admin/UserPromoGroupSelect';
 import { formatDate, formatRub } from '../../lib/format';
 import { confirmDialog } from '../../lib/nativeDialogs';
+
+type DetailTab = 'overview' | 'transactions' | 'devices' | 'settings';
+
+const TABS: { id: DetailTab; label: string }[] = [
+  { id: 'overview', label: 'Обзор' },
+  { id: 'transactions', label: 'Транзакции' },
+  { id: 'devices', label: 'Устройства' },
+  { id: 'settings', label: 'Настройки' },
+];
 
 function parsePositiveRub(raw: string): number | null {
   const amount = Number.parseFloat(raw.replace(',', '.'));
@@ -48,8 +59,9 @@ function AdminUserDetailContent() {
   const userId = Number(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [tab, setTab] = useState<DetailTab>('overview');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin', 'user', userId],
     queryFn: () => getUserDetail(userId),
     enabled: Number.isFinite(userId),
@@ -57,8 +69,12 @@ function AdminUserDetailContent() {
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin', 'user', userId] });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return <div className="text-sm text-muted">Загрузка…</div>;
+  }
+
+  if (isError || !data) {
+    return <AdminErrorState onRetry={() => refetch()} />;
   }
 
   const handleBlockToggle = async () => {
@@ -113,51 +129,90 @@ function AdminUserDetailContent() {
         </Cell>
       </Section>
 
-      <Section>
-        <div className="flex flex-col gap-4 px-4 py-3">
-          <div>
-            <div className="section-title !mb-2 !px-0">Баланс</div>
-            <DualActionAmountForm
-              positiveLabel="Начислить"
-              negativeLabel="Списать"
-              inputHeader="Сумма"
-              placeholder="Сумма в ₽"
-              parse={parsePositiveRub}
-              onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }}
-            />
+      {/* Вкладки вместо одного нескончаемого блока (баланс + дни + сообщение +
+       * реферальный % + промогруппа + блок + удаление вперемешку) — частые
+       * действия (начислить/продлить) отдельно от разовых настроек, опасные
+       * (удаление) визуально отделены и не соседствуют с обычными (см.
+       * диалог "давай поправим админку" / research по CRM-паттернам:
+       * табы для записи с несколькими доменами данных, а не один скролл). */}
+      <SegmentedControl>
+        {TABS.map((t) => (
+          <SegmentedControl.Item key={t.id} selected={tab === t.id} onClick={() => setTab(t.id)}>
+            {t.label}
+          </SegmentedControl.Item>
+        ))}
+      </SegmentedControl>
+
+      {tab === 'overview' && (
+        <Section>
+          <div className="flex flex-col gap-4 px-4 py-3">
+            <div>
+              <div className="section-title !mb-2 !px-0">Баланс</div>
+              <DualActionAmountForm
+                positiveLabel="Начислить"
+                negativeLabel="Списать"
+                inputHeader="Сумма"
+                placeholder="Сумма в ₽"
+                parse={parsePositiveRub}
+                presets={[100, 500, 1000]}
+                onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }}
+              />
+            </div>
+
+            <div>
+              <div className="section-title !mb-2 !px-0">Подписка</div>
+              <DualActionAmountForm
+                positiveLabel="Продлить"
+                negativeLabel="Сократить"
+                inputHeader="Дни"
+                placeholder="Количество дней"
+                parse={parsePositiveDays}
+                presets={[7, 30, 90]}
+                onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
+              />
+            </div>
           </div>
+        </Section>
+      )}
 
+      {tab === 'transactions' && <TransactionsSection userId={userId} />}
+
+      {tab === 'devices' && (
+        <>
+          <DevicesSection userId={userId} />
+          <SyncSection userId={userId} />
+        </>
+      )}
+
+      {tab === 'settings' && (
+        <>
+          <Section>
+            <div className="flex flex-col gap-4 px-4 py-3">
+              <UserMessageForm onSubmit={(text) => messageUser(userId, text).then(() => undefined)} />
+              <ReferralCommissionForm
+                value={data.referral_commission_percent}
+                onSubmit={async (percent) => { await setReferralCommission(userId, percent); await invalidate(); }}
+              />
+              <UserPromoGroupSelect
+                value={data.promo_group_id}
+                onChange={async (groupId) => { await setUserPromoGroup(userId, groupId); await invalidate(); }}
+              />
+            </div>
+            <Cell after={<Switch checked={data.is_blocked} onChange={handleBlockToggle} />}>Заблокирован</Cell>
+          </Section>
+
+          {/* Опасная зона — визуально отделена (заголовок + отступ), не
+           * соседствует вплотную с обычными переключателями выше. */}
           <div>
-            <div className="section-title !mb-2 !px-0">Подписка</div>
-            <DualActionAmountForm
-              positiveLabel="Продлить"
-              negativeLabel="Сократить"
-              inputHeader="Дни"
-              placeholder="Количество дней"
-              parse={parsePositiveDays}
-              onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
-            />
+            <div className="section-title !text-[hsl(var(--destructive))]">Опасная зона</div>
+            <Section>
+              <Cell onClick={handleDelete} className="text-red-400">
+                Удалить (заблокировать и обезличить)
+              </Cell>
+            </Section>
           </div>
-
-          <UserMessageForm onSubmit={(text) => messageUser(userId, text).then(() => undefined)} />
-          <ReferralCommissionForm
-            value={data.referral_commission_percent}
-            onSubmit={async (percent) => { await setReferralCommission(userId, percent); await invalidate(); }}
-          />
-          <UserPromoGroupSelect
-            value={data.promo_group_id}
-            onChange={async (groupId) => { await setUserPromoGroup(userId, groupId); await invalidate(); }}
-          />
-        </div>
-        <Cell after={<Switch checked={data.is_blocked} onChange={handleBlockToggle} />}>Заблокирован</Cell>
-        <Cell onClick={handleDelete} className="text-red-400">
-          Удалить (заблокировать и обезличить)
-        </Cell>
-      </Section>
-
-      <DevicesSection userId={userId} />
-      <SyncSection userId={userId} />
-      <TransactionsSection userId={userId} />
+        </>
+      )}
     </div>
   );
 }
