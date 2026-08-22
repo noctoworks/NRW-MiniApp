@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { TonConnectButton } from '@tonconnect/ui-react';
+import { ArrowDownCircle, ArrowUpCircle, ChevronLeft, ChevronRight, Users, Wallet } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getProfile, getTransactions } from '../api/cabinet';
@@ -94,6 +95,24 @@ export default function Profile() {
             </div>
             <ChevronRight size={18} strokeWidth={2} className="text-[hsl(var(--subtitle-foreground))]" />
           </button>
+
+          <div className="card flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--primary)/0.15)]">
+                <Wallet size={18} strokeWidth={2} className="text-[hsl(var(--primary))]" />
+              </span>
+              <div>
+                <div className="text-sm font-semibold text-white">TON-кошелёк</div>
+                <div className="text-xs text-[hsl(var(--subtitle-foreground))]">Нужен для оплаты подписки в TON</div>
+              </div>
+            </div>
+            {/* Официальный виджет TON Connect — сам показывает "Подключить"/адрес
+             * подключённого кошелька и меню отключения, ничего переизобретать не
+             * нужно. Разово настраивается здесь, а не на каждом чекапе (см.
+             * диалог, "далеко надо разместить в профиле, как доп.опция") —
+             * Payment.tsx только проверяет, подключён ли уже кошелёк. */}
+            <TonConnectButton />
+          </div>
 
           <section>
             <h2 className="section-title">История операций</h2>

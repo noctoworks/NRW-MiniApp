@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import axios from 'axios';
+import { ChevronRight } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { getTariff, purchaseSubscription } from '../api/cabinet';
@@ -81,9 +82,11 @@ export default function Payment() {
     // lib/ton.ts): без него отправлять транзакцию нечем, а платёж на бэкенде
     // создавать раньше времени бессмысленно (повиснет в pending и уйдёт в
     // abandoned-напоминание просто потому, что юзер не успел подключиться).
+    // Подключение — не здесь: это разовая настройка в Профиле (см. диалог,
+    // "далеко надо разместить"), а не часть каждого чекаута.
     if (selectedMethod === 'ton' && !tonWallet) {
       hapticImpact('light');
-      await tonConnectUI.openModal();
+      navigate('/profile');
       return;
     }
 
@@ -175,7 +178,7 @@ export default function Payment() {
         : stage === 'pending'
           ? 'Проверить'
           : tonNeedsConnect
-            ? 'Подключить кошелёк'
+            ? 'Подключить кошелёк в профиле'
             : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`,
     onClick: stage === 'pending' ? handleCheckStatus : handlePay,
     visible: Boolean(data) && stage !== 'success',
@@ -251,13 +254,20 @@ export default function Payment() {
             ))}
           </div>
 
-          {selectedMethod === 'ton' && (
-            <div className="mt-3 flex items-center justify-between gap-3">
+          {tonNeedsConnect && (
+            <button
+              type="button"
+              onClick={() => {
+                hapticImpact('light');
+                navigate('/profile');
+              }}
+              className="card mt-3 flex items-center justify-between gap-3 text-left"
+            >
               <p className="text-subtitle2 text-[hsl(var(--subtitle-foreground))]">
-                {tonWallet ? 'Кошелёк подключён' : 'Нужен кошелёк TON Connect'}
+                Для оплаты в TON сначала подключите кошелёк в профиле
               </p>
-              <TonConnectButton />
-            </div>
+              <ChevronRight size={18} strokeWidth={2} className="shrink-0 text-[hsl(var(--subtitle-foreground))]" />
+            </button>
           )}
         </section>
 
