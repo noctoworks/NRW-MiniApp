@@ -28,16 +28,14 @@ export default function AdminOverview() {
 
       {/* Доход — самое важное на экране, поэтому крупная плашка сверху, а не
           одна из восьми одинаковых плиток в общей сетке (см. диалог: "давай
-          поправим админку", доход/день + всего за всё время должны бросаться
-          в глаза, особенно с телефона). */}
+          поправим админку"). Крупным — "за сегодня" (то, что реально нужно
+          проверять каждый день), "за всё время" ушёл в мелкую строку ниже —
+          раньше было наоборот, но именно "сегодня" должно бросаться в глаза
+          первым, особенно с телефона. */}
       <div className="card !p-4">
-        <div className="text-xs text-[hsl(var(--subtitle-foreground))]">Доход за всё время</div>
-        <div className="text-3xl font-bold text-white">{formatRub(overview.revenue_all_time_kopeks)}</div>
+        <div className="text-xs text-[hsl(var(--subtitle-foreground))]">Доход за сегодня</div>
+        <div className="text-3xl font-bold text-white">{formatRub(overview.revenue_today_kopeks)}</div>
         <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
-          <div>
-            <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">Сегодня</div>
-            <div className="text-sm font-semibold text-[hsl(var(--primary))]">{formatRub(overview.revenue_today_kopeks)}</div>
-          </div>
           <div>
             <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">За 7 дн</div>
             <div className="text-sm font-semibold text-white">{formatRub(overview.revenue_7d_kopeks)}</div>
@@ -45,6 +43,10 @@ export default function AdminOverview() {
           <div>
             <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">За 30 дн</div>
             <div className="text-sm font-semibold text-white">{formatRub(overview.revenue_30d_kopeks)}</div>
+          </div>
+          <div>
+            <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">Всего</div>
+            <div className="text-sm font-semibold text-[hsl(var(--primary))]">{formatRub(overview.revenue_all_time_kopeks)}</div>
           </div>
         </div>
       </div>

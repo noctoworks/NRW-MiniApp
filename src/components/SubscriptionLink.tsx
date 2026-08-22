@@ -65,16 +65,30 @@ export default function SubscriptionLink({ url }: SubscriptionLinkProps) {
     <>
       {/* Ссылка и обе иконки — на одной общей подложке-«инпуте» внутри карточки;
        * текст справа затухает маской, а не обрезается многоточием. */}
-      <div className="field flex items-center gap-2">
-        <span
-          className="block min-w-0 flex-1 truncate text-sm"
+      <div className="field relative flex items-center gap-2">
+        {copied && (
+          // Микро-всплывашка над полем — подтверждение копирования, видно
+          // независимо от того, ткнули по тексту ссылки или по иконке справа.
+          <div className="animate-fade-in pointer-events-none absolute -top-9 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-[hsl(var(--primary))] px-3 py-1 text-xs font-medium text-[hsl(var(--primary-foreground))] shadow-lg">
+            Скопировано
+            <div className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[hsl(var(--primary))]" />
+          </div>
+        )}
+        {/* Сам текст ссылки — тоже кнопка копирования, не только иконка справа
+         * (см. диалог: "чтобы человек нажимал на ссылку — она тоже копировалась") —
+         * та же логика, что и у кнопки-иконки, просто больший тап-таргет. */}
+        <button
+          type="button"
+          aria-label="Копировать ссылку"
+          onClick={handleCopy}
+          className="block min-w-0 flex-1 truncate text-left text-sm"
           style={{
             WebkitMaskImage: 'linear-gradient(to right, black 82%, transparent 100%)',
             maskImage: 'linear-gradient(to right, black 82%, transparent 100%)',
           }}
         >
           {url}
-        </span>
+        </button>
         <button
           type="button"
           aria-label="QR-код"
