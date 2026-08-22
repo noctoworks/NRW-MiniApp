@@ -1,4 +1,5 @@
 import { AppRoot } from '@telegram-apps/telegram-ui';
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router';
 import { loginTelegram } from './api/auth';
@@ -33,6 +34,11 @@ const AdminReferrals = lazy(() => import('./pages/admin/AdminReferrals'));
 function AdminLoading() {
   return <Loader />;
 }
+
+// Манифест обязан быть публично доступен по https (проверяют сами кошельки при
+// подключении) — файл лежит в public/, значит раздаётся с того же домена, что и
+// сам Mini App (см. .env MINIAPP_URL/CABINET_ALLOWED_ORIGINS — mini.tinymini.online).
+const TONCONNECT_MANIFEST_URL = `${window.location.origin}/tonconnect-manifest.json`;
 
 function AdminEntry() {
   // Десктоп — сайдбар (AdminDesktopLayout), мобильный — горизонтальные вкладки
@@ -101,8 +107,9 @@ export default function App() {
   }
 
   return (
-    <AppRoot>
-      <Routes>
+    <TonConnectUIProvider manifestUrl={TONCONNECT_MANIFEST_URL}>
+      <AppRoot>
+        <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/payment" element={<Payment />} />
       <Route path="/connect" element={<Connect />} />
@@ -184,7 +191,8 @@ export default function App() {
           }
         />
       </Route>
-      </Routes>
-    </AppRoot>
+        </Routes>
+      </AppRoot>
+    </TonConnectUIProvider>
   );
 }

@@ -2,14 +2,14 @@ import type { PaymentMethodOut } from '../types';
 
 const SUBTITLES: Record<string, string> = {
   platega: 'RUB',
-  cryptobot: 'USDT, TON, USDC, BTC',
   stars: 'XTR',
+  ton: 'TON Connect',
 };
 
 const TITLES: Record<string, string> = {
   platega: 'Система Быстрых Платежей',
-  cryptobot: 'Криптовалюта',
   stars: 'Telegram Stars',
+  ton: 'TON',
 };
 
 interface PaymentMethodRowProps {
@@ -39,24 +39,6 @@ function MethodIcon({ id }: { id: string }) {
     );
   }
 
-  if (id === 'cryptobot') {
-    return (
-      <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 rounded-lg">
-        <defs>
-          <linearGradient id="crypto-bg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#4A90E2" />
-            <stop offset="1" stopColor="#357ABD" />
-          </linearGradient>
-        </defs>
-        <rect width="40" height="40" fill="url(#crypto-bg)" rx="8" />
-        <circle cx="20" cy="20" r="10.5" fill="none" stroke="#fff" strokeWidth="1.6" opacity="0.9" />
-        <text x="20" y="25" textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff" fontFamily="sans-serif">
-          ₿
-        </text>
-      </svg>
-    );
-  }
-
   if (id === 'stars') {
     return (
       <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 rounded-lg">
@@ -73,6 +55,17 @@ function MethodIcon({ id }: { id: string }) {
           fill="#fff"
           d="M20 8c.7 4.2 2.1 6.9 4.4 8.6 2.3 1.7 5.1 2.4 7.6 2.4-2.5 0-5.3.7-7.6 2.4-2.3 1.7-3.7 4.4-4.4 8.6-.7-4.2-2.1-6.9-4.4-8.6C13.3 20.1 10.5 19.4 8 19.4c2.5 0 5.3-.7 7.6-2.4 2.3-1.7 3.7-4.4 4.4-8.6z"
         />
+      </svg>
+    );
+  }
+
+  if (id === 'ton') {
+    return (
+      <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0 rounded-lg">
+        <rect width="40" height="40" fill="#0098EA" rx="8" />
+        {/* Силуэт "бриллианта" TON — узнаваемая форма логотипа, не растровая копия. */}
+        <path fill="#fff" d="M12 13h16a2 2 0 0 1 1.74 2.99l-7.02 12.16a1 1 0 0 1-1.73 0l-7.02-12.16A2 2 0 0 1 12 13z" />
+        <path fill="#0098EA" d="M19 16v9.3L13.9 16.6a.5.5 0 0 1 .43-.6z" opacity="0.35" />
       </svg>
     );
   }

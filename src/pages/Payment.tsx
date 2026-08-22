@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -12,6 +13,7 @@ import { useTelegramMainButton } from '../hooks/useTelegramMainButton';
 import { computeSavingsPercent, formatRub } from '../lib/format';
 import { hapticImpact, hapticNotification, hapticSelection } from '../lib/haptics';
 import { alertDialog } from '../lib/nativeDialogs';
+import { buildCommentPayload, parseTonTransferUrl } from '../lib/ton';
 
 const GENERIC_PURCHASE_ERROR = 'Не удалось оформить платёж, попробуйте ещё раз.';
 
@@ -37,6 +39,8 @@ export default function Payment() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data, isLoading, isError } = useQuery({ queryKey: ['tariff'], queryFn: getTariff });
+  const [tonConnectUI] = useTonConnectUI();
+  const tonWallet = useTonWallet();
 
   const goBack = useCallback(() => navigate('/'), [navigate]);
   useTelegramBackButton(goBack);
@@ -72,6 +76,17 @@ export default function Payment() {
 
   const handlePay = useCallback(async () => {
     if (!selectedPeriod || !selectedMethod) return;
+
+    // TON — единственный способ, где сначала нужен подключённый кошелёк (см.
+    // lib/ton.ts): без него отправлять транзакцию нечем, а платёж на бэкенде
+    // создавать раньше времени бессмысленно (повиснет в pending и уйдёт в
+    // abandoned-напоминание просто потому, что юзер не успел подключиться).
+    if (selectedMethod === 'ton' && !tonWallet) {
+      hapticImpact('light');
+      await tonConnectUI.openModal();
+      return;
+    }
+
     hapticImpact('medium');
     setStage('submitting');
     try {
@@ -87,9 +102,35 @@ export default function Payment() {
         setTimeout(() => navigate('/'), 1400);
         return;
       }
+
+      if (selectedMethod === 'ton' && result.payment_url) {
+        // payment_url — ton://transfer/<address>?amount=<nanotons>&text=<comment>
+        // (см. TonProvider.create_payment) — тот же deep-link, что и в кнопке
+        // "Перейти к оплате" у бота, но здесь кошелёк уже подключён через TON
+        // Connect, поэтому шлём транзакцию напрямую, а не открываем ссылку.
+        const parsed = parseTonTransferUrl(result.payment_url);
+        if (!parsed) {
+          throw new Error('Не удалось разобрать адрес для перевода TON');
+        }
+        await tonConnectUI.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          messages: [
+            {
+              address: parsed.address,
+              amount: parsed.amountNanotons,
+              payload: buildCommentPayload(parsed.comment),
+            },
+          ],
+        });
+        // Отправка транзакции кошельком — не то же самое, что её подтверждение
+        // блокчейном (TonProvider.check_payment_status поллит TON Center и
+        // финализирует по mc_block_seqno). Здесь только фиксируем сам факт
+        // отправки — платёж остаётся pending до реального подтверждения.
+      }
+
       setPendingUrl(result.payment_url);
       setStage('pending');
-      if (result.payment_url) {
+      if (selectedMethod !== 'ton' && result.payment_url) {
         const webApp = window.Telegram?.WebApp;
         if (webApp) {
           webApp.openLink(result.payment_url);
@@ -99,13 +140,20 @@ export default function Payment() {
       }
     } catch (error) {
       hapticNotification('error');
-      const message = extractErrorMessage(error);
+      // Отказ подписать транзакцию в кошельке (UserRejectsError) — не системная
+      // ошибка, а осознанный выбор юзера: Payment на бэкенде уже создан и
+      // останется pending (тот же путь, что и "закрыл окно оплаты Platega, не
+      // заплатив") — abandoned-напоминание подхватит его тем же общим циклом.
+      const message =
+        error instanceof Error && error.name === 'UserRejectsError'
+          ? 'Перевод отменён в кошельке.'
+          : extractErrorMessage(error);
       setErrorMessage(message);
       setStage('error');
       await alertDialog(message);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPeriod, selectedMethod]);
+  }, [selectedPeriod, selectedMethod, tonWallet, tonConnectUI]);
 
   const handleCheckStatus = useCallback(async () => {
     hapticImpact('light');
@@ -118,13 +166,17 @@ export default function Payment() {
   // .btn-primary внизу экрана — тот же элемент, что и в остальных Mini App
   // Telegram, плюс встроенный индикатор загрузки (showProgress) вместо
   // самодельного disabled-состояния.
+  const tonNeedsConnect = selectedMethod === 'ton' && !tonWallet;
+
   useTelegramMainButton({
     text:
       stage === 'submitting'
         ? 'Оформляем…'
         : stage === 'pending'
           ? 'Проверить'
-          : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`,
+          : tonNeedsConnect
+            ? 'Подключить кошелёк'
+            : `Оплатить ${selectedPeriod ? formatRub(selectedPeriod.price_kopeks) : ''}`,
     onClick: stage === 'pending' ? handleCheckStatus : handlePay,
     visible: Boolean(data) && stage !== 'success',
     enabled: stage === 'pending' || (stage !== 'submitting' && Boolean(selectedPeriod) && Boolean(selectedMethod)),
@@ -198,13 +250,24 @@ export default function Payment() {
               />
             ))}
           </div>
+
+          {selectedMethod === 'ton' && (
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <p className="text-subtitle2 text-[hsl(var(--subtitle-foreground))]">
+                {tonWallet ? 'Кошелёк подключён' : 'Нужен кошелёк TON Connect'}
+              </p>
+              <TonConnectButton />
+            </div>
+          )}
         </section>
 
         {stage === 'pending' && (
           <p className="text-center text-sm text-[hsl(var(--subtitle-foreground))]">
-            {pendingUrl
-              ? 'Платёж создан. Завершите оплату по открывшейся ссылке, затем нажмите «Проверить».'
-              : 'Платёж создан, ожидаем подтверждения.'}
+            {selectedMethod === 'ton'
+              ? 'Транзакция отправлена из кошелька. Подтверждение в блокчейне может занять пару минут — нажмите «Проверить».'
+              : pendingUrl
+                ? 'Платёж создан. Завершите оплату по открывшейся ссылке, затем нажмите «Проверить».'
+                : 'Платёж создан, ожидаем подтверждения.'}
           </p>
         )}
 

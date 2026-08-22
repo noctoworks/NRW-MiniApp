@@ -35,7 +35,7 @@ export const PREVIEW_TARIFF: TariffResponse = {
   ],
   payment_methods: [
     { id: 'platega', label: '🏦 Карты и СБП' },
-    { id: 'cryptobot', label: '🪙 Криптовалюта' },
+    { id: 'ton', label: '💎 TON' },
     { id: 'stars', label: '⭐️ Telegram Stars' },
   ],
 };

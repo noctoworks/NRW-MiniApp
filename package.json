@@ -11,6 +11,8 @@
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",
     "@telegram-apps/telegram-ui": "^2.1.13",
+    "@ton/core": "^0.63.1",
+    "@tonconnect/ui-react": "^3.0.2",
     "axios": "^1.7.9",
     "lucide-react": "^1.31.0",
     "qr-code-styling": "^1.9.2",
