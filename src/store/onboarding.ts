@@ -24,29 +24,46 @@ interface OnboardingState {
 function persistSeen(value: boolean) {
   const cloud = getCloudStorage();
   const raw = value ? '1' : '0';
-  if (cloud) {
-    cloud.setItem(STORAGE_KEY, raw);
-  } else {
-    safeSetItem(localStorage, STORAGE_KEY, raw);
+  try {
+    if (cloud) {
+      cloud.setItem(STORAGE_KEY, raw);
+      return;
+    }
+  } catch {
+    // Клиент отдаёт CloudStorage как объект, но реально не поддерживает его
+    // методы (кидает WebAppMethodUnsupported синхронно, а не через error в
+    // колбэке — поймано вживую, см. диалог "MiniApp не открывается") — просто
+    // падаем на localStorage ниже, как и для клиентов без CloudStorage вообще.
   }
+  safeSetItem(localStorage, STORAGE_KEY, raw);
 }
 
 export const useOnboardingStore = create<OnboardingState>((set) => {
   const cloud = getCloudStorage();
-
+  // cloud.getItem может кинуть синхронно вместо колбэка с error — некоторые
+  // клиенты выставляют WebApp.CloudStorage непустым объектом, но сами методы
+  // не поддерживают (WebAppMethodUnsupported). Без try/catch это падает прямо
+  // в конструкторе Zustand-стора, т.е. при самом первом импорте модуля — весь
+  // React-дерево не монтируется, MiniApp остаётся пустым экраном.
+  let cloudAvailable = false;
   if (cloud) {
-    cloud.getItem(STORAGE_KEY, (error, value) => {
-      // Ошибка/старый клиент без реального CloudStorage — считаем,
-      // что тур ещё не проходили, чем зря скрыть его от нового юзера.
-      set({ hasSeenDashboardTour: !error && value === '1', hydrated: true });
-    });
+    try {
+      cloud.getItem(STORAGE_KEY, (error, value) => {
+        // Ошибка/старый клиент без реального CloudStorage — считаем,
+        // что тур ещё не проходили, чем зря скрыть его от нового юзера.
+        set({ hasSeenDashboardTour: !error && value === '1', hydrated: true });
+      });
+      cloudAvailable = true;
+    } catch {
+      cloudAvailable = false;
+    }
   }
 
   return {
     // Синхронный фолбэк для клиентов без CloudStorage вообще (десктоп/старые
     // версии) — используем localStorage как раньше, сразу hydrated.
-    hasSeenDashboardTour: cloud ? false : safeGetItem(localStorage, STORAGE_KEY) === '1',
-    hydrated: !cloud,
+    hasSeenDashboardTour: cloudAvailable ? false : safeGetItem(localStorage, STORAGE_KEY) === '1',
+    hydrated: !cloudAvailable,
     markDashboardTourSeen: () => {
       persistSeen(true);
       set({ hasSeenDashboardTour: true });
