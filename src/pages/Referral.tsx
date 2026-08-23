@@ -8,7 +8,6 @@ import SubscriptionLink from '../components/SubscriptionLink';
 import { useTelegramBackButton } from '../hooks/useTelegramBackButton';
 import { formatRub } from '../lib/format';
 import { hapticImpact } from '../lib/haptics';
-import { previousMilestone } from '../lib/referralMilestones';
 
 const SHARE_TEXT = 'Подключайся к VPN по моей ссылке — быстро и без блокировок 🚀';
 
@@ -41,10 +40,6 @@ export default function Referral() {
   };
 
   const canShareToStory = typeof window.Telegram?.WebApp?.shareToStory === 'function';
-
-  const prevMilestone = data ? previousMilestone(data.invited_count) : 0;
-  const nextAt = data?.next_milestone_at ?? null;
-  const progress = nextAt ? Math.min(1, Math.max(0, (data!.invited_count - prevMilestone) / (nextAt - prevMilestone))) : 1;
 
   return (
     <main className="min-h-screen pb-10">
@@ -117,22 +112,10 @@ export default function Referral() {
             </div>
           </div>
 
-          {nextAt && data.next_milestone_bonus_days && (
-            <div className="card flex flex-col gap-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white">
-                  Ещё {nextAt - data.invited_count} {nextAt - data.invited_count === 1 ? 'друг' : 'друга'} до бонуса
-                </span>
-                <span className="font-semibold text-[hsl(var(--primary))]">+{data.next_milestone_bonus_days} дн.</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-[hsl(var(--secondary))]">
-                <div
-                  className="h-full rounded-full bg-[hsl(var(--primary))] transition-all"
-                  style={{ width: `${Math.round(progress * 100)}%` }}
-                />
-              </div>
-            </div>
-          )}
+          <div className="card flex items-center justify-between gap-3">
+            <span className="text-sm text-white">Друг зарегистрировался по ссылке</span>
+            <span className="font-semibold text-[hsl(var(--primary))]">+{data.invite_bonus_days} дн. сразу</span>
+          </div>
         </div>
       )}
     </main>

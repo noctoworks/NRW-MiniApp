@@ -81,8 +81,7 @@ export interface ReferralResponse {
   percent: number;
   invited_count: number;
   earned_kopeks: number;
-  next_milestone_at: number | null;
-  next_milestone_bonus_days: number | null;
+  invite_bonus_days: number;
 }
 
 export interface ProfileResponse {

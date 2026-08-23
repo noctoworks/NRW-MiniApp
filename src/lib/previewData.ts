@@ -97,8 +97,7 @@ export const PREVIEW_REFERRAL: ReferralResponse = {
   percent: 25,
   invited_count: 3,
   earned_kopeks: 74700,
-  next_milestone_at: 5,
-  next_milestone_bonus_days: 5,
+  invite_bonus_days: 3,
 };
 
 export const PREVIEW_PROFILE: ProfileResponse = {
