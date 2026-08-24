@@ -15,6 +15,7 @@ import {
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import DevicesSection from '../../components/admin/DevicesSection';
 import DualActionAmountForm from '../../components/admin/DualActionAmountForm';
+import GrantSubscriptionForm from '../../components/admin/GrantSubscriptionForm';
 import ReferralCommissionForm from '../../components/admin/ReferralCommissionForm';
 import SyncSection from '../../components/admin/SyncSection';
 import TransactionsSection from '../../components/admin/TransactionsSection';
@@ -161,15 +162,21 @@ function AdminUserDetailContent() {
 
             <div>
               <div className="section-title !mb-2 !px-0">Подписка</div>
-              <DualActionAmountForm
-                positiveLabel="Продлить"
-                negativeLabel="Сократить"
-                inputHeader="Дни"
-                placeholder="Количество дней"
-                parse={parsePositiveDays}
-                presets={[7, 30, 90]}
-                onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
-              />
+              {data.subscription ? (
+                <DualActionAmountForm
+                  positiveLabel="Продлить"
+                  negativeLabel="Сократить"
+                  inputHeader="Дни"
+                  placeholder="Количество дней"
+                  parse={parsePositiveDays}
+                  presets={[7, 30, 90]}
+                  onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
+                />
+              ) : (
+                <GrantSubscriptionForm
+                  onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
+                />
+              )}
             </div>
           </div>
         </Section>

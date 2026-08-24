@@ -137,6 +137,8 @@ export interface OverviewResponse {
   revenue_30d_kopeks: number;
   revenue_all_time_kopeks: number;
   active_subscriptions: number;
+  paying_subscriptions: number;
+  new_paying_subscriptions_today: number;
   total_users: number;
   new_users_7d: number;
   conversion_percent: number;

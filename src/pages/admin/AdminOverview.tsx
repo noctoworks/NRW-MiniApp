@@ -55,6 +55,11 @@ export default function AdminOverview() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile label="Активные подписки" value={String(overview.active_subscriptions)} />
+        <KpiTile
+          label="Платящих подписок"
+          value={String(overview.paying_subscriptions)}
+          hint={overview.new_paying_subscriptions_today > 0 ? `+${overview.new_paying_subscriptions_today} сегодня` : undefined}
+        />
         <KpiTile label="Всего пользователей" value={String(overview.total_users)} />
         <KpiTile label="Новые за 7 дн" value={String(overview.new_users_7d)} />
         <KpiTile label="Конверсия в оплату" value={`${overview.conversion_percent}%`} />

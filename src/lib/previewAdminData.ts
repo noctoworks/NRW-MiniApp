@@ -22,6 +22,8 @@ export const PREVIEW_OVERVIEW: OverviewResponse = {
   revenue_30d_kopeks: 312000,
   revenue_all_time_kopeks: 3180000,
   active_subscriptions: 128,
+  paying_subscriptions: 96,
+  new_paying_subscriptions_today: 3,
   total_users: 540,
   new_users_7d: 31,
   conversion_percent: 23.7,
