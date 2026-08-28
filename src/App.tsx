@@ -76,6 +76,18 @@ export default function App() {
 
     if (token) return; // уже авторизованы — повторный логин не нужен
 
+    // Вход в браузере вне Telegram (см. /adminweb в боте) — токен передан
+    // прямо в URL, initData тут в принципе недоступна. Забираем токен и
+    // сразу вычищаем его из адресной строки/истории браузера.
+    const urlToken = new URLSearchParams(window.location.search).get('token');
+    if (urlToken) {
+      setToken(urlToken);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('token');
+      window.history.replaceState({}, '', url.toString());
+      return;
+    }
+
     if (!initData) {
       setAuthError('Откройте приложение через кнопку в Telegram-боте.');
       return;
