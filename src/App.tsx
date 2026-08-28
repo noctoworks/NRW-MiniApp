@@ -30,6 +30,8 @@ const AdminCampaigns = lazy(() => import('./pages/admin/AdminCampaigns'));
 const AdminLtv = lazy(() => import('./pages/admin/AdminLtv'));
 const AdminGrowth = lazy(() => import('./pages/admin/AdminGrowth'));
 const AdminReferrals = lazy(() => import('./pages/admin/AdminReferrals'));
+const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
+const AdminSupportThread = lazy(() => import('./pages/admin/AdminSupportThread'));
 
 function AdminLoading() {
   return <Loader />;
@@ -199,6 +201,22 @@ export default function App() {
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminReferrals />
+            </Suspense>
+          }
+        />
+        <Route
+          path="support"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminSupport />
+            </Suspense>
+          }
+        />
+        <Route
+          path="support/:userId"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminSupportThread />
             </Suspense>
           }
         />

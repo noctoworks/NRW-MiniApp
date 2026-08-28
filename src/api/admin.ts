@@ -9,6 +9,8 @@ import {
   PREVIEW_PROMO_GROUPS,
   PREVIEW_REFERRAL_FUNNEL,
   PREVIEW_REVENUE_TIMESERIES,
+  PREVIEW_SUPPORT_THREAD_DETAIL,
+  PREVIEW_SUPPORT_THREADS,
   PREVIEW_TRANSACTIONS,
   PREVIEW_USER_DETAIL,
   PREVIEW_USERS_LIST,
@@ -28,6 +30,8 @@ import type {
   PromoGroup,
   ReferralFunnelResponse,
   RevenuePoint,
+  SupportThread,
+  SupportThreadDetail,
   SyncResult,
 } from '../types';
 
@@ -92,6 +96,23 @@ export async function toggleBlock(id: number, blocked: boolean): Promise<AdminUs
 export async function messageUser(id: number, text: string): Promise<{ status: string }> {
   if (isPreview()) return { status: 'sent' };
   return (await apiClient.post<{ status: string }>(`/cabinet/admin/users/${id}/message`, { text })).data;
+}
+
+export async function listSupportThreads(): Promise<SupportThread[]> {
+  if (isPreview()) return PREVIEW_SUPPORT_THREADS;
+  return (await apiClient.get<SupportThread[]>('/cabinet/admin/support/threads')).data;
+}
+
+export async function getSupportThread(userId: number): Promise<SupportThreadDetail> {
+  if (isPreview()) return PREVIEW_SUPPORT_THREAD_DETAIL;
+  return (await apiClient.get<SupportThreadDetail>(`/cabinet/admin/support/threads/${userId}`)).data;
+}
+
+export async function replySupportThread(userId: number, text: string): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'sent' };
+  return (
+    await apiClient.post<{ status: string }>(`/cabinet/admin/support/threads/${userId}/reply`, { text })
+  ).data;
 }
 
 export async function massban(telegramIds: number[]): Promise<{ blocked_count: number; requested_count: number }> {

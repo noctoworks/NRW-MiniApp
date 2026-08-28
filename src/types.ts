@@ -257,6 +257,31 @@ export interface AdminUserDetail {
 
 export type AdminUserFilter = 'all' | 'no_sub' | 'blocked' | 'blocked_bot';
 
+export interface SupportThread {
+  user_id: number;
+  telegram_id: number;
+  username: string | null;
+  full_name: string | null;
+  last_message: string;
+  last_message_at: string;
+  unread: boolean;
+}
+
+export interface SupportMessage {
+  id: number;
+  direction: 'in' | 'out';
+  body: string;
+  created_at: string;
+}
+
+export interface SupportThreadDetail {
+  user_id: number;
+  telegram_id: number;
+  username: string | null;
+  full_name: string | null;
+  messages: SupportMessage[];
+}
+
 export interface PromoGroup {
   id: number;
   name: string;

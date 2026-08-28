@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { to: '/admin/ltv', label: 'LTV' },
   { to: '/admin/growth', label: 'MRR' },
   { to: '/admin/referrals', label: 'Рефералы' },
+  { to: '/admin/support', label: 'Обращения' },
 ];
 
 /** Мобильный аналог AdminDesktopLayout: та же система разделов через <Outlet/>,

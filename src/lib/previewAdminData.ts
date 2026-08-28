@@ -11,6 +11,8 @@ import type {
   PromoGroup,
   ReferralFunnelResponse,
   RevenuePoint,
+  SupportThread,
+  SupportThreadDetail,
 } from '../types';
 
 /** Статичные данные для DEV-превью админки вне Telegram — никогда не
@@ -88,6 +90,33 @@ export const PREVIEW_USERS_LIST: AdminUserListResponse = {
   total: 1,
   page: 1,
   total_pages: 1,
+};
+
+export const PREVIEW_SUPPORT_THREADS: SupportThread[] = [
+  {
+    user_id: 1,
+    telegram_id: 577437701,
+    username: 'danilvolkov666',
+    full_name: 'Данил Волков',
+    last_message: 'Не подключается VPN на айфоне, помогите пожалуйста',
+    last_message_at: new Date().toISOString(),
+    unread: true,
+  },
+];
+
+export const PREVIEW_SUPPORT_THREAD_DETAIL: SupportThreadDetail = {
+  user_id: 1,
+  telegram_id: 577437701,
+  username: 'danilvolkov666',
+  full_name: 'Данил Волков',
+  messages: [
+    {
+      id: 1,
+      direction: 'in',
+      body: 'Не подключается VPN на айфоне, помогите пожалуйста',
+      created_at: new Date().toISOString(),
+    },
+  ],
 };
 
 export const PREVIEW_USER_DETAIL: AdminUserDetail = {

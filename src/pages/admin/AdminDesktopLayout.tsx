@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/admin/ltv', label: 'LTV и когорты' },
   { to: '/admin/growth', label: 'MRR и churn' },
   { to: '/admin/referrals', label: 'Рефералы' },
+  { to: '/admin/support', label: 'Обращения' },
 ];
 
 export default function AdminDesktopLayout() {
