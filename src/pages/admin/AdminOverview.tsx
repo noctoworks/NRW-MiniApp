@@ -3,6 +3,7 @@ import { Card, Text } from '@gravity-ui/uikit';
 import { getMonitoring, getOverview, getRecentPayments, getRevenueTimeseries } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import AlertsPanel from '../../components/admin/AlertsPanel';
+import GrowthPulseCard from '../../components/admin/GrowthPulseCard';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
 import NetProfitCard from '../../components/admin/NetProfitCard';
@@ -87,6 +88,8 @@ export default function AdminOverview() {
           hint={`7 дн: ${formatRub(overview.revenue_7d_kopeks)}`}
         />
       </div>
+
+      <GrowthPulseCard />
 
       <NetProfitCard />
 
