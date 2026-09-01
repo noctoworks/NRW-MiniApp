@@ -21,8 +21,6 @@ export default function AdminLtv() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Text variant="header-1">LTV и когорты</Text>
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile label="ARPU (все юзеры)" value={formatRub(ltv.arpu_kopeks)} accent />
         <KpiTile label="LTV плативших" value={formatRub(ltv.avg_ltv_paying_kopeks)} />

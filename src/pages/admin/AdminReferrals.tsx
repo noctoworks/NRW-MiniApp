@@ -22,8 +22,6 @@ export default function AdminReferrals() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Text variant="header-1">Реферальная воронка</Text>
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile label="Приглашено" value={String(data.referred_users_count)} accent />
         <KpiTile label="Из них платят" value={String(data.referred_paying_count)} />

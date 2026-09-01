@@ -64,8 +64,6 @@ export default function AdminSales() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Text variant="header-1">Продажи</Text>
-
       <Card view="filled" className="p-4">
         <Text variant="body-1">{summary}</Text>
       </Card>

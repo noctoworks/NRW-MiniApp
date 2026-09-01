@@ -29,6 +29,7 @@ const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
 const AdminPromoGroups = lazy(() => import('./pages/admin/AdminPromoGroups'));
 const AdminPromoCodes = lazy(() => import('./pages/admin/AdminPromoCodes'));
 const AdminMonitoring = lazy(() => import('./pages/admin/AdminMonitoring'));
+const AdminAnalyticsLayout = lazy(() => import('./pages/admin/AdminAnalyticsLayout'));
 const AdminSales = lazy(() => import('./pages/admin/AdminSales'));
 const AdminCampaigns = lazy(() => import('./pages/admin/AdminCampaigns'));
 const AdminLtv = lazy(() => import('./pages/admin/AdminLtv'));
@@ -199,42 +200,51 @@ export default function App() {
           }
         />
         <Route
-          path="sales"
+          path="analytics"
           element={
             <Suspense fallback={<AdminLoading />}>
-              <AdminSales />
+              <AdminAnalyticsLayout />
             </Suspense>
           }
-        />
+        >
+          <Route
+            index
+            element={
+              <Suspense fallback={<AdminLoading />}>
+                <AdminGrowth />
+              </Suspense>
+            }
+          />
+          <Route
+            path="sales"
+            element={
+              <Suspense fallback={<AdminLoading />}>
+                <AdminSales />
+              </Suspense>
+            }
+          />
+          <Route
+            path="ltv"
+            element={
+              <Suspense fallback={<AdminLoading />}>
+                <AdminLtv />
+              </Suspense>
+            }
+          />
+          <Route
+            path="referrals"
+            element={
+              <Suspense fallback={<AdminLoading />}>
+                <AdminReferrals />
+              </Suspense>
+            }
+          />
+        </Route>
         <Route
           path="campaigns"
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminCampaigns />
-            </Suspense>
-          }
-        />
-        <Route
-          path="ltv"
-          element={
-            <Suspense fallback={<AdminLoading />}>
-              <AdminLtv />
-            </Suspense>
-          }
-        />
-        <Route
-          path="growth"
-          element={
-            <Suspense fallback={<AdminLoading />}>
-              <AdminGrowth />
-            </Suspense>
-          }
-        />
-        <Route
-          path="referrals"
-          element={
-            <Suspense fallback={<AdminLoading />}>
-              <AdminReferrals />
             </Suspense>
           }
         />

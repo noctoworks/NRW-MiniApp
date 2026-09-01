@@ -1,15 +1,12 @@
 import {
-  ChartColumn,
-  ChartColumnStacked,
   ChartLine,
-  ChartLineArrowUp,
+  ChartMixed,
   Comments,
   CreditCard,
   Flag,
   Gear,
   Globe,
   House,
-  Link as LinkIcon,
   Persons,
   Pulse,
   Server,
@@ -65,7 +62,6 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   },
   { id: 'promo-codes', to: '/admin/promo-codes', label: 'Промокоды', icon: TagRuble, groupId: 'product' },
   { id: 'promo-groups', to: '/admin/promo-groups', label: 'Промогруппы', icon: Tags, groupId: 'product' },
-  { id: 'referrals', to: '/admin/referrals', label: 'Рефералы', icon: LinkIcon, groupId: 'product' },
   { id: 'campaigns', to: '/admin/campaigns', label: 'Кампании', icon: Flag, groupId: 'product' },
   { id: 'support', to: '/admin/support', label: 'Обращения', icon: Comments, groupId: 'product' },
 
@@ -75,9 +71,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { id: 'monitoring', to: '/admin/monitoring', label: 'Мониторинг', icon: Pulse, groupId: 'infra' },
 
   { id: 'transactions', to: '/admin/transactions', label: 'Транзакции', icon: Wallet, groupId: 'finance' },
-  { id: 'growth', to: '/admin/growth', label: 'Доход', icon: ChartLineArrowUp, groupId: 'finance' },
-  { id: 'sales', to: '/admin/sales', label: 'Продажи', icon: ChartColumnStacked, groupId: 'finance' },
-  { id: 'ltv', to: '/admin/ltv', label: 'LTV и когорты', icon: ChartColumn, groupId: 'finance' },
+  { id: 'analytics', to: '/admin/analytics', label: 'Аналитика', icon: ChartMixed, groupId: 'finance' },
 
   {
     id: 'logs',
