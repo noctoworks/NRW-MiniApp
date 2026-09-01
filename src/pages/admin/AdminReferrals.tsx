@@ -33,7 +33,7 @@ export default function AdminReferrals() {
 
       <div className="flex flex-col gap-2">
         <Text variant="subheader-1">Топ рефереров</Text>
-        <Card view="filled" className="p-0">
+        <Card view="outlined" className="p-0">
           {data.top_referrers.length === 0 ? (
             <AdminEmptyState text="Пока никто не заработал на рефералах" />
           ) : (

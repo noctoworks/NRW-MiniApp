@@ -13,7 +13,7 @@ export default function KpiTile({ label, value, hint, accent }: KpiTileProps) {
       <Text variant="caption-2" color="secondary">
         {label}
       </Text>
-      <Text variant="subheader-1" color={accent ? 'brand' : 'primary'}>
+      <Text variant="display-2" color={accent ? 'brand' : 'primary'} ellipsis>
         {value}
       </Text>
       {hint && (

@@ -32,7 +32,7 @@ export default function AdminLtv() {
 
       <div className="flex flex-col gap-2">
         <Text variant="subheader-1">Топ-плательщики</Text>
-        <Card view="filled" className="p-0">
+        <Card view="outlined" className="p-0">
           {ltv.top_payers.length === 0 ? (
             <AdminEmptyState text="Пока нет плативших пользователей" />
           ) : (

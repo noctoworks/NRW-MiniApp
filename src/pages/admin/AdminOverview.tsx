@@ -66,21 +66,29 @@ export default function AdminOverview() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile
+          label="Доход сегодня"
+          value={formatRub(overview.revenue_today_kopeks)}
+          hint={`7 дн: ${formatRub(overview.revenue_7d_kopeks)}`}
+          accent
+        />
+        <KpiTile
+          label="Доход за 30 дней"
+          value={formatRub(overview.revenue_30d_kopeks)}
+          hint={`всего: ${formatRub(overview.revenue_all_time_kopeks)}`}
+        />
+        <KpiTile
           label="Пользователи"
           value={String(overview.total_users)}
           hint={usersGrowthPercent > 0 ? `+${usersGrowthPercent}% за 7 дн` : undefined}
         />
         <KpiTile
-          label="Активные"
+          label="Активные подписки"
           value={String(overview.active_subscriptions)}
           hint={`${overview.paying_subscriptions} платящих`}
         />
-        <KpiTile
-          label="Выручка (30 дн)"
-          value={formatRub(overview.revenue_30d_kopeks)}
-          hint={`${formatRub(overview.revenue_today_kopeks)} сегодня`}
-          accent
-        />
+        <KpiTile label="Конверсия в оплату" value={`${overview.conversion_percent}%`} />
+        <KpiTile label="Средний чек" value={formatRub(overview.avg_check_kopeks)} />
+        <KpiTile label="Churn за 30 дн" value={`${overview.churn_percent_30d}%`} />
         <KpiTile label="Трафик" value={formatTrafficGb(overview.total_traffic_gb)} />
       </div>
 
@@ -149,53 +157,6 @@ export default function AdminOverview() {
             })
           )}
         </Card>
-      </div>
-
-      {/* Дальше — расширенная разбивка (было на старом "Дашборде") для тех,
-          кому нужны детали за пределами головных плиток выше. */}
-      <Card view="filled" className="p-4">
-        <Text variant="caption-2" color="secondary" className="block">
-          Доход за сегодня
-        </Text>
-        <Text variant="display-1">{formatRub(overview.revenue_today_kopeks)}</Text>
-        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[var(--g-color-line-generic)] pt-3">
-          <div>
-            <Text variant="caption-2" color="secondary" className="block">
-              За 7 дн
-            </Text>
-            <Text variant="body-2" className="font-semibold">
-              {formatRub(overview.revenue_7d_kopeks)}
-            </Text>
-          </div>
-          <div>
-            <Text variant="caption-2" color="secondary" className="block">
-              За 30 дн
-            </Text>
-            <Text variant="body-2" className="font-semibold">
-              {formatRub(overview.revenue_30d_kopeks)}
-            </Text>
-          </div>
-          <div>
-            <Text variant="caption-2" color="secondary" className="block">
-              Всего
-            </Text>
-            <Text variant="body-2" color="brand" className="font-semibold">
-              {formatRub(overview.revenue_all_time_kopeks)}
-            </Text>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiTile
-          label="Платящих подписок"
-          value={String(overview.paying_subscriptions)}
-          hint={overview.new_paying_subscriptions_today > 0 ? `+${overview.new_paying_subscriptions_today} сегодня` : undefined}
-        />
-        <KpiTile label="Новые за 7 дн" value={String(overview.new_users_7d)} />
-        <KpiTile label="Конверсия в оплату" value={`${overview.conversion_percent}%`} />
-        <KpiTile label="Средний чек" value={formatRub(overview.avg_check_kopeks)} />
-        <KpiTile label="Churn за 30 дн" value={`${overview.churn_percent_30d}%`} />
       </div>
     </div>
   );
