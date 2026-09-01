@@ -9,6 +9,7 @@ import type {
   OverviewResponse,
   PaginatedTransactions,
   PromoGroup,
+  RecentPayment,
   ReferralFunnelResponse,
   RevenuePoint,
   SupportThread,
@@ -33,7 +34,14 @@ export const PREVIEW_OVERVIEW: OverviewResponse = {
   mrr_kopeks: 312000,
   arr_kopeks: 3744000,
   churn_percent_30d: 8.2,
+  total_traffic_gb: 4820.5,
 };
+
+export const PREVIEW_RECENT_PAYMENTS: RecentPayment[] = [
+  { user_id: 1, telegram_id: 577437701, username: 'danilvolkov666', full_name: 'Данил', amount_kopeks: 24900, type: 'subscription_payment', created_at: new Date().toISOString() },
+  { user_id: 2, telegram_id: 100200300, username: null, full_name: 'user892', amount_kopeks: 69900, type: 'subscription_payment', created_at: new Date(Date.now() - 3600_000).toISOString() },
+  { user_id: 3, telegram_id: 100200301, username: 'user321', full_name: null, amount_kopeks: 24900, type: 'subscription_payment', created_at: new Date(Date.now() - 7200_000).toISOString() },
+];
 
 export const PREVIEW_REVENUE_TIMESERIES: RevenuePoint[] = Array.from({ length: 31 }, (_, i) => {
   const date = new Date(Date.now() - (30 - i) * 24 * 60 * 60 * 1000);

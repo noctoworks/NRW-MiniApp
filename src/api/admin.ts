@@ -7,6 +7,7 @@ import {
   PREVIEW_LTV,
   PREVIEW_OVERVIEW,
   PREVIEW_PROMO_GROUPS,
+  PREVIEW_RECENT_PAYMENTS,
   PREVIEW_REFERRAL_FUNNEL,
   PREVIEW_REVENUE_TIMESERIES,
   PREVIEW_SUPPORT_THREAD_DETAIL,
@@ -28,6 +29,7 @@ import type {
   OverviewResponse,
   PaginatedTransactions,
   PromoGroup,
+  RecentPayment,
   ReferralFunnelResponse,
   RevenuePoint,
   SupportThread,
@@ -47,6 +49,11 @@ export async function getOverview(): Promise<OverviewResponse> {
 export async function getRevenueTimeseries(days = 30): Promise<RevenuePoint[]> {
   if (isPreview()) return PREVIEW_REVENUE_TIMESERIES;
   return (await apiClient.get<RevenuePoint[]>('/cabinet/admin/revenue-timeseries', { params: { days } })).data;
+}
+
+export async function getRecentPayments(limit = 10): Promise<RecentPayment[]> {
+  if (isPreview()) return PREVIEW_RECENT_PAYMENTS;
+  return (await apiClient.get<RecentPayment[]>('/cabinet/admin/recent-payments', { params: { limit } })).data;
 }
 
 export async function getLtv(): Promise<LtvResponse> {

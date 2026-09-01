@@ -7,6 +7,13 @@ export function formatDate(iso: string): string {
   return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+/** Суммарный трафик (обычно уже в сотнях/тысячах ГБ на масштабе всего
+ * сервиса) — TB читается быстрее, чем пятизначное число ГБ. */
+export function formatTrafficGb(gb: number): string {
+  if (gb >= 1000) return `${(gb / 1000).toFixed(1)} TB`;
+  return `${gb.toFixed(1)} GB`;
+}
+
 export function formatTraffic(usedGb: number, limitGb: number): string {
   const used = usedGb.toFixed(1);
   const limit = limitGb === 0 ? '∞' : String(limitGb);

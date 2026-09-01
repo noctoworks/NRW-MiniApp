@@ -146,6 +146,17 @@ export interface OverviewResponse {
   mrr_kopeks: number;
   arr_kopeks: number;
   churn_percent_30d: number;
+  total_traffic_gb: number;
+}
+
+export interface RecentPayment {
+  user_id: number;
+  telegram_id: number;
+  username: string | null;
+  full_name: string | null;
+  amount_kopeks: number;
+  type: string;
+  created_at: string;
 }
 
 export interface RevenuePoint {

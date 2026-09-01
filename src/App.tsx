@@ -17,6 +17,7 @@ import Profile from './pages/Profile';
 import Referral from './pages/Referral';
 import Settings from './pages/Settings';
 import { useAuthStore } from './store/auth';
+import { ADMIN_NAV_ITEMS } from './lib/adminNav';
 
 // Ленивая загрузка — recharts (в admin-графиках) заметно раздувает бандл,
 // обычным пользователям (не админам) он вообще не нужен.
@@ -32,6 +33,7 @@ const AdminGrowth = lazy(() => import('./pages/admin/AdminGrowth'));
 const AdminReferrals = lazy(() => import('./pages/admin/AdminReferrals'));
 const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminSupportThread = lazy(() => import('./pages/admin/AdminSupportThread'));
+const AdminComingSoon = lazy(() => import('./components/admin/AdminComingSoon'));
 
 function AdminLoading() {
   return <Loader />;
@@ -220,6 +222,19 @@ export default function App() {
             </Suspense>
           }
         />
+        {/* Разделы новой IA без бэкенда ещё (см. lib/adminNav.ts comingSoon) —
+            один общий компонент-заглушка вместо десятка пустых страниц. */}
+        {ADMIN_NAV_ITEMS.filter((item) => item.comingSoon).map((item) => (
+          <Route
+            key={item.id}
+            path={item.to.replace('/admin/', '')}
+            element={
+              <Suspense fallback={<AdminLoading />}>
+                <AdminComingSoon icon={item.icon} title={item.label} description={item.comingSoon!} />
+              </Suspense>
+            }
+          />
+        ))}
       </Route>
         </Routes>
       </AppRoot>
