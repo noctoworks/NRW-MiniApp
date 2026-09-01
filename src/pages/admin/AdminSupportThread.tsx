@@ -103,8 +103,9 @@ function AdminSupportThreadContent() {
           data.messages.map((message) => (
             <div key={message.id} className={`flex ${message.direction === 'out' ? 'justify-end' : 'justify-start'}`}>
               <div
-                className="max-w-[80%] rounded-2xl px-3.5 py-2"
+                className="max-w-[80%] px-3.5 py-2"
                 style={{
+                  borderRadius: 'var(--g-border-radius-2xl)',
                   background: message.direction === 'out' ? 'var(--g-color-base-brand)' : 'var(--g-color-base-generic)',
                   // Text.color не знает про "текст на брендовом фоне" — это
                   // отдельный токен (--g-color-text-brand-contrast, см.

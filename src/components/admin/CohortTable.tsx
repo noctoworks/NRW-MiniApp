@@ -36,8 +36,9 @@ export default function CohortTable({ data }: CohortTableProps) {
               {cohort.revenue_per_user_by_month_offset.map((value, offset) => (
                 <td
                   key={offset}
-                  className="rounded-lg px-2 py-1.5 text-center text-[var(--g-color-text-primary)]"
+                  className="px-2 py-1.5 text-center text-[var(--g-color-text-primary)]"
                   style={{
+                    borderRadius: 'var(--g-border-radius-l)',
                     background: `color-mix(in srgb, var(--g-color-base-brand) ${Math.round((value / maxValue) * 60)}%, transparent)`,
                   }}
                 >
