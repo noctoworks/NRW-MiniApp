@@ -1,5 +1,6 @@
 import { apiClient } from './client';
 import {
+  PREVIEW_ALERTS,
   PREVIEW_CAMPAIGN_STATS,
   PREVIEW_CAMPAIGNS,
   PREVIEW_COHORTS,
@@ -26,6 +27,7 @@ import {
 } from '../lib/previewAdminData';
 import { useAuthStore } from '../store/auth';
 import type {
+  Alert,
   AdminDevice,
   AdminTransactionDetail,
   AdminUserDetail,
@@ -90,6 +92,11 @@ export async function getMonitoring(): Promise<MonitoringResponse> {
 export async function getSalesBreakdown(): Promise<SalesBreakdown> {
   if (isPreview()) return PREVIEW_SALES_BREAKDOWN;
   return (await apiClient.get<SalesBreakdown>('/cabinet/admin/sales-breakdown')).data;
+}
+
+export async function getAlerts(): Promise<Alert[]> {
+  if (isPreview()) return PREVIEW_ALERTS;
+  return (await apiClient.get<Alert[]>('/cabinet/admin/alerts')).data;
 }
 
 export async function listTransactions(params: {

@@ -4,6 +4,7 @@ import { Button, Card, Icon, Label, Text } from '@gravity-ui/uikit';
 import { useNavigate } from 'react-router';
 import { getNodes, getOverview, getRecentPayments, getRevenueTimeseries } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
+import AlertsPanel from '../../components/admin/AlertsPanel';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
 import RevenueChart from '../../components/admin/RevenueChart';
@@ -63,6 +64,8 @@ export default function AdminOverview() {
           {getTodayLabel()}
         </Text>
       </div>
+
+      <AlertsPanel />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile

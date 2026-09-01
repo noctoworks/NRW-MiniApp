@@ -488,3 +488,12 @@ export interface SalesBreakdown {
   by_weekday: RevenueByWeekday[];
   active_subs_by_tariff: ActiveSubsByTariff[];
 }
+
+export type AlertSeverity = 'critical' | 'warning' | 'info';
+
+export interface Alert {
+  id: string;
+  severity: AlertSeverity;
+  title: string;
+  link: string | null;
+}

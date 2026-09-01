@@ -1,4 +1,5 @@
 import type {
+  Alert,
   AdminDevice,
   AdminUserDetail,
   AdminUserListResponse,
@@ -61,6 +62,12 @@ export const PREVIEW_NODES: Node[] = [
 export const PREVIEW_USER_NODE_TRAFFIC: UserNodeTraffic[] = [
   { node_uuid: 'de-01', node_name: 'DE-01', country_code: 'DE', total_bytes: 18_400_000_000 },
   { node_uuid: 'fi-01', node_name: 'FI-01', country_code: 'FI', total_bytes: 4_100_000_000 },
+];
+
+export const PREVIEW_ALERTS: Alert[] = [
+  { id: 'subs-expiring-24h', severity: 'critical', title: 'Истекает в ближайшие 24 часа: 6', link: '/admin/subscriptions' },
+  { id: 'nodes-disabled', severity: 'warning', title: 'Отключено вручную нод: 1', link: '/admin/nodes' },
+  { id: 'support-unread', severity: 'info', title: 'Обращений без ответа: 2', link: '/admin/support' },
 ];
 
 export const PREVIEW_SALES_BREAKDOWN: SalesBreakdown = {
