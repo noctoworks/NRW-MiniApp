@@ -90,6 +90,21 @@ export async function getNodes(): Promise<Node[]> {
   return (await apiClient.get<Node[]>('/cabinet/admin/nodes')).data;
 }
 
+export async function enableNode(uuid: string): Promise<Node> {
+  if (isPreview()) return { ...(PREVIEW_NODES.find((n) => n.uuid === uuid) ?? PREVIEW_NODES[0]), is_disabled: false };
+  return (await apiClient.post<Node>(`/cabinet/admin/nodes/${uuid}/enable`)).data;
+}
+
+export async function disableNode(uuid: string): Promise<Node> {
+  if (isPreview()) return { ...(PREVIEW_NODES.find((n) => n.uuid === uuid) ?? PREVIEW_NODES[0]), is_disabled: true };
+  return (await apiClient.post<Node>(`/cabinet/admin/nodes/${uuid}/disable`)).data;
+}
+
+export async function restartNode(uuid: string): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'accepted' };
+  return (await apiClient.post<{ status: string }>(`/cabinet/admin/nodes/${uuid}/restart`)).data;
+}
+
 export async function getInfraBilling(): Promise<InfraBilling> {
   if (isPreview()) return PREVIEW_INFRA_BILLING;
   return (await apiClient.get<InfraBilling>('/cabinet/admin/infra-billing')).data;
