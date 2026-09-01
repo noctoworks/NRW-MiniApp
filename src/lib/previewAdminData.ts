@@ -14,6 +14,7 @@ import type {
   RecentPayment,
   ReferralFunnelResponse,
   RevenuePoint,
+  SubscriptionListResponse,
   SupportThread,
   SupportThreadDetail,
   TransactionListResponse,
@@ -201,6 +202,42 @@ export const PREVIEW_DEVICES: AdminDevice[] = [
   { hwid: 'ab12cd34ef56', platform: 'iOS', device_model: 'iPhone 15 Pro', created_at: new Date().toISOString() },
   { hwid: '11aa22bb33cc', platform: 'Android', device_model: 'Pixel 8', created_at: new Date().toISOString() },
 ];
+
+export const PREVIEW_SUBSCRIPTION_LIST: SubscriptionListResponse = {
+  items: [
+    {
+      user_id: 1,
+      telegram_id: 577437701,
+      username: 'danilvolkov666',
+      full_name: 'Данил',
+      tariff_name: 'Онлайн',
+      status: 'active',
+      is_trial: false,
+      end_date: new Date(Date.now() + 20 * 86400_000).toISOString(),
+      traffic_used_gb: 12.4,
+      traffic_limit_gb: 0,
+      device_limit: 3,
+      autopay_enabled: true,
+    },
+    {
+      user_id: 2,
+      telegram_id: 100200300,
+      username: null,
+      full_name: 'user892',
+      tariff_name: 'Онлайн',
+      status: 'expired',
+      is_trial: false,
+      end_date: new Date(Date.now() - 3 * 86400_000).toISOString(),
+      traffic_used_gb: 48.1,
+      traffic_limit_gb: 50,
+      device_limit: 3,
+      autopay_enabled: false,
+    },
+  ],
+  total: 2,
+  page: 1,
+  total_pages: 1,
+};
 
 export const PREVIEW_TRANSACTIONS: PaginatedTransactions = {
   items: PREVIEW_USER_DETAIL.transactions,

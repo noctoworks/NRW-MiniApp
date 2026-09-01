@@ -53,14 +53,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { id: 'overview', to: '/admin', label: 'Обзор', end: true, icon: House },
 
   { id: 'users', to: '/admin/users', label: 'Пользователи', icon: Persons, groupId: 'product' },
-  {
-    id: 'subscriptions',
-    to: '/admin/subscriptions',
-    label: 'Подписки',
-    icon: CreditCard,
-    groupId: 'product',
-    comingSoon: 'Общий список подписок по всем пользователям — сейчас доступно только внутри карточки пользователя.',
-  },
+  { id: 'subscriptions', to: '/admin/subscriptions', label: 'Подписки', icon: CreditCard, groupId: 'product' },
   {
     id: 'devices',
     to: '/admin/devices',

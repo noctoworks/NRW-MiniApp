@@ -378,3 +378,27 @@ export interface TransactionListResponse {
 
 export type TransactionType = 'topup' | 'subscription_payment' | 'referral_reward' | 'refund' | 'gift';
 export type TransactionStatus = 'pending' | 'completed' | 'failed';
+
+export type SubscriptionStatus = 'active' | 'expired' | 'disabled';
+
+export interface AdminSubscriptionListItem {
+  user_id: number;
+  telegram_id: number;
+  username: string | null;
+  full_name: string | null;
+  tariff_name: string;
+  status: SubscriptionStatus;
+  is_trial: boolean;
+  end_date: string;
+  traffic_used_gb: number;
+  traffic_limit_gb: number;
+  device_limit: number;
+  autopay_enabled: boolean;
+}
+
+export interface SubscriptionListResponse {
+  items: AdminSubscriptionListItem[];
+  total: number;
+  page: number;
+  total_pages: number;
+}

@@ -12,6 +12,7 @@ import {
   PREVIEW_RECENT_PAYMENTS,
   PREVIEW_REFERRAL_FUNNEL,
   PREVIEW_REVENUE_TIMESERIES,
+  PREVIEW_SUBSCRIPTION_LIST,
   PREVIEW_SUPPORT_THREAD_DETAIL,
   PREVIEW_SUPPORT_THREADS,
   PREVIEW_TRANSACTION_LIST,
@@ -37,6 +38,8 @@ import type {
   RecentPayment,
   ReferralFunnelResponse,
   RevenuePoint,
+  SubscriptionListResponse,
+  SubscriptionStatus,
   SupportThread,
   SupportThreadDetail,
   SyncResult,
@@ -82,6 +85,15 @@ export async function listTransactions(params: {
 export async function getPlategaReconcile(days = 7): Promise<PlategaReconcileMap> {
   if (isPreview()) return PREVIEW_PLATEGA_RECONCILE;
   return (await apiClient.get<PlategaReconcileMap>('/cabinet/admin/transactions/platega-reconcile', { params: { days } })).data;
+}
+
+export async function listSubscriptions(params: {
+  query?: string;
+  status?: SubscriptionStatus;
+  page?: number;
+}): Promise<SubscriptionListResponse> {
+  if (isPreview()) return PREVIEW_SUBSCRIPTION_LIST;
+  return (await apiClient.get<SubscriptionListResponse>('/cabinet/admin/subscriptions', { params })).data;
 }
 
 export async function getLtv(): Promise<LtvResponse> {
