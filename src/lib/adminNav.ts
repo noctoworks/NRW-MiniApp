@@ -76,22 +76,8 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { id: 'support', to: '/admin/support', label: 'Обращения', icon: Comments, groupId: 'product' },
 
   { id: 'nodes', to: '/admin/nodes', label: 'Ноды', icon: Server, groupId: 'infra' },
-  {
-    id: 'regions',
-    to: '/admin/regions',
-    label: 'Регионы',
-    icon: Globe,
-    groupId: 'infra',
-    comingSoon: 'Разбивка по странам/регионам — поле у сквадов в базе есть, но панель пока не заполняет его реальным значением.',
-  },
-  {
-    id: 'traffic',
-    to: '/admin/traffic',
-    label: 'Трафик',
-    icon: ChartLine,
-    groupId: 'infra',
-    comingSoon: 'Трафик по нодам/регионам во времени — суммарный трафик уже есть на «Обзоре», разбивка ждёт раздела «Ноды».',
-  },
+  { id: 'regions', to: '/admin/regions', label: 'Регионы', icon: Globe, groupId: 'infra' },
+  { id: 'traffic', to: '/admin/traffic', label: 'Трафик', icon: ChartLine, groupId: 'infra' },
   {
     id: 'monitoring',
     to: '/admin/monitoring',

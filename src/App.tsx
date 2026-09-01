@@ -37,6 +37,8 @@ const AdminComingSoon = lazy(() => import('./components/admin/AdminComingSoon'))
 const AdminNodes = lazy(() => import('./pages/admin/AdminNodes'));
 const AdminTransactions = lazy(() => import('./pages/admin/AdminTransactions'));
 const AdminSubscriptions = lazy(() => import('./pages/admin/AdminSubscriptions'));
+const AdminRegions = lazy(() => import('./pages/admin/AdminRegions'));
+const AdminTraffic = lazy(() => import('./pages/admin/AdminTraffic'));
 
 function AdminLoading() {
   return <Loader />;
@@ -246,6 +248,22 @@ export default function App() {
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminSubscriptions />
+            </Suspense>
+          }
+        />
+        <Route
+          path="regions"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminRegions />
+            </Suspense>
+          }
+        />
+        <Route
+          path="traffic"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminTraffic />
             </Suspense>
           }
         />

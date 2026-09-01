@@ -19,6 +19,20 @@ export function countryFlag(countryCode: string): string {
   return String.fromCodePoint(...[...code].map((c) => c.charCodeAt(0) + REGIONAL_INDICATOR_OFFSET));
 }
 
+/** ISO country code -> человекочитаемое название на русском. Intl.DisplayNames
+ * (встроено в браузер, без стороннего справочника стран, который легко
+ * забыть обновить/ошибиться руками) — если код невалиден/не распознан,
+ * возвращает исходный код как есть. */
+export function countryName(countryCode: string): string {
+  const code = countryCode.trim().toUpperCase();
+  if (code.length !== 2 || code === 'XX' || !/^[A-Z]{2}$/.test(code)) return 'Регион не задан';
+  try {
+    return new Intl.DisplayNames(['ru'], { type: 'region' }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 /** Суммарный трафик (обычно уже в сотнях/тысячах ГБ на масштабе всего
  * сервиса) — TB читается быстрее, чем пятизначное число ГБ. */
 export function formatTrafficGb(gb: number): string {
