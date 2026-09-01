@@ -23,6 +23,7 @@ import {
 import { useAuthStore } from '../store/auth';
 import type {
   AdminDevice,
+  AdminTransactionDetail,
   AdminUserDetail,
   AdminUserFilter,
   AdminUserListResponse,
@@ -80,6 +81,11 @@ export async function listTransactions(params: {
 }): Promise<TransactionListResponse> {
   if (isPreview()) return PREVIEW_TRANSACTION_LIST;
   return (await apiClient.get<TransactionListResponse>('/cabinet/admin/transactions', { params })).data;
+}
+
+export async function getTransactionDetail(id: number): Promise<AdminTransactionDetail> {
+  if (isPreview()) return { ...PREVIEW_TRANSACTION_LIST.items[0], payment_status: 'success', payment_raw_payload: null, provider_raw_response: { status: 'CONFIRMED', id: 'preview-record-0' } };
+  return (await apiClient.get<AdminTransactionDetail>(`/cabinet/admin/transactions/${id}`)).data;
 }
 
 export async function getPlategaReconcile(days = 7): Promise<PlategaReconcileMap> {

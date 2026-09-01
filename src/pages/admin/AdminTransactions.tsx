@@ -4,9 +4,9 @@ import { Table, useTable } from '@gravity-ui/table';
 import type { ColumnDef, SortingState } from '@gravity-ui/table/tanstack';
 import { Button, Icon, Label, Pagination, SegmentedRadioGroup, Select, Text, TextInput } from '@gravity-ui/uikit';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { getPlategaReconcile, listTransactions } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
+import AdminTransactionDetailDialog from '../../components/admin/AdminTransactionDetailDialog';
 import { formatDate, formatRub } from '../../lib/format';
 import { isIncomeTransaction, transactionLabel, transactionStatusLabel } from '../../lib/transactions';
 import type { AdminTransactionListItem, TransactionStatus, TransactionType } from '../../types';
@@ -33,13 +33,13 @@ function userLabel(t: AdminTransactionListItem): string {
 const SEARCH_DEBOUNCE_MS = 400;
 
 export default function AdminTransactions() {
-  const navigate = useNavigate();
   const [queryInput, setQueryInput] = useState('');
   const [query, setQuery] = useState('');
   const [type, setType] = useState<TransactionType[]>([]);
   const [status, setStatus] = useState<TransactionStatus | 'all'>('all');
   const [page, setPage] = useState(1);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setQuery(queryInput), SEARCH_DEBOUNCE_MS);
@@ -224,11 +224,7 @@ export default function AdminTransactions() {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <Table
-              table={table}
-              onRowClick={(row) => navigate(`/admin/users/${row.original.user_id}`)}
-              rowClassName="cursor-pointer"
-            />
+            <Table table={table} onRowClick={(row) => setSelectedId(row.original.id)} rowClassName="cursor-pointer" />
           </div>
           {data.total_pages > 1 && (
             <div className="flex justify-center">
@@ -242,6 +238,8 @@ export default function AdminTransactions() {
           )}
         </>
       )}
+
+      <AdminTransactionDetailDialog transactionId={selectedId} onClose={() => setSelectedId(null)} />
     </div>
   );
 }

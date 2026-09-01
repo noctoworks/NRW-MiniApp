@@ -376,6 +376,12 @@ export interface TransactionListResponse {
   total_pages: number;
 }
 
+export interface AdminTransactionDetail extends AdminTransactionListItem {
+  payment_status: string | null;
+  payment_raw_payload: Record<string, unknown> | null;
+  provider_raw_response: Record<string, unknown> | null;
+}
+
 export type TransactionType = 'topup' | 'subscription_payment' | 'referral_reward' | 'refund' | 'gift';
 export type TransactionStatus = 'pending' | 'completed' | 'failed';
 
