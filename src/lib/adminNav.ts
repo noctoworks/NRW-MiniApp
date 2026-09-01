@@ -4,17 +4,13 @@ import {
   Comments,
   CreditCard,
   Flag,
-  Gear,
   Globe,
   House,
   Persons,
   Pulse,
   Server,
-  ShieldKeyhole,
-  Smartphone,
   Tags,
   TagRuble,
-  Terminal,
   Wallet,
 } from '@gravity-ui/icons';
 import type { IconData } from '@gravity-ui/uikit';
@@ -32,8 +28,6 @@ export interface AdminNavItem {
   icon: IconData;
   /** Undefined — верхний пункт вне групп ("Обзор"). */
   groupId?: string;
-  /** Заглушка вместо реальной страницы — см. AdminComingSoon. */
-  comingSoon?: string;
 }
 
 // Новая IA (см. диалог 2026-09-01, "прям много чего переработать") — четыре
@@ -44,7 +38,6 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
   { id: 'product', title: 'Продукт' },
   { id: 'infra', title: 'Инфраструктура' },
   { id: 'finance', title: 'Финансы' },
-  { id: 'system', title: 'Система' },
 ];
 
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
@@ -52,14 +45,6 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 
   { id: 'users', to: '/admin/users', label: 'Пользователи', icon: Persons, groupId: 'product' },
   { id: 'subscriptions', to: '/admin/subscriptions', label: 'Подписки', icon: CreditCard, groupId: 'product' },
-  {
-    id: 'devices',
-    to: '/admin/devices',
-    label: 'Устройства',
-    icon: Smartphone,
-    groupId: 'product',
-    comingSoon: 'Общий список устройств по всем пользователям — сейчас доступно только внутри карточки пользователя, панель Remnawave не отдаёт это одним запросом.',
-  },
   { id: 'promo-codes', to: '/admin/promo-codes', label: 'Промокоды', icon: TagRuble, groupId: 'product' },
   { id: 'promo-groups', to: '/admin/promo-groups', label: 'Промогруппы', icon: Tags, groupId: 'product' },
   { id: 'campaigns', to: '/admin/campaigns', label: 'Кампании', icon: Flag, groupId: 'product' },
@@ -72,29 +57,4 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 
   { id: 'transactions', to: '/admin/transactions', label: 'Транзакции', icon: Wallet, groupId: 'finance' },
   { id: 'analytics', to: '/admin/analytics', label: 'Аналитика', icon: ChartMixed, groupId: 'finance' },
-
-  {
-    id: 'logs',
-    to: '/admin/logs',
-    label: 'Логи',
-    icon: Terminal,
-    groupId: 'system',
-    comingSoon: 'Журнал действий админов и системных событий — сейчас есть только docker logs на сервере.',
-  },
-  {
-    id: 'administrators',
-    to: '/admin/administrators',
-    label: 'Администраторы',
-    icon: ShieldKeyhole,
-    groupId: 'system',
-    comingSoon: 'Список админов сейчас — просто ADMIN_TELEGRAM_IDS в .env бота, нет модели/CRUD в базе.',
-  },
-  {
-    id: 'settings',
-    to: '/admin/settings',
-    label: 'Настройки',
-    icon: Gear,
-    groupId: 'system',
-    comingSoon: 'В базе есть таблица под key/value настройки, но её ещё нигде не использует ни бот, ни админка.',
-  },
 ];
