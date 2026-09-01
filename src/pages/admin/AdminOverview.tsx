@@ -5,6 +5,7 @@ import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import AlertsPanel from '../../components/admin/AlertsPanel';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
+import NetProfitCard from '../../components/admin/NetProfitCard';
 import NodesOverviewTable from '../../components/admin/NodesOverviewTable';
 import RevenueChart from '../../components/admin/RevenueChart';
 import SubscriptionsPulseCard from '../../components/admin/SubscriptionsPulseCard';
@@ -86,6 +87,8 @@ export default function AdminOverview() {
           hint={`7 дн: ${formatRub(overview.revenue_7d_kopeks)}`}
         />
       </div>
+
+      <NetProfitCard />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="xl:col-span-2">{timeseries && <RevenueChart data={timeseries} />}</div>

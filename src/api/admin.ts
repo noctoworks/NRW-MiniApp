@@ -8,6 +8,7 @@ import {
   PREVIEW_INFRA_BILLING,
   PREVIEW_LTV,
   PREVIEW_MONITORING,
+  PREVIEW_NET_PROFIT,
   PREVIEW_OVERVIEW,
   PREVIEW_NODES,
   PREVIEW_PLATEGA_RECONCILE,
@@ -41,6 +42,7 @@ import type {
   InfraBilling,
   LtvResponse,
   MonitoringResponse,
+  NetProfit,
   Node,
   OverviewResponse,
   PaginatedTransactions,
@@ -91,6 +93,11 @@ export async function getNodes(): Promise<Node[]> {
 export async function getInfraBilling(): Promise<InfraBilling> {
   if (isPreview()) return PREVIEW_INFRA_BILLING;
   return (await apiClient.get<InfraBilling>('/cabinet/admin/infra-billing')).data;
+}
+
+export async function getNetProfit(): Promise<NetProfit> {
+  if (isPreview()) return PREVIEW_NET_PROFIT;
+  return (await apiClient.get<NetProfit>('/cabinet/admin/net-profit')).data;
 }
 
 export async function getMonitoring(): Promise<MonitoringResponse> {

@@ -9,6 +9,7 @@ import type {
   InfraBilling,
   LtvResponse,
   MonitoringResponse,
+  NetProfit,
   Node,
   OverviewResponse,
   PaginatedTransactions,
@@ -113,6 +114,15 @@ export const PREVIEW_INFRA_BILLING: InfraBilling = {
     { node_uuid: 'de-01', node_name: 'DE-01', provider_name: 'Hetzner', next_billing_at: new Date(Date.now() + 12 * 86400_000).toISOString() },
     { node_uuid: 'fi-01', node_name: 'FI-01', provider_name: 'OVH', next_billing_at: new Date(Date.now() + 3 * 86400_000).toISOString() },
   ],
+};
+
+export const PREVIEW_NET_PROFIT: NetProfit = {
+  revenue_all_time: 31800,
+  cost_all_time: 312,
+  net_profit_all_time: 31488,
+  revenue_this_month: 3120,
+  cost_this_month: 78,
+  net_profit_this_month: 3042,
 };
 
 export const PREVIEW_MONITORING: MonitoringResponse = {

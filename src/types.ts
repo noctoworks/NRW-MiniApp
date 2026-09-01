@@ -503,6 +503,15 @@ export interface InfraBilling {
   nodes: InfraBillingNode[];
 }
 
+export interface NetProfit {
+  revenue_all_time: number;
+  cost_all_time: number;
+  net_profit_all_time: number;
+  revenue_this_month: number;
+  cost_this_month: number;
+  net_profit_this_month: number;
+}
+
 export interface SubscriptionPulse {
   new_today: number;
   renewals_today: number;
