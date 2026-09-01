@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router';
+import { Tab, TabList, TabProvider, Text } from '@gravity-ui/uikit';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import AdminGravityTheme from '../../components/admin/AdminGravityTheme';
 import { useTelegramBackButton } from '../../hooks/useTelegramBackButton';
 import { hapticSelection } from '../../lib/haptics';
@@ -8,54 +8,57 @@ import { hapticSelection } from '../../lib/haptics';
 // раньше на мобильном была только сводка KPI без доступа к остальным разделам
 // (пользователи, промогруппы и т.д. были физически недостижимы — см. диалог).
 const NAV_ITEMS = [
-  { to: '/admin', label: 'Дашборд', end: true },
-  { to: '/admin/users', label: 'Пользователи' },
-  { to: '/admin/promo-groups', label: 'Промогруппы' },
-  { to: '/admin/campaigns', label: 'Кампании' },
-  { to: '/admin/ltv', label: 'LTV' },
-  { to: '/admin/growth', label: 'MRR' },
-  { to: '/admin/referrals', label: 'Рефералы' },
-  { to: '/admin/support', label: 'Обращения' },
+  { id: 'overview', to: '/admin', label: 'Дашборд', end: true },
+  { id: 'users', to: '/admin/users', label: 'Пользователи', end: false },
+  { id: 'promo-groups', to: '/admin/promo-groups', label: 'Промогруппы', end: false },
+  { id: 'campaigns', to: '/admin/campaigns', label: 'Кампании', end: false },
+  { id: 'ltv', to: '/admin/ltv', label: 'LTV', end: false },
+  { id: 'growth', to: '/admin/growth', label: 'MRR', end: false },
+  { id: 'referrals', to: '/admin/referrals', label: 'Рефералы', end: false },
+  { id: 'support', to: '/admin/support', label: 'Обращения', end: false },
 ];
 
 /** Мобильный аналог AdminDesktopLayout: та же система разделов через <Outlet/>,
  * только вместо бокового сайдбара — горизонтальная прокручиваемая полоса вкладок
- * (тот же паттерн, что и выбор платформы на /connect). "Назад" в основное
- * приложение — только нативная Telegram BackButton (см. useTelegramBackButton),
- * без самодельной кнопки в шапке — она тут была лишней (см. диалог). Переход
- * МЕЖДУ разделами админки/в карточку пользователя обрабатывают сами страницы
- * (см. AdminUserDetail "← К списку"), единая Telegram BackButton не умеет быть
+ * (TabList contentOverflow="scroll" — вкладки тут навигация по роутам, а не
+ * переключение панелей, поэтому TabPanel не используется, onUpdate просто
+ * дёргает navigate()). "Назад" в основное приложение — только нативная
+ * Telegram BackButton (см. useTelegramBackButton), без самодельной кнопки в
+ * шапке — она тут была лишней (см. диалог). Переход МЕЖДУ разделами
+ * админки/в карточку пользователя обрабатывают сами страницы (см.
+ * AdminUserDetail "← К списку"), единая Telegram BackButton не умеет быть
  * контекстно-зависимой по вложенным роутам без отдельного учёта на каждой
  * странице. */
 export default function AdminMobileLayout() {
   const navigate = useNavigate();
-  const goBack = useCallback(() => navigate('/'), [navigate]);
-  useTelegramBackButton(goBack);
+  const { pathname } = useLocation();
+  useTelegramBackButton(() => navigate('/'));
+
+  const activeItem = NAV_ITEMS.find((item) => (item.end ? pathname === item.to : pathname.startsWith(item.to)));
 
   return (
     <AdminGravityTheme>
       <div className="page">
-        <h1 className="mb-4 text-xl font-bold text-white">Админка</h1>
+        <Text variant="header-1" className="mb-4 block">
+          Админка
+        </Text>
 
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={hapticSelection}
-              className={({ isActive }) =>
-                `shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-[hsl(var(--primary))] text-white'
-                    : 'bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]'
-                }`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </div>
+        <TabProvider
+          value={activeItem?.id}
+          onUpdate={(id) => {
+            hapticSelection();
+            const item = NAV_ITEMS.find((i) => i.id === id);
+            if (item) navigate(item.to);
+          }}
+        >
+          <TabList contentOverflow="scroll" className="mb-4">
+            {NAV_ITEMS.map((item) => (
+              <Tab key={item.id} value={item.id}>
+                {item.label}
+              </Tab>
+            ))}
+          </TabList>
+        </TabProvider>
 
         <Outlet />
       </div>
