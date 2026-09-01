@@ -1,4 +1,7 @@
-import { Avatar, Badge, Caption, Cell, List } from '@telegram-apps/telegram-ui';
+import { Table, useTable } from '@gravity-ui/table';
+import type { ColumnDef, SortingState } from '@gravity-ui/table/tanstack';
+import { Avatar, Label, Text } from '@gravity-ui/uikit';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { AdminUserListItem } from '../../types';
 import AdminEmptyState from './AdminEmptyState';
@@ -14,44 +17,89 @@ function timeAgo(iso: string | null): string {
   return `${Math.floor(hours / 24)} дн назад`;
 }
 
+function userLabel(user: AdminUserListItem): string {
+  return user.full_name || (user.username ? `@${user.username}` : `id${user.telegram_id}`);
+}
+
+// Ранг для сортировки по статусу (не текстовое поле, поэтому accessorFn, а
+// не accessorKey) — заблокированные первые (обычно самое важное для админа),
+// потом активные подписки, потом остальные.
+function statusRank(user: AdminUserListItem): number {
+  if (user.is_blocked) return 0;
+  if (user.has_active_subscription) return 1;
+  return 2;
+}
+
+const columns: ColumnDef<AdminUserListItem>[] = [
+  {
+    id: 'user',
+    accessorFn: (user) => userLabel(user),
+    header: 'Пользователь',
+    size: 240,
+    cell: ({ row }) => {
+      const user = row.original;
+      const label = userLabel(user);
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar size="m" text={label.charAt(0).toUpperCase()} />
+          <Text variant="body-1" ellipsis>
+            {user.has_active_subscription && (user.is_trial ? '🎁 ' : '💎 ')}
+            {label}
+          </Text>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'telegram_id',
+    header: 'Telegram ID',
+    size: 120,
+  },
+  {
+    id: 'status',
+    accessorFn: statusRank,
+    header: 'Статус',
+    size: 130,
+    cell: ({ row }) => {
+      const user = row.original;
+      if (user.is_blocked) return <Label theme="danger">Чёрный список</Label>;
+      if (user.has_active_subscription) return <Label theme="success">{user.is_trial ? 'Триал' : 'Активна'}</Label>;
+      return null;
+    },
+  },
+  {
+    id: 'last_activity_at',
+    accessorFn: (user) => (user.last_activity_at ? new Date(user.last_activity_at).getTime() : 0),
+    header: 'Активность',
+    size: 130,
+    cell: ({ row }) => timeAgo(row.original.last_activity_at),
+  },
+];
+
 interface UsersTableProps {
   items: AdminUserListItem[];
 }
 
 export default function UsersTable({ items }: UsersTableProps) {
   const navigate = useNavigate();
+  const [sorting, setSorting] = useState<SortingState>([]);
+
+  const table = useTable({
+    columns,
+    data: items,
+    enableSorting: true,
+    getRowId: (item) => String(item.id),
+    onSortingChange: setSorting,
+    state: { sorting },
+  });
 
   if (items.length === 0) {
-    return (
-      <div className="card !p-0">
-        <AdminEmptyState text="Никого не найдено" />
-      </div>
-    );
+    return <AdminEmptyState text="Никого не найдено" />;
   }
 
   return (
-    <List className="card overflow-hidden !p-0">
-      {items.map((user) => {
-        const label = user.full_name || (user.username ? `@${user.username}` : `id${user.telegram_id}`);
-        return (
-          <Cell
-            key={user.id}
-            onClick={() => navigate(`/admin/users/${user.id}`)}
-            before={<Avatar size={40} acronym={label.charAt(0).toUpperCase()} />}
-            subtitle={<Caption className="text-muted">{user.telegram_id} · {timeAgo(user.last_activity_at)}</Caption>}
-            after={
-              user.is_blocked ? (
-                <Badge type="dot" mode="critical" />
-              ) : user.has_active_subscription ? (
-                <Badge type="dot" mode="primary" />
-              ) : undefined
-            }
-          >
-            {user.has_active_subscription && (user.is_trial ? '🎁 ' : '💎 ')}
-            {label}
-          </Cell>
-        );
-      })}
-    </List>
+    <div className="overflow-x-auto">
+      <Table table={table} onRowClick={(row) => navigate(`/admin/users/${row.original.id}`)} rowClassName="cursor-pointer" />
+    </div>
   );
 }

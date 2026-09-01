@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Input, Pagination, SegmentedControl, Title } from '@telegram-apps/telegram-ui';
+import { Pagination, SegmentedRadioGroup, Text, TextInput } from '@gravity-ui/uikit';
 import { useEffect, useState } from 'react';
 import { listUsers } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
@@ -37,39 +37,38 @@ export default function AdminUsers() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Title level="2" weight="2">
-        Пользователи
-      </Title>
+      <Text variant="header-1">Пользователи</Text>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="w-64">
-          <Input
+          <TextInput
             value={queryInput}
-            onChange={(e) => {
-              setQueryInput(e.target.value);
+            onUpdate={(value) => {
+              setQueryInput(value);
               setPage(1);
             }}
             placeholder="Поиск по username или telegram_id"
           />
         </div>
-        <SegmentedControl>
+        <SegmentedRadioGroup
+          value={filter}
+          onUpdate={(value) => {
+            setFilter(value as AdminUserFilter);
+            setPage(1);
+          }}
+        >
           {FILTERS.map((f) => (
-            <SegmentedControl.Item
-              key={f.id}
-              selected={filter === f.id}
-              onClick={() => {
-                setFilter(f.id);
-                setPage(1);
-              }}
-            >
+            <SegmentedRadioGroup.Option key={f.id} value={f.id}>
               {f.label}
-            </SegmentedControl.Item>
+            </SegmentedRadioGroup.Option>
           ))}
-        </SegmentedControl>
+        </SegmentedRadioGroup>
       </div>
 
       {isLoading ? (
-        <div className="text-sm text-muted">Загрузка…</div>
+        <Text variant="body-1" color="secondary">
+          Загрузка…
+        </Text>
       ) : isError || !data ? (
         <AdminErrorState onRetry={() => refetch()} />
       ) : (
@@ -77,7 +76,12 @@ export default function AdminUsers() {
           <UsersTable items={data.items} />
           {data.total_pages > 1 && (
             <div className="flex justify-center">
-              <Pagination count={data.total_pages} page={page} onChange={(_, p) => setPage(p)} />
+              <Pagination
+                page={page}
+                pageSize={Math.ceil(data.total / data.total_pages)}
+                total={data.total}
+                onUpdate={(nextPage) => setPage(nextPage)}
+              />
             </div>
           )}
         </>
