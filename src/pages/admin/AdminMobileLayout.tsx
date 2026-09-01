@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
+import AdminGravityTheme from '../../components/admin/AdminGravityTheme';
 import { useTelegramBackButton } from '../../hooks/useTelegramBackButton';
 import { hapticSelection } from '../../lib/haptics';
 
@@ -32,30 +33,32 @@ export default function AdminMobileLayout() {
   useTelegramBackButton(goBack);
 
   return (
-    <div className="page">
-      <h1 className="mb-4 text-xl font-bold text-white">Админка</h1>
+    <AdminGravityTheme>
+      <div className="page">
+        <h1 className="mb-4 text-xl font-bold text-white">Админка</h1>
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            onClick={hapticSelection}
-            className={({ isActive }) =>
-              `shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-[hsl(var(--primary))] text-white'
-                  : 'bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]'
-              }`
-            }
-          >
-            {item.label}
-          </NavLink>
-        ))}
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              onClick={hapticSelection}
+              className={({ isActive }) =>
+                `shrink-0 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-[hsl(var(--primary))] text-white'
+                    : 'bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]'
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+
+        <Outlet />
       </div>
-
-      <Outlet />
-    </div>
+    </AdminGravityTheme>
   );
 }
