@@ -107,11 +107,20 @@ function CreateGroupForm() {
 
   return (
     <div className="flex items-end gap-2 px-4 py-3">
-      <div className="flex-1">
-        <TextInput label="Название" value={name} onUpdate={setName} placeholder="Например, VIP" />
+      {/* label у TextInput рендерится СЛЕВА от поля (не сверху, как было у
+       * telegram-ui Input header) и не помещается в узком w-24 (см. диалог
+       * "Скидка обрезается") — текст-заголовок над полем вместо label. */}
+      <div className="flex flex-1 flex-col gap-1">
+        <Text variant="caption-2" color="secondary" className="block">
+          Название
+        </Text>
+        <TextInput value={name} onUpdate={setName} placeholder="Например, VIP" />
       </div>
-      <div className="w-24">
-        <TextInput label="Скидка %" value={discount} onUpdate={setDiscount} controlProps={{ inputMode: 'numeric' }} />
+      <div className="flex w-24 flex-col gap-1">
+        <Text variant="caption-2" color="secondary" className="block">
+          Скидка %
+        </Text>
+        <TextInput value={discount} onUpdate={setDiscount} controlProps={{ inputMode: 'numeric' }} />
       </div>
       <Button view="action" size="m" loading={submitting} onClick={handleCreate}>
         Создать
