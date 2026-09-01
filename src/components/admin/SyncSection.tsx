@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Section } from '@telegram-apps/telegram-ui';
+import { Button, Card, Text } from '@gravity-ui/uikit';
 import { useState } from 'react';
 import { syncFromPanel, syncToPanel } from '../../api/admin';
 
@@ -29,15 +29,21 @@ export default function SyncSection({ userId }: SyncSectionProps) {
   };
 
   return (
-    <Section header="Синхронизация с Remnawave" footer={message ?? undefined}>
-      <div className="flex gap-2 px-4 py-3">
-        <Button mode="gray" size="m" disabled={busy} onClick={() => handle('from')}>
+    <Card view="outlined" className="flex flex-col gap-2 p-4">
+      <Text variant="subheader-1">Синхронизация с Remnawave</Text>
+      <div className="flex gap-2">
+        <Button view="outlined" size="m" disabled={busy} onClick={() => handle('from')}>
           Из панели
         </Button>
-        <Button mode="gray" size="m" disabled={busy} onClick={() => handle('to')}>
+        <Button view="outlined" size="m" disabled={busy} onClick={() => handle('to')}>
           В панель
         </Button>
       </div>
-    </Section>
+      {message && (
+        <Text variant="caption-2" color="secondary">
+          {message}
+        </Text>
+      )}
+    </Card>
   );
 }

@@ -1,4 +1,4 @@
-import { Button, Input } from '@telegram-apps/telegram-ui';
+import { Button, Text, TextInput } from '@gravity-ui/uikit';
 import { useState } from 'react';
 
 interface ReferralCommissionFormProps {
@@ -24,16 +24,13 @@ export default function ReferralCommissionForm({ value, onSubmit }: ReferralComm
 
   return (
     <div className="flex items-end gap-2">
-      <div className="flex-1">
-        <Input
-          header="Персональный % рефералки"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={`По умолчанию (глобальный)`}
-          inputMode="numeric"
-        />
+      <div className="flex flex-1 flex-col gap-1">
+        <Text variant="caption-2" color="secondary">
+          Персональный % рефералки
+        </Text>
+        <TextInput value={input} onUpdate={setInput} placeholder="По умолчанию (глобальный)" controlProps={{ inputMode: 'numeric' }} />
       </div>
-      <Button mode="filled" size="m" disabled={submitting} onClick={handleSubmit}>
+      <Button view="action" size="m" disabled={submitting} onClick={handleSubmit}>
         Сохранить
       </Button>
     </div>

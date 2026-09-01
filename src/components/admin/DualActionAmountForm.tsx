@@ -1,11 +1,11 @@
-import { Input } from '@telegram-apps/telegram-ui';
+import { Button, Text, TextInput } from '@gravity-ui/uikit';
 import { useState } from 'react';
 import { hapticImpact, hapticNotification } from '../../lib/haptics';
 
 interface DualActionAmountFormProps {
-  /** "Начислить" / "Продлить" — зелёная кнопка, положительное значение. */
+  /** "Начислить" / "Продлить" — акцентная кнопка, положительное значение. */
   positiveLabel: string;
-  /** "Списать" / "Сократить" — красная кнопка, отрицательное значение. */
+  /** "Списать" / "Сократить" — опасная кнопка, отрицательное значение. */
   negativeLabel: string;
   inputHeader: string;
   placeholder: string;
@@ -64,74 +64,52 @@ export default function DualActionAmountForm({
   return (
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          onClick={() => openMode('positive')}
-          className={`rounded-xl py-2.5 text-sm font-semibold transition-colors ${
-            mode === 'positive'
-              ? 'bg-[hsl(var(--primary))] text-white'
-              : 'bg-[hsl(var(--primary)/0.15)] text-[hsl(var(--primary))]'
-          }`}
-        >
+        <Button view={mode === 'positive' ? 'action' : 'outlined-action'} size="l" onClick={() => openMode('positive')}>
           {positiveLabel}
-        </button>
-        <button
-          type="button"
-          onClick={() => openMode('negative')}
-          className={`rounded-xl py-2.5 text-sm font-semibold transition-colors ${
-            mode === 'negative'
-              ? 'bg-[hsl(var(--destructive))] text-white'
-              : 'bg-[hsl(var(--destructive)/0.15)] text-[hsl(var(--destructive))]'
-          }`}
-        >
+        </Button>
+        <Button view={mode === 'negative' ? 'outlined-danger' : 'flat-danger'} size="l" onClick={() => openMode('negative')}>
           {negativeLabel}
-        </button>
+        </Button>
       </div>
 
       {mode && (
-        <div className="animate-fade-in flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           <div className="flex flex-wrap gap-1.5">
             {presets.map((preset) => (
-              <button
+              <Button
                 key={preset}
-                type="button"
+                view={value === String(preset) ? (mode === 'positive' ? 'action' : 'outlined-danger') : 'outlined'}
+                size="s"
                 onClick={() => {
                   hapticImpact('light');
                   setValue(String(preset));
                 }}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  value === String(preset)
-                    ? mode === 'positive'
-                      ? 'bg-[hsl(var(--primary))] text-white'
-                      : 'bg-[hsl(var(--destructive))] text-white'
-                    : 'bg-[hsl(var(--secondary))] text-[hsl(var(--subtitle-foreground))]'
-                }`}
               >
                 {preset}
-              </button>
+              </Button>
             ))}
           </div>
           <div className="flex items-end gap-2">
-            <div className="flex-1">
-              <Input
-                header={inputHeader}
+            <div className="flex flex-1 flex-col gap-1">
+              <Text variant="caption-2" color="secondary">
+                {inputHeader}
+              </Text>
+              <TextInput
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onUpdate={setValue}
                 placeholder={placeholder}
-                inputMode="decimal"
+                controlProps={{ inputMode: 'decimal' }}
                 autoFocus
               />
             </div>
-            <button
-              type="button"
+            <Button
+              view={mode === 'positive' ? 'action' : 'outlined-danger'}
+              size="l"
               disabled={submitting || !parse(value)}
               onClick={handleConfirm}
-              className={`h-[52px] shrink-0 rounded-xl px-4 text-sm font-semibold text-white transition-opacity disabled:opacity-40 ${
-                mode === 'positive' ? 'bg-[hsl(var(--primary))]' : 'bg-[hsl(var(--destructive))]'
-              }`}
             >
               {mode === 'positive' ? positiveLabel : negativeLabel}
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Caption, Cell, Section, SegmentedControl, Switch, Title } from '@telegram-apps/telegram-ui';
-import { useState } from 'react';
+import { Button, Card, SegmentedRadioGroup, Switch, Text } from '@gravity-ui/uikit';
+import { useState, type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   adjustBalance,
@@ -43,6 +43,17 @@ function parsePositiveDays(raw: string): number | null {
   return days > 0 ? days : null;
 }
 
+function InfoRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3 first:border-t-0">
+      <Text variant="caption-2" color="secondary">
+        {label}
+      </Text>
+      <Text variant="body-1">{children}</Text>
+    </div>
+  );
+}
+
 /** Обёртка форсирует полный ремаунт AdminUserDetailContent при переходе на
  * другого пользователя (смена :id) — React Router САМ ПО СЕБЕ этого не
  * делает, переиспользует тот же инстанс компонента. Без key useState внутри
@@ -71,7 +82,11 @@ function AdminUserDetailContent() {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin', 'user', userId] });
 
   if (isLoading) {
-    return <div className="text-sm text-muted">Загрузка…</div>;
+    return (
+      <Text variant="body-1" color="secondary">
+        Загрузка…
+      </Text>
+    );
   }
 
   if (isError || !data) {
@@ -91,44 +106,47 @@ function AdminUserDetailContent() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-5">
-      <button type="button" onClick={() => navigate('/admin/users')} className="text-sm text-muted">
+      <Button view="flat" size="s" onClick={() => navigate('/admin/users')} className="self-start">
         ← К списку
-      </button>
+      </Button>
 
       <div>
         <div className="mb-1 flex items-center gap-2">
-          <Title level="2" weight="2">
+          <Text variant="header-1">
             {data.full_name || (data.username ? `@${data.username}` : `id${data.telegram_id}`)}
-          </Title>
-          <Badge type="dot" mode={data.is_blocked ? 'critical' : 'primary'} />
+          </Text>
+          <span
+            className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ background: data.is_blocked ? 'var(--g-color-base-danger-heavy)' : 'var(--g-color-base-positive-heavy)' }}
+          />
         </div>
-        <Caption className="text-muted">
+        <Text variant="caption-2" color="secondary">
           {data.username && `@${data.username} · `}telegram_id {data.telegram_id} · регистрация {formatDate(data.created_at)}
-        </Caption>
+        </Text>
         {data.blocked_bot && (
-          <p className="mt-2 text-sm text-yellow-400">⚠️ Пользователь заблокировал бота — сообщения не доставляются.</p>
+          <Text variant="body-2" color="warning" className="mt-2 block">
+            ⚠️ Пользователь заблокировал бота — сообщения не доставляются.
+          </Text>
         )}
       </div>
 
-      <Section>
-        <Cell subtitle={<Caption className="text-muted">Баланс</Caption>}>{formatRub(data.balance_kopeks)}</Cell>
-        <Cell subtitle={<Caption className="text-muted">Рефералы</Caption>}>
+      <Card view="outlined" className="flex flex-col">
+        <InfoRow label="Баланс">{formatRub(data.balance_kopeks)}</InfoRow>
+        <InfoRow label="Рефералы">
           {data.referrals_invited_count} · {formatRub(data.referrals_earned_kopeks)}
-        </Cell>
-        <Cell subtitle={<Caption className="text-muted">Подписка</Caption>}>
+        </InfoRow>
+        <InfoRow label="Подписка">
           {data.subscription
             ? `${data.subscription.is_trial ? '🎁 триал' : '💎 ' + data.subscription.status} до ${formatDate(data.subscription.end_date)}`
             : 'нет'}
-        </Cell>
-        <Cell subtitle={<Caption className="text-muted">Трафик</Caption>}>
+        </InfoRow>
+        <InfoRow label="Трафик">
           {data.subscription
             ? `${data.subscription.traffic_used_gb.toFixed(1)} / ${data.subscription.traffic_limit_gb || '∞'} ГБ`
             : '—'}
-        </Cell>
-        <Cell subtitle={<Caption className="text-muted">Промогруппа</Caption>}>
-          {data.promo_group_name ?? 'без скидки'}
-        </Cell>
-      </Section>
+        </InfoRow>
+        <InfoRow label="Промогруппа">{data.promo_group_name ?? 'без скидки'}</InfoRow>
+      </Card>
 
       {/* Вкладки вместо одного нескончаемого блока (баланс + дни + сообщение +
        * реферальный % + промогруппа + блок + удаление вперемешку) — частые
@@ -136,65 +154,65 @@ function AdminUserDetailContent() {
        * (удаление) визуально отделены и не соседствуют с обычными (см.
        * диалог "давай поправим админку" / research по CRM-паттернам:
        * табы для записи с несколькими доменами данных, а не один скролл). */}
-      <SegmentedControl>
+      <SegmentedRadioGroup value={tab} onUpdate={(value) => setTab(value as DetailTab)}>
         {TABS.map((t) => (
-          <SegmentedControl.Item key={t.id} selected={tab === t.id} onClick={() => setTab(t.id)}>
+          <SegmentedRadioGroup.Option key={t.id} value={t.id}>
             {t.label}
-          </SegmentedControl.Item>
+          </SegmentedRadioGroup.Option>
         ))}
-      </SegmentedControl>
+      </SegmentedRadioGroup>
 
       {tab === 'overview' && (
-        <Section>
-          <div className="flex flex-col gap-4 px-4 py-3">
-            <div>
-              <div className="section-title !mb-2 !px-0">Баланс</div>
-              <DualActionAmountForm
-                positiveLabel="Начислить"
-                negativeLabel="Списать"
-                inputHeader="Сумма"
-                placeholder="Сумма в ₽"
-                parse={parsePositiveRub}
-                presets={[100, 500, 1000]}
-                onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }}
-              />
-            </div>
-
-            <div>
-              <div className="section-title !mb-2 !px-0">Подписка</div>
-              {data.subscription ? (
-                <DualActionAmountForm
-                  positiveLabel="Продлить"
-                  negativeLabel="Сократить"
-                  inputHeader="Дни"
-                  placeholder="Количество дней"
-                  parse={parsePositiveDays}
-                  presets={[7, 30, 90]}
-                  onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
-                />
-              ) : (
-                <GrantSubscriptionForm
-                  onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
-                />
-              )}
-            </div>
+        <Card view="outlined" className="flex flex-col gap-4 p-4">
+          <div>
+            <Text variant="subheader-1" className="mb-2 block">
+              Баланс
+            </Text>
+            <DualActionAmountForm
+              positiveLabel="Начислить"
+              negativeLabel="Списать"
+              inputHeader="Сумма"
+              placeholder="Сумма в ₽"
+              parse={parsePositiveRub}
+              presets={[100, 500, 1000]}
+              onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }}
+            />
           </div>
-        </Section>
+
+          <div>
+            <Text variant="subheader-1" className="mb-2 block">
+              Подписка
+            </Text>
+            {data.subscription ? (
+              <DualActionAmountForm
+                positiveLabel="Продлить"
+                negativeLabel="Сократить"
+                inputHeader="Дни"
+                placeholder="Количество дней"
+                parse={parsePositiveDays}
+                presets={[7, 30, 90]}
+                onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }}
+              />
+            ) : (
+              <GrantSubscriptionForm onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }} />
+            )}
+          </div>
+        </Card>
       )}
 
       {tab === 'transactions' && <TransactionsSection userId={userId} />}
 
       {tab === 'devices' && (
-        <>
+        <div className="flex flex-col gap-4">
           <DevicesSection userId={userId} />
           <SyncSection userId={userId} />
-        </>
+        </div>
       )}
 
       {tab === 'settings' && (
-        <>
-          <Section>
-            <div className="flex flex-col gap-4 px-4 py-3">
+        <div className="flex flex-col gap-4">
+          <Card view="outlined" className="flex flex-col">
+            <div className="flex flex-col gap-4 p-4">
               <UserMessageForm onSubmit={(text) => messageUser(userId, text).then(() => undefined)} />
               <ReferralCommissionForm
                 value={data.referral_commission_percent}
@@ -205,20 +223,25 @@ function AdminUserDetailContent() {
                 onChange={async (groupId) => { await setUserPromoGroup(userId, groupId); await invalidate(); }}
               />
             </div>
-            <Cell after={<Switch checked={data.is_blocked} onChange={handleBlockToggle} />}>Заблокирован</Cell>
-          </Section>
+            <div className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3">
+              <Text variant="body-1">Заблокирован</Text>
+              <Switch checked={data.is_blocked} onUpdate={handleBlockToggle} />
+            </div>
+          </Card>
 
           {/* Опасная зона — визуально отделена (заголовок + отступ), не
            * соседствует вплотную с обычными переключателями выше. */}
           <div>
-            <div className="section-title !text-[hsl(var(--destructive))]">Опасная зона</div>
-            <Section>
-              <Cell onClick={handleDelete} className="text-red-400">
+            <Text variant="subheader-1" color="danger" className="mb-2 block">
+              Опасная зона
+            </Text>
+            <Card view="outlined">
+              <Button view="flat-danger" size="l" onClick={handleDelete} width="max">
                 Удалить (заблокировать и обезличить)
-              </Cell>
-            </Section>
+              </Button>
+            </Card>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

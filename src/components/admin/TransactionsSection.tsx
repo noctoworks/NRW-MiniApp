@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Caption, Cell, Pagination, Section } from '@telegram-apps/telegram-ui';
+import { Card, Pagination, Text } from '@gravity-ui/uikit';
 import { useState } from 'react';
 import { getUserTransactions } from '../../api/admin';
 import { formatDate, formatRub } from '../../lib/format';
@@ -17,29 +17,43 @@ export default function TransactionsSection({ userId }: TransactionsSectionProps
   });
 
   return (
-    <Section header="Транзакции">
+    <Card view="outlined" className="flex flex-col">
+      <Text variant="subheader-1" className="block p-4 pb-2">
+        Транзакции
+      </Text>
       {isLoading ? (
-        <Cell className="text-muted">Загрузка…</Cell>
+        <Text variant="body-1" color="secondary" className="block px-4 pb-3">
+          Загрузка…
+        </Text>
       ) : isError || !data ? (
         <AdminErrorState onRetry={() => refetch()} />
       ) : data.items.length === 0 ? (
         <AdminEmptyState text="Транзакций нет" />
       ) : (
         data.items.map((t) => (
-          <Cell
-            key={t.id}
-            subtitle={<Caption className="text-muted">{formatDate(t.created_at)} · {t.status}</Caption>}
-            after={<span className="font-semibold">{formatRub(t.amount_kopeks)}</span>}
-          >
-            {t.type}
-          </Cell>
+          <div key={t.id} className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3">
+            <div className="flex flex-col">
+              <Text variant="body-1">{t.type}</Text>
+              <Text variant="caption-2" color="secondary">
+                {formatDate(t.created_at)} · {t.status}
+              </Text>
+            </div>
+            <Text variant="body-1" className="font-semibold">
+              {formatRub(t.amount_kopeks)}
+            </Text>
+          </div>
         ))
       )}
       {data && data.total_pages > 1 && (
         <div className="flex justify-center py-3">
-          <Pagination count={data.total_pages} page={page} onChange={(_, p) => setPage(p)} />
+          <Pagination
+            page={page}
+            pageSize={Math.ceil(data.total / data.total_pages)}
+            total={data.total}
+            onUpdate={(nextPage) => setPage(nextPage)}
+          />
         </div>
       )}
-    </Section>
+    </Card>
   );
 }

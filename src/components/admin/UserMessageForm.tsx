@@ -1,4 +1,4 @@
-import { Button, Input } from '@telegram-apps/telegram-ui';
+import { Button, Text, TextInput } from '@gravity-ui/uikit';
 import { useState } from 'react';
 
 interface UserMessageFormProps {
@@ -25,15 +25,13 @@ export default function UserMessageForm({ onSubmit }: UserMessageFormProps) {
 
   return (
     <div className="flex items-end gap-2">
-      <div className="flex-1">
-        <Input
-          header="Сообщение"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Текст сообщения пользователю"
-        />
+      <div className="flex flex-1 flex-col gap-1">
+        <Text variant="caption-2" color="secondary">
+          Сообщение
+        </Text>
+        <TextInput value={text} onUpdate={setText} placeholder="Текст сообщения пользователю" />
       </div>
-      <Button mode="filled" size="m" disabled={submitting || !text.trim()} onClick={handleSubmit}>
+      <Button view="action" size="m" disabled={submitting || !text.trim()} onClick={handleSubmit}>
         {sent ? 'Отправлено' : 'Отправить'}
       </Button>
     </div>
