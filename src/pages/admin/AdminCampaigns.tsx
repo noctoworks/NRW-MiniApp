@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Caption, Cell, Input, Section, SegmentedControl, Switch, Title } from '@telegram-apps/telegram-ui';
+import { ChartColumn, Check, Copy, Xmark } from '@gravity-ui/icons';
+import { Button, Card, Icon, SegmentedRadioGroup, Switch, Text, TextInput } from '@gravity-ui/uikit';
 import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import { useState } from 'react';
 import { createCampaign, deleteCampaign, getCampaignStats, listCampaigns, updateCampaign } from '../../api/admin';
@@ -20,14 +21,27 @@ function CampaignStatsRow({ campaignId }: { campaignId: number }) {
     queryFn: () => getCampaignStats(campaignId),
   });
 
-  if (isLoading || !data) return <Caption className="px-4 pb-3 text-muted">Загрузка статистики…</Caption>;
+  if (isLoading || !data)
+    return (
+      <Text variant="caption-2" color="secondary" className="block px-4 pb-3">
+        Загрузка статистики…
+      </Text>
+    );
 
   return (
-    <div className="grid grid-cols-2 gap-2 px-4 pb-3 text-xs text-muted">
-      <span>Регистраций: {data.registrations_count}</span>
-      <span>Платят: {data.paying_count}</span>
-      <span>Конверсия: {data.conversion_percent}%</span>
-      <span>Выручка: {formatRub(data.revenue_kopeks)}</span>
+    <div className="grid grid-cols-2 gap-2 px-4 pb-3">
+      <Text variant="caption-2" color="secondary">
+        Регистраций: {data.registrations_count}
+      </Text>
+      <Text variant="caption-2" color="secondary">
+        Платят: {data.paying_count}
+      </Text>
+      <Text variant="caption-2" color="secondary">
+        Конверсия: {data.conversion_percent}%
+      </Text>
+      <Text variant="caption-2" color="secondary">
+        Выручка: {formatRub(data.revenue_kopeks)}
+      </Text>
     </div>
   );
 }
@@ -57,65 +71,49 @@ function CampaignRow({ campaign }: { campaign: Campaign }) {
   };
 
   return (
-    <>
-      <Cell
-        subtitle={
-          <Caption className="text-muted">
+    <div className="border-t border-[var(--g-color-line-generic)] py-3">
+      <div className="flex items-center justify-between gap-2 px-4">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <Text variant="body-1" ellipsis>
+            {campaign.name}
+          </Text>
+          <Text variant="caption-2" color="secondary">
             {BONUS_LABELS[campaign.bonus_type]}
             {campaign.bonus_type === 'balance' && ` · ${formatRub(campaign.balance_bonus_kopeks)}`}
             {campaign.bonus_type === 'subscription' && ` · ${campaign.subscription_duration_days} дн.`}
-          </Caption>
-        }
-        after={<Switch checked={campaign.is_active} onChange={handleToggle} />}
-      >
-        {campaign.name}
-      </Cell>
+          </Text>
+        </div>
+        <Switch checked={campaign.is_active} onUpdate={handleToggle} />
+      </div>
       {/* Отдельная строка под второстепенные действия — раньше все четыре
        * (копировать/статистика/переключатель/удалить) стояли вплотную в
        * size="s", включая деструктивное "удалить" рядом с безобидными —
        * на телефоне легко промахнуться (см. диалог: "удобство на телефоне"). */}
-      <div className="flex items-center gap-2 px-4 pb-3">
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--secondary))] px-3 py-2 text-xs font-medium text-[hsl(var(--subtitle-foreground))] active:opacity-70"
-        >
+      <div className="mt-2 flex items-center gap-2 px-4">
+        <Button view="flat" size="s" onClick={handleCopyLink}>
           {copied ? (
-            <span className="text-success">✓ Скопировано</span>
+            <>
+              <Icon data={Check} size={14} />
+              Скопировано
+            </>
           ) : (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" />
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-              </svg>
+              <Icon data={Copy} size={14} />
               Ссылка
             </>
           )}
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowStats((v) => !v)}
-          className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--secondary))] px-3 py-2 text-xs font-medium text-[hsl(var(--subtitle-foreground))] active:opacity-70"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 3v18h18" />
-            <path d="M18 17V9M13 17V5M8 17v-5" />
-          </svg>
+        </Button>
+        <Button view="flat" size="s" onClick={() => setShowStats((v) => !v)}>
+          <Icon data={ChartColumn} size={14} />
           Статистика
-        </button>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="ml-auto flex items-center gap-1.5 rounded-full bg-[hsl(var(--destructive)/0.12)] px-3 py-2 text-xs font-medium text-[hsl(var(--destructive))] active:opacity-70"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
+        </Button>
+        <Button view="flat-danger" size="s" onClick={handleDelete} className="ml-auto">
+          <Icon data={Xmark} size={14} />
           Удалить
-        </button>
+        </Button>
       </div>
       {showStats && <CampaignStatsRow campaignId={campaign.id} />}
-    </>
+    </div>
   );
 }
 
@@ -151,35 +149,49 @@ function CreateCampaignForm() {
 
   return (
     <div className="flex flex-col gap-3 px-4 py-3">
-      <Input header="Название" value={name} onChange={(e) => setName(e.target.value)} placeholder="Instagram Jan" />
-      <Input
-        header="start_parameter (для ссылки)"
-        value={startParameter}
-        onChange={(e) => setStartParameter(e.target.value.replace(/[^a-zA-Z0-9_-]/g, ''))}
-        placeholder="instagram_jan2026"
-      />
+      <div className="flex flex-col gap-1">
+        <Text variant="caption-2" color="secondary">
+          Название
+        </Text>
+        <TextInput value={name} onUpdate={setName} placeholder="Instagram Jan" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <Text variant="caption-2" color="secondary">
+          start_parameter (для ссылки)
+        </Text>
+        <TextInput
+          value={startParameter}
+          onUpdate={(value) => setStartParameter(value.replace(/[^a-zA-Z0-9_-]/g, ''))}
+          placeholder="instagram_jan2026"
+        />
+      </div>
 
-      <SegmentedControl>
+      <SegmentedRadioGroup value={bonusType} onUpdate={(value) => setBonusType(value as CampaignBonusType)}>
         {(Object.keys(BONUS_LABELS) as CampaignBonusType[]).map((type) => (
-          <SegmentedControl.Item key={type} selected={bonusType === type} onClick={() => setBonusType(type)}>
+          <SegmentedRadioGroup.Option key={type} value={type}>
             {BONUS_LABELS[type]}
-          </SegmentedControl.Item>
+          </SegmentedRadioGroup.Option>
         ))}
-      </SegmentedControl>
+      </SegmentedRadioGroup>
 
       {bonusType === 'balance' && (
-        <Input header="Бонус, ₽" value={balanceRub} onChange={(e) => setBalanceRub(e.target.value)} inputMode="decimal" />
+        <div className="flex flex-col gap-1">
+          <Text variant="caption-2" color="secondary">
+            Бонус, ₽
+          </Text>
+          <TextInput value={balanceRub} onUpdate={setBalanceRub} controlProps={{ inputMode: 'decimal' }} />
+        </div>
       )}
       {bonusType === 'subscription' && (
-        <Input
-          header="Бесплатных дней подписки"
-          value={subscriptionDays}
-          onChange={(e) => setSubscriptionDays(e.target.value)}
-          inputMode="numeric"
-        />
+        <div className="flex flex-col gap-1">
+          <Text variant="caption-2" color="secondary">
+            Бесплатных дней подписки
+          </Text>
+          <TextInput value={subscriptionDays} onUpdate={setSubscriptionDays} controlProps={{ inputMode: 'numeric' }} />
+        </div>
       )}
 
-      <Button mode="filled" size="m" disabled={submitting} onClick={handleCreate}>
+      <Button view="action" size="m" loading={submitting} onClick={handleCreate}>
         Создать кампанию
       </Button>
     </div>
@@ -194,18 +206,18 @@ export default function AdminCampaigns() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <Title level="2" weight="2">
-        Кампании
-      </Title>
-      <p className="text-xs text-muted">
+      <Text variant="header-1">Кампании</Text>
+      <Text variant="body-2" color="secondary">
         Ссылка вида t.me/бот?start=start_parameter — бонус начисляется один раз при
         регистрации нового пользователя по ссылке.
-      </p>
+      </Text>
 
-      <Section footer="Ссылку на кампанию можно скопировать иконкой рядом с названием">
+      <Card view="outlined" className="flex flex-col">
         <CreateCampaignForm />
         {isLoading ? (
-          <Cell className="text-muted">Загрузка…</Cell>
+          <Text variant="body-1" color="secondary" className="block px-4 py-3">
+            Загрузка…
+          </Text>
         ) : isError || !data ? (
           <AdminErrorState onRetry={() => refetch()} />
         ) : data.length > 0 ? (
@@ -213,7 +225,10 @@ export default function AdminCampaigns() {
         ) : (
           <AdminEmptyState text="Кампаний ещё нет" />
         )}
-      </Section>
+        <Text variant="caption-2" color="secondary" className="block border-t border-[var(--g-color-line-generic)] px-4 py-2">
+          Ссылку на кампанию можно скопировать иконкой рядом с названием
+        </Text>
+      </Card>
     </div>
   );
 }
