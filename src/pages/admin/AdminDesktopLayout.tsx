@@ -12,6 +12,11 @@ export default function AdminDesktopLayout() {
   // @gravity-ui/navigation): без своего state + onChangeCompact сайдбар
   // "замерзает" в развёрнутом виде, сворачивание кнопкой перестаёт работать.
   const [compact, setCompact] = useState(false);
+  // Сворачивание отдельных групп (Продукт/Инфра/Финансы/Система) — по докам
+  // @gravity-ui/navigation, инлайн collapsedMenuGroupIds/onToggleMenuGroupCollapsed
+  // работают ТОЛЬКО при menuOverflow="scroll" (диалог 2026-09-01: "хочется
+  // раскрывать и скрывать"). Все группы развёрнуты по умолчанию (пустой объект).
+  const [collapsedGroupIds, setCollapsedGroupIds] = useState<Record<string, boolean>>({});
 
   return (
     <AdminGravityTheme>
@@ -28,6 +33,11 @@ export default function AdminDesktopLayout() {
           },
         ]}
         menuGroups={ADMIN_NAV_GROUPS}
+        menuOverflow="scroll"
+        collapsedMenuGroupIds={collapsedGroupIds}
+        onToggleMenuGroupCollapsed={(groupId) =>
+          setCollapsedGroupIds((prev) => ({ ...prev, [groupId]: !prev[groupId] }))
+        }
         menuItems={ADMIN_NAV_ITEMS.map((item) => ({
           id: item.id,
           title: item.label,
