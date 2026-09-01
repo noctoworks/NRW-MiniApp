@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card, Text } from '@gravity-ui/uikit';
-import { getSalesBreakdown } from '../../api/admin';
+import { getRevenueComposition, getSalesBreakdown } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import CategoryBarChart from '../../components/admin/CategoryBarChart';
+import RevenueCompositionChart from '../../components/admin/RevenueCompositionChart';
 import Loader from '../../components/Loader';
 import { formatRub } from '../../lib/format';
 import { transactionLabel } from '../../lib/transactions';
@@ -50,6 +51,10 @@ export default function AdminSales() {
     queryKey: ['admin', 'sales-breakdown'],
     queryFn: getSalesBreakdown,
   });
+  const { data: composition } = useQuery({
+    queryKey: ['admin', 'revenue-composition', 30],
+    queryFn: () => getRevenueComposition(30),
+  });
 
   if (isLoading) {
     return <Loader inline />;
@@ -75,20 +80,22 @@ export default function AdminSales() {
             Оплата подписки + подарки за 30 дней, без оплат бонусным балансом
           </Text>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <CategoryBarChart
-            title="По типу транзакции"
-            categories={data.by_type.map((item) => transactionLabel(item.type))}
-            values={data.by_type.map((item) => item.revenue_kopeks)}
-            formatValue={formatRub}
-          />
-          <CategoryBarChart
-            title="По способу оплаты"
-            categories={data.by_provider.map((item) => providerLabel(item.provider))}
-            values={data.by_provider.map((item) => item.revenue_kopeks)}
-            formatValue={formatRub}
-          />
+        <CategoryBarChart
+          title="По типу транзакции"
+          categories={data.by_type.map((item) => transactionLabel(item.type))}
+          values={data.by_type.map((item) => item.revenue_kopeks)}
+          formatValue={formatRub}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <div>
+          <Text variant="subheader-1">Состав по способам оплаты</Text>
+          <Text variant="caption-2" color="secondary" className="block">
+            По дням за тот же период — виден не только итог, но и как менялся микс провайдеров
+          </Text>
         </div>
+        {composition ? <RevenueCompositionChart data={composition} /> : <Loader inline />}
       </div>
 
       <div className="flex flex-col gap-3">

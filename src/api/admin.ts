@@ -53,6 +53,7 @@ import type {
   PromoGroup,
   RecentPayment,
   ReferralFunnelResponse,
+  RevenueComposition,
   RevenuePoint,
   SalesBreakdown,
   SubscriptionListResponse,
@@ -152,6 +153,25 @@ export async function getMonitoring(): Promise<MonitoringResponse> {
 export async function getSalesBreakdown(): Promise<SalesBreakdown> {
   if (isPreview()) return PREVIEW_SALES_BREAKDOWN;
   return (await apiClient.get<SalesBreakdown>('/cabinet/admin/sales-breakdown')).data;
+}
+
+export async function getRevenueComposition(days = 30): Promise<RevenueComposition> {
+  if (isPreview()) {
+    const today = new Date();
+    const dayList = Array.from({ length: days + 1 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (days - i));
+      return d.toISOString().slice(0, 10);
+    });
+    return {
+      days: dayList,
+      series: PREVIEW_SALES_BREAKDOWN.by_provider.map((p) => ({
+        provider: p.provider,
+        values: dayList.map((_, i) => Math.round((p.revenue_kopeks / days) * (0.6 + 0.8 * Math.abs(Math.sin(i))))),
+      })),
+    };
+  }
+  return (await apiClient.get<RevenueComposition>('/cabinet/admin/revenue-composition', { params: { days } })).data;
 }
 
 export async function getAlerts(): Promise<Alert[]> {

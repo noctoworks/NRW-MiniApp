@@ -513,6 +513,16 @@ export interface SalesBreakdown {
   active_subs_by_tariff: ActiveSubsByTariff[];
 }
 
+export interface RevenueByProviderDay {
+  provider: string;
+  values: number[];
+}
+
+export interface RevenueComposition {
+  days: string[];
+  series: RevenueByProviderDay[];
+}
+
 export interface InfraBillingNode {
   node_uuid: string | null;
   node_name: string;

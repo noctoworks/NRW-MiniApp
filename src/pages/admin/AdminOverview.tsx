@@ -86,6 +86,7 @@ export default function AdminOverview() {
           label="Доход сегодня"
           value={formatRub(overview.revenue_today_kopeks)}
           hint={`7 дн: ${formatRub(overview.revenue_7d_kopeks)}`}
+          sparkline={timeseries?.map((point) => point.revenue_kopeks)}
         />
       </div>
 
