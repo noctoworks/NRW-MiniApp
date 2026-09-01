@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Title } from '@telegram-apps/telegram-ui';
+import { Card, Text } from '@gravity-ui/uikit';
 import { getOverview, getRevenueTimeseries } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import KpiTile from '../../components/admin/KpiTile';
@@ -24,7 +24,7 @@ export default function AdminOverview() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Title level="2" weight="2">Дашборд</Title>
+      <Text variant="header-1">Дашборд</Text>
 
       {/* Доход — самое важное на экране, поэтому крупная плашка сверху, а не
           одна из восьми одинаковых плиток в общей сетке (см. диалог: "давай
@@ -32,24 +32,38 @@ export default function AdminOverview() {
           проверять каждый день), "за всё время" ушёл в мелкую строку ниже —
           раньше было наоборот, но именно "сегодня" должно бросаться в глаза
           первым, особенно с телефона. */}
-      <div className="card !p-4">
-        <div className="text-xs text-[hsl(var(--subtitle-foreground))]">Доход за сегодня</div>
-        <div className="text-3xl font-bold text-white">{formatRub(overview.revenue_today_kopeks)}</div>
-        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
+      <Card view="filled" className="p-4">
+        <Text variant="caption-2" color="secondary" className="block">
+          Доход за сегодня
+        </Text>
+        <Text variant="display-1">{formatRub(overview.revenue_today_kopeks)}</Text>
+        <div className="mt-3 grid grid-cols-3 gap-2 border-t border-[var(--g-color-line-generic)] pt-3">
           <div>
-            <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">За 7 дн</div>
-            <div className="text-sm font-semibold text-white">{formatRub(overview.revenue_7d_kopeks)}</div>
+            <Text variant="caption-2" color="secondary" className="block">
+              За 7 дн
+            </Text>
+            <Text variant="body-2" className="font-semibold">
+              {formatRub(overview.revenue_7d_kopeks)}
+            </Text>
           </div>
           <div>
-            <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">За 30 дн</div>
-            <div className="text-sm font-semibold text-white">{formatRub(overview.revenue_30d_kopeks)}</div>
+            <Text variant="caption-2" color="secondary" className="block">
+              За 30 дн
+            </Text>
+            <Text variant="body-2" className="font-semibold">
+              {formatRub(overview.revenue_30d_kopeks)}
+            </Text>
           </div>
           <div>
-            <div className="text-[0.6875rem] text-[hsl(var(--subtitle-foreground))]">Всего</div>
-            <div className="text-sm font-semibold text-[hsl(var(--primary))]">{formatRub(overview.revenue_all_time_kopeks)}</div>
+            <Text variant="caption-2" color="secondary" className="block">
+              Всего
+            </Text>
+            <Text variant="body-2" color="brand" className="font-semibold">
+              {formatRub(overview.revenue_all_time_kopeks)}
+            </Text>
           </div>
         </div>
-      </div>
+      </Card>
 
       {timeseries && <RevenueChart data={timeseries} />}
 

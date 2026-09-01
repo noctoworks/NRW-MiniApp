@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Title } from '@telegram-apps/telegram-ui';
+import { Text } from '@gravity-ui/uikit';
 import { getOverview, getRevenueTimeseries } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import KpiTile from '../../components/admin/KpiTile';
@@ -24,13 +24,13 @@ export default function AdminGrowth() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Title level="2" weight="2">MRR / ARR / Churn</Title>
+      <Text variant="header-1">MRR / ARR / Churn</Text>
 
-      <p className="max-w-xl text-xs leading-relaxed text-muted">
+      <Text variant="body-2" color="secondary" className="block max-w-xl">
         У сервиса нет recurring billing (автопродлений через провайдера) — MRR/ARR ниже это не
         подписочная метрика в классическом смысле, а прокси: выручка за последние 30 дней (и её
         ×12 для ARR). Ориентируйтесь на них как на тренд, не как на точный прогноз.
-      </p>
+      </Text>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <KpiTile label="MRR" value={formatRub(overview.mrr_kopeks)} hint="скользящее, доход за 30 дней" accent />
