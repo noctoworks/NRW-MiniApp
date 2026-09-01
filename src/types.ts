@@ -158,6 +158,30 @@ export interface Node {
   traffic_used_gb: number;
 }
 
+export interface NodeDetail extends Node {
+  address: string;
+  port: number | null;
+  is_connecting: boolean;
+  users_online: number;
+  xray_uptime_seconds: number;
+  last_status_change: string | null;
+  last_status_message: string | null;
+  traffic_limit_gb: number | null;
+  traffic_reset_day: number | null;
+  notify_percent: number | null;
+  consumption_multiplier: number;
+  tags: string[];
+  note: string | null;
+  provider_name: string | null;
+  versions: { xray: string | null; node: string | null };
+  /** CPU/RAM/uptime/loadAvg — панель это поддерживает, но конкретно наши ноды
+   * это не репортят (см. NRW-Bot admin_schemas.py). Нет типизации полей —
+   * реальную вложенность никто не видел, если появится — рендерим как есть. */
+  system: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface RecentPayment {
   user_id: number;
   telegram_id: number;

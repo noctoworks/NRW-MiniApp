@@ -1,15 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRotateRight } from '@gravity-ui/icons';
 import { Button, Card, Icon, Label, Switch, Text } from '@gravity-ui/uikit';
+import { useState } from 'react';
 import { disableNode, enableNode, getNodes, restartNode } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
+import AdminNodeDetailDialog from '../../components/admin/AdminNodeDetailDialog';
 import InfraBillingCard from '../../components/admin/InfraBillingCard';
 import Loader from '../../components/Loader';
 import { countryFlag, formatTrafficGb } from '../../lib/format';
 import { alertDialog, confirmDialog } from '../../lib/nativeDialogs';
 import type { Node } from '../../types';
 
-function NodeRow({ node }: { node: Node }) {
+function NodeRow({ node, onOpenDetail }: { node: Node; onOpenDetail: () => void }) {
   const queryClient = useQueryClient();
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['admin', 'nodes'] });
 
@@ -43,14 +45,17 @@ function NodeRow({ node }: { node: Node }) {
   };
 
   return (
-    <div className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3 first:border-t-0">
+    <div
+      onClick={onOpenDetail}
+      className="flex cursor-pointer items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3 first:border-t-0 hover:bg-[var(--g-color-base-simple-hover)]"
+    >
       <div className="flex min-w-0 items-center gap-2">
         {countryFlag(node.country_code) && <span className="shrink-0 text-lg leading-none">{countryFlag(node.country_code)}</span>}
         <Text variant="body-1" ellipsis>
           {node.name}
         </Text>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3" onClick={(e) => e.stopPropagation()}>
         <Text variant="caption-2" color="secondary">
           {formatTrafficGb(node.traffic_used_gb)}
         </Text>
@@ -72,6 +77,7 @@ function NodeRow({ node }: { node: Node }) {
 
 export default function AdminNodes() {
   const { data: nodes, isLoading, isError, refetch } = useQuery({ queryKey: ['admin', 'nodes'], queryFn: getNodes });
+  const [detailUuid, setDetailUuid] = useState<string | null>(null);
 
   if (isLoading) {
     return <Loader inline />;
@@ -85,9 +91,8 @@ export default function AdminNodes() {
     <div className="flex max-w-2xl flex-col gap-4">
       <Text variant="header-1">Ноды</Text>
       <Text variant="body-2" color="secondary">
-        Статус и трафик по нодам Remnawave. Переключатель — включить/отключить ноду, значок рядом —
-        перезапустить. CPU/память/аптайм здесь пока нет — панель не отдаёт это тем же запросом, что и
-        остальное (см. «Мониторинг»).
+        Статус и трафик по нодам Remnawave. Клик по строке — полная карточка ноды (адрес, версии, аптайм и
+        остальное, что отдаёт панель). Переключатель — включить/отключить, значок рядом — перезапустить.
       </Text>
 
       <Card view="outlined" className="flex flex-col">
@@ -96,11 +101,13 @@ export default function AdminNodes() {
             Нод не найдено
           </Text>
         ) : (
-          nodes.map((node) => <NodeRow key={node.uuid} node={node} />)
+          nodes.map((node) => <NodeRow key={node.uuid} node={node} onOpenDetail={() => setDetailUuid(node.uuid)} />)
         )}
       </Card>
 
       <InfraBillingCard />
+
+      <AdminNodeDetailDialog nodeUuid={detailUuid} onClose={() => setDetailUuid(null)} />
     </div>
   );
 }

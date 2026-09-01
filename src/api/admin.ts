@@ -44,6 +44,7 @@ import type {
   MonitoringResponse,
   NetProfit,
   Node,
+  NodeDetail,
   OverviewResponse,
   PaginatedTransactions,
   PlategaReconcileMap,
@@ -88,6 +89,34 @@ export async function getRecentPayments(limit = 10): Promise<RecentPayment[]> {
 export async function getNodes(): Promise<Node[]> {
   if (isPreview()) return PREVIEW_NODES;
   return (await apiClient.get<Node[]>('/cabinet/admin/nodes')).data;
+}
+
+export async function getNodeDetail(uuid: string): Promise<NodeDetail> {
+  if (isPreview()) {
+    const base = PREVIEW_NODES.find((n) => n.uuid === uuid) ?? PREVIEW_NODES[0];
+    return {
+      ...base,
+      address: `${base.name.toLowerCase()}.preview.local`,
+      port: 2222,
+      is_connecting: false,
+      users_online: 7,
+      xray_uptime_seconds: 172_800,
+      last_status_change: new Date(Date.now() - 3 * 86_400_000).toISOString(),
+      last_status_message: null,
+      traffic_limit_gb: null,
+      traffic_reset_day: 1,
+      notify_percent: 80,
+      consumption_multiplier: 1,
+      tags: [],
+      note: null,
+      provider_name: null,
+      versions: { xray: '26.7.28', node: '3.3.0' },
+      system: null,
+      created_at: new Date(Date.now() - 90 * 86_400_000).toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+  return (await apiClient.get<NodeDetail>(`/cabinet/admin/nodes/${uuid}`)).data;
 }
 
 export async function enableNode(uuid: string): Promise<Node> {
