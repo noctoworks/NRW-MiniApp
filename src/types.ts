@@ -489,6 +489,13 @@ export interface SalesBreakdown {
   active_subs_by_tariff: ActiveSubsByTariff[];
 }
 
+export interface SubscriptionPulse {
+  new_today: number;
+  renewals_today: number;
+  expiring_24h: number;
+  expiring_3d: number;
+}
+
 export type AlertSeverity = 'critical' | 'warning' | 'info';
 
 export interface Alert {

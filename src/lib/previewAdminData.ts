@@ -19,6 +19,7 @@ import type {
   RevenuePoint,
   SalesBreakdown,
   SubscriptionListResponse,
+  SubscriptionPulse,
   SupportThread,
   SupportThreadDetail,
   TransactionListResponse,
@@ -63,6 +64,13 @@ export const PREVIEW_USER_NODE_TRAFFIC: UserNodeTraffic[] = [
   { node_uuid: 'de-01', node_name: 'DE-01', country_code: 'DE', total_bytes: 18_400_000_000 },
   { node_uuid: 'fi-01', node_name: 'FI-01', country_code: 'FI', total_bytes: 4_100_000_000 },
 ];
+
+export const PREVIEW_SUBSCRIPTION_PULSE: SubscriptionPulse = {
+  new_today: 12,
+  renewals_today: 34,
+  expiring_24h: 6,
+  expiring_3d: 21,
+};
 
 export const PREVIEW_ALERTS: Alert[] = [
   { id: 'subs-expiring-24h', severity: 'critical', title: 'Истекает в ближайшие 24 часа: 6', link: '/admin/subscriptions' },

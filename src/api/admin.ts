@@ -17,6 +17,7 @@ import {
   PREVIEW_REVENUE_TIMESERIES,
   PREVIEW_SALES_BREAKDOWN,
   PREVIEW_SUBSCRIPTION_LIST,
+  PREVIEW_SUBSCRIPTION_PULSE,
   PREVIEW_SUPPORT_THREAD_DETAIL,
   PREVIEW_SUPPORT_THREADS,
   PREVIEW_TRANSACTION_LIST,
@@ -50,6 +51,7 @@ import type {
   RevenuePoint,
   SalesBreakdown,
   SubscriptionListResponse,
+  SubscriptionPulse,
   SubscriptionStatus,
   SupportThread,
   SupportThreadDetail,
@@ -97,6 +99,11 @@ export async function getSalesBreakdown(): Promise<SalesBreakdown> {
 export async function getAlerts(): Promise<Alert[]> {
   if (isPreview()) return PREVIEW_ALERTS;
   return (await apiClient.get<Alert[]>('/cabinet/admin/alerts')).data;
+}
+
+export async function getSubscriptionPulse(): Promise<SubscriptionPulse> {
+  if (isPreview()) return PREVIEW_SUBSCRIPTION_PULSE;
+  return (await apiClient.get<SubscriptionPulse>('/cabinet/admin/subscription-pulse')).data;
 }
 
 export async function listTransactions(params: {

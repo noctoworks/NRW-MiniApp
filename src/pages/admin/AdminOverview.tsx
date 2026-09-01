@@ -1,14 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { Server } from '@gravity-ui/icons';
-import { Button, Card, Icon, Label, Text } from '@gravity-ui/uikit';
-import { useNavigate } from 'react-router';
-import { getNodes, getOverview, getRecentPayments, getRevenueTimeseries } from '../../api/admin';
+import { Card, Text } from '@gravity-ui/uikit';
+import { getMonitoring, getOverview, getRecentPayments, getRevenueTimeseries } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import AlertsPanel from '../../components/admin/AlertsPanel';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
+import NodesOverviewTable from '../../components/admin/NodesOverviewTable';
 import RevenueChart from '../../components/admin/RevenueChart';
-import { countryFlag, formatRub, formatTrafficGb } from '../../lib/format';
+import SubscriptionsPulseCard from '../../components/admin/SubscriptionsPulseCard';
+import TopReferrersCard from '../../components/admin/TopReferrersCard';
+import { formatRub } from '../../lib/format';
 import { useAuthStore } from '../../store/auth';
 
 function getGreeting(): string {
@@ -25,7 +26,6 @@ function getTodayLabel(): string {
 }
 
 export default function AdminOverview() {
-  const navigate = useNavigate();
   const telegramUser = useAuthStore((s) => s.telegramUser);
 
   const { data: overview, isLoading, isError, refetch } = useQuery({
@@ -34,7 +34,7 @@ export default function AdminOverview() {
   });
   const { data: timeseries } = useQuery({ queryKey: ['admin', 'revenue-timeseries'], queryFn: () => getRevenueTimeseries(30) });
   const { data: recentPayments } = useQuery({ queryKey: ['admin', 'recent-payments'], queryFn: () => getRecentPayments(8) });
-  const { data: nodes } = useQuery({ queryKey: ['admin', 'nodes'], queryFn: getNodes });
+  const { data: monitoring } = useQuery({ queryKey: ['admin', 'monitoring'], queryFn: getMonitoring });
 
   if (isLoading) {
     return <Loader inline />;
@@ -46,8 +46,9 @@ export default function AdminOverview() {
 
   // Единственный "прирост в %", который честно считается из уже имеющихся
   // данных (нет истории снэпшотов, чтобы посчитать остальные так же) — см.
-  // диалог 2026-09-01. Остальные плитки показывают реальную вторую цифру
-  // (сумму/счётчик), а не выдуманный процент.
+  // диалог 2026-09-01. У Users/Active/Online на референс-мокапе были ещё и
+  // sparkline-графики — не добавляем: нет daily-истории по ним (только у
+  // выручки), рисовать было бы нечестно.
   const usersGrowthPercent =
     overview.total_users > overview.new_users_7d
       ? Math.round((overview.new_users_7d / (overview.total_users - overview.new_users_7d)) * 1000) / 10
@@ -69,17 +70,6 @@ export default function AdminOverview() {
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiTile
-          label="Доход сегодня"
-          value={formatRub(overview.revenue_today_kopeks)}
-          hint={`7 дн: ${formatRub(overview.revenue_7d_kopeks)}`}
-          accent
-        />
-        <KpiTile
-          label="Доход за 30 дней"
-          value={formatRub(overview.revenue_30d_kopeks)}
-          hint={`всего: ${formatRub(overview.revenue_all_time_kopeks)}`}
-        />
-        <KpiTile
           label="Пользователи"
           value={String(overview.total_users)}
           hint={usersGrowthPercent > 0 ? `+${usersGrowthPercent}% за 7 дн` : undefined}
@@ -89,49 +79,22 @@ export default function AdminOverview() {
           value={String(overview.active_subscriptions)}
           hint={`${overview.paying_subscriptions} платящих`}
         />
-        <KpiTile label="Конверсия в оплату" value={`${overview.conversion_percent}%`} />
-        <KpiTile label="Средний чек" value={formatRub(overview.avg_check_kopeks)} />
-        <KpiTile label="Churn за 30 дн" value={`${overview.churn_percent_30d}%`} />
-        <KpiTile label="Трафик" value={formatTrafficGb(overview.total_traffic_gb)} />
+        <KpiTile label="Онлайн сейчас" value={monitoring ? String(monitoring.panel.users_online_now) : '—'} accent />
+        <KpiTile
+          label="Доход сегодня"
+          value={formatRub(overview.revenue_today_kopeks)}
+          hint={`7 дн: ${formatRub(overview.revenue_7d_kopeks)}`}
+        />
       </div>
 
-      {timeseries && <RevenueChart data={timeseries} />}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div className="xl:col-span-2">{timeseries && <RevenueChart data={timeseries} />}</div>
+        <SubscriptionsPulseCard />
+      </div>
+
+      <NodesOverviewTable />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card view="outlined" className="flex flex-col">
-          <div className="flex items-center justify-between p-4 pb-2">
-            <Text variant="subheader-1">Ноды</Text>
-            <Button view="flat" size="s" onClick={() => navigate('/admin/nodes')}>
-              Все ноды
-            </Button>
-          </div>
-          {!nodes || nodes.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 px-4 pb-6 pt-2 text-center">
-              <Icon data={Server} size={24} className="opacity-50" />
-              <Text variant="body-2" color="secondary">
-                Нод не найдено
-              </Text>
-            </div>
-          ) : (
-            nodes.slice(0, 4).map((node) => (
-              <div
-                key={node.uuid}
-                className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-2.5 first:border-t-0"
-              >
-                <div className="flex items-center gap-2">
-                  {countryFlag(node.country_code) && (
-                    <span className="text-base leading-none">{countryFlag(node.country_code)}</span>
-                  )}
-                  <Text variant="body-2">{node.name}</Text>
-                </div>
-                <Label theme={node.is_disabled ? 'warning' : node.is_connected ? 'success' : 'danger'}>
-                  {node.is_disabled ? 'Отключена' : node.is_connected ? 'Online' : 'Offline'}
-                </Label>
-              </div>
-            ))
-          )}
-        </Card>
-
         <Card view="outlined" className="flex flex-col">
           <Text variant="subheader-1" className="block p-4 pb-2">
             Последние платежи
@@ -160,6 +123,8 @@ export default function AdminOverview() {
             })
           )}
         </Card>
+
+        <TopReferrersCard />
       </div>
     </div>
   );
