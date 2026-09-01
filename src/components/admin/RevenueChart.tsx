@@ -1,4 +1,5 @@
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Chart, type ChartData } from '@gravity-ui/charts';
+import { Card, Text } from '@gravity-ui/uikit';
 import { formatRub } from '../../lib/format';
 import type { RevenuePoint } from '../../types';
 
@@ -6,30 +7,48 @@ interface RevenueChartProps {
   data: RevenuePoint[];
 }
 
+// Раньше показывали только выручку (одна линия recharts) — count (число
+// платежей за день) в RevenuePoint уже был, но нигде не отображался (см.
+// диалог 2026-09-01, "максимальная аналитика"). Теперь вторая серия на своей
+// оси — то же самое API, без новых полей с бэкенда.
 export default function RevenueChart({ data }: RevenueChartProps) {
-  const chartData = data.map((point) => ({ ...point, label: point.date.slice(5) }));
+  const chartData: ChartData = {
+    series: {
+      data: [
+        {
+          type: 'area',
+          name: 'Выручка',
+          data: data.map((point) => ({ x: new Date(point.date).getTime(), y: point.revenue_kopeks })),
+          yAxis: 0,
+          tooltip: {
+            valueFormat: { type: 'custom', formatter: ({ value }) => formatRub(Number(value)) },
+          },
+        },
+        {
+          type: 'line',
+          name: 'Платежей',
+          data: data.map((point) => ({ x: new Date(point.date).getTime(), y: point.count })),
+          yAxis: 1,
+          tooltip: {
+            valueFormat: { type: 'number', precision: 0 },
+          },
+        },
+      ],
+    },
+    xAxis: { type: 'datetime' },
+    yAxis: [{ title: { text: 'Выручка' } }, { title: { text: 'Платежей' } }],
+    legend: { enabled: true },
+    tooltip: { headerFormat: { type: 'date', format: 'D MMM' } },
+  };
 
   return (
-    <div className="card">
-      <span className="mb-2 block text-sm font-medium text-muted">Выручка по дням</span>
-      <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--tg-hint)' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-          <YAxis
-            tick={{ fontSize: 11, fill: 'var(--tg-hint)' }}
-            axisLine={false}
-            tickLine={false}
-            width={48}
-            tickFormatter={(v: number) => formatRub(v)}
-          />
-          <Tooltip
-            formatter={(value: number) => formatRub(value)}
-            labelFormatter={(label: string) => label}
-            contentStyle={{ background: 'var(--tg-surface-2)', border: 'none', borderRadius: 12, fontSize: 12 }}
-          />
-          <Line type="monotone" dataKey="revenue_kopeks" stroke="var(--tg-accent)" strokeWidth={2} dot={false} />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+    <Card view="filled" className="p-4">
+      <Text variant="body-2" color="secondary" className="mb-2 block">
+        Выручка и платежи по дням
+      </Text>
+      <div style={{ height: 240 }}>
+        <Chart data={chartData} />
+      </div>
+    </Card>
   );
 }
