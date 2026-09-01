@@ -1,3 +1,5 @@
+import { Button, Text } from '@gravity-ui/uikit';
+
 interface AdminEmptyStateProps {
   text: string;
 }
@@ -7,7 +9,9 @@ interface AdminEmptyStateProps {
 export default function AdminEmptyState({ text }: AdminEmptyStateProps) {
   return (
     <div className="flex flex-col items-center gap-2 px-4 py-8 text-center">
-      <span className="text-sm text-muted">{text}</span>
+      <Text variant="body-1" color="secondary">
+        {text}
+      </Text>
     </div>
   );
 }
@@ -25,10 +29,12 @@ interface AdminErrorStateProps {
 export function AdminErrorState({ text = 'Не удалось загрузить данные.', onRetry }: AdminErrorStateProps) {
   return (
     <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
-      <span className="text-sm text-[hsl(var(--destructive))]">{text}</span>
-      <button type="button" onClick={onRetry} className="text-sm font-semibold text-[hsl(var(--primary))]">
+      <Text variant="body-1" color="danger">
+        {text}
+      </Text>
+      <Button view="flat" size="s" onClick={onRetry}>
         Повторить
-      </button>
+      </Button>
     </div>
   );
 }

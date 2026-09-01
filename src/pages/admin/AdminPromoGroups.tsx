@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Cell, Input, Section, Title } from '@telegram-apps/telegram-ui';
+import { Xmark } from '@gravity-ui/icons';
+import { Button, Card, Icon, Text, TextInput } from '@gravity-ui/uikit';
 import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import { useState } from 'react';
 import { createPromoGroup, deletePromoGroup, listPromoGroups, updatePromoGroup } from '../../api/admin';
@@ -30,54 +31,57 @@ function GroupRow({ group }: { group: PromoGroup }) {
 
   if (editing) {
     return (
-      <Cell
-        after={
-          <div className="flex gap-1">
-            <Button mode="filled" size="s" onClick={handleSave}>
-              Сохранить
-            </Button>
-            <Button mode="gray" size="s" onClick={() => setEditing(false)}>
-              Отмена
-            </Button>
-          </div>
-        }
-      >
-        <div className="flex gap-2">
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Название" />
-          <Input value={discount} onChange={(e) => setDiscount(e.target.value)} placeholder="%" inputMode="numeric" className="w-16" />
+      <div className="flex items-end gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3">
+        <div className="flex-1">
+          <TextInput value={name} onUpdate={setName} placeholder="Название" />
         </div>
-      </Cell>
+        <div className="w-16">
+          <TextInput value={discount} onUpdate={setDiscount} placeholder="%" controlProps={{ inputMode: 'numeric' }} />
+        </div>
+        <Button view="action" size="m" onClick={handleSave}>
+          Сохранить
+        </Button>
+        <Button view="flat" size="m" onClick={() => setEditing(false)}>
+          Отмена
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Cell
-      subtitle={`${group.users_count} юзеров`}
-      after={<span className="font-semibold text-accent">-{group.discount_percent}%</span>}
+    <div
+      className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3"
       onClick={() => setEditing(true)}
     >
-      <div className="flex items-center justify-between gap-2">
-        {group.name}
-        {/* Раньше редактировать/удалить были парой мелких (size="s") иконок
-         * вплотную друг к другу — на телефоне легко промахнуться между ними
-         * (см. диалог: "удобство на телефоне"). Открытие редактирования теперь
-         * по тапу на всю строку (см. onClick выше), удаление — отдельная,
-         * заметно отделённая кнопка. */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            void handleDelete();
-          }}
-          aria-label="Удалить группу"
-          className="shrink-0 rounded-full bg-[hsl(var(--destructive)/0.12)] p-2 text-[hsl(var(--destructive))] active:opacity-70"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Text variant="body-1" ellipsis>
+          {group.name}
+        </Text>
+        <Text variant="caption-2" color="secondary">
+          {group.users_count} юзеров
+        </Text>
       </div>
-    </Cell>
+      <Text variant="body-1" color="brand" className="shrink-0">
+        -{group.discount_percent}%
+      </Text>
+      {/* Раньше редактировать/удалить были парой мелких (size="s") иконок
+       * вплотную друг к другу — на телефоне легко промахнуться между ними
+       * (см. диалог: "удобство на телефоне"). Открытие редактирования теперь
+       * по тапу на всю строку (см. onClick выше), удаление — отдельная,
+       * заметно отделённая кнопка. */}
+      <Button
+        view="flat-danger"
+        size="s"
+        onClick={(e) => {
+          e.stopPropagation();
+          void handleDelete();
+        }}
+        aria-label="Удалить группу"
+        className="shrink-0"
+      >
+        <Icon data={Xmark} size={15} />
+      </Button>
+    </div>
   );
 }
 
@@ -104,12 +108,12 @@ function CreateGroupForm() {
   return (
     <div className="flex items-end gap-2 px-4 py-3">
       <div className="flex-1">
-        <Input header="Название" value={name} onChange={(e) => setName(e.target.value)} placeholder="Например, VIP" />
+        <TextInput label="Название" value={name} onUpdate={setName} placeholder="Например, VIP" />
       </div>
       <div className="w-24">
-        <Input header="Скидка %" value={discount} onChange={(e) => setDiscount(e.target.value)} inputMode="numeric" />
+        <TextInput label="Скидка %" value={discount} onUpdate={setDiscount} controlProps={{ inputMode: 'numeric' }} />
       </div>
-      <Button mode="filled" size="m" disabled={submitting} onClick={handleCreate}>
+      <Button view="action" size="m" loading={submitting} onClick={handleCreate}>
         Создать
       </Button>
     </div>
@@ -124,18 +128,18 @@ export default function AdminPromoGroups() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <Title level="2" weight="2">
-        Промогруппы
-      </Title>
-      <p className="text-xs text-muted">
+      <Text variant="header-1">Промогруппы</Text>
+      <Text variant="body-2" color="secondary">
         Скидочные тиры на пользователя — единый % на цену подписки (у нас нет отдельных
         покупок трафика/устройств, поэтому один процент вместо трёх, как в референсе).
-      </p>
+      </Text>
 
-      <Section footer="Назначаются пользователю в его карточке">
+      <Card view="outlined" className="flex flex-col">
         <CreateGroupForm />
         {isLoading ? (
-          <Cell className="text-muted">Загрузка…</Cell>
+          <Text variant="body-1" color="secondary" className="block px-4 py-3">
+            Загрузка…
+          </Text>
         ) : isError || !data ? (
           <AdminErrorState onRetry={() => refetch()} />
         ) : data.length > 0 ? (
@@ -143,7 +147,10 @@ export default function AdminPromoGroups() {
         ) : (
           <AdminEmptyState text="Групп ещё нет" />
         )}
-      </Section>
+        <Text variant="caption-2" color="secondary" className="block border-t border-[var(--g-color-line-generic)] px-4 py-2">
+          Назначаются пользователю в его карточке
+        </Text>
+      </Card>
     </div>
   );
 }
