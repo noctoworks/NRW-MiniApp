@@ -422,3 +422,35 @@ export interface SubscriptionListResponse {
   page: number;
   total_pages: number;
 }
+
+export interface PanelStats {
+  cpu_cores: number;
+  memory_used_bytes: number;
+  memory_total_bytes: number;
+  uptime_seconds: number;
+  users_online_now: number;
+  users_online_last_day: number;
+  users_online_last_week: number;
+  users_never_online: number;
+  nodes_online: number;
+  nodes_total_bytes_lifetime: number;
+}
+
+export interface NodeMetricStat {
+  tag: string;
+  upload: string;
+  download: string;
+}
+
+export interface NodeMetric {
+  node_uuid: string;
+  node_name: string;
+  users_online: number;
+  inbound_stats: NodeMetricStat[];
+  outbound_stats: NodeMetricStat[];
+}
+
+export interface MonitoringResponse {
+  panel: PanelStats;
+  nodes: NodeMetric[];
+}

@@ -6,6 +6,7 @@ import type {
   CampaignStats,
   CohortsResponse,
   LtvResponse,
+  MonitoringResponse,
   Node,
   OverviewResponse,
   PaginatedTransactions,
@@ -54,6 +55,37 @@ export const PREVIEW_NODES: Node[] = [
   { uuid: 'nl-01', name: 'NL-01', country_code: 'NL', is_connected: true, is_disabled: false, traffic_used_gb: 305.1 },
   { uuid: 'se-01', name: 'SE-01', country_code: 'SE', is_connected: false, is_disabled: false, traffic_used_gb: 89.4 },
 ];
+
+export const PREVIEW_MONITORING: MonitoringResponse = {
+  panel: {
+    cpu_cores: 2,
+    memory_used_bytes: 1_200_000_000,
+    memory_total_bytes: 4_000_000_000,
+    uptime_seconds: 864_000,
+    users_online_now: 18,
+    users_online_last_day: 64,
+    users_online_last_week: 112,
+    users_never_online: 40,
+    nodes_online: 3,
+    nodes_total_bytes_lifetime: 1_200_000_000_000,
+  },
+  nodes: [
+    {
+      node_uuid: 'de-01',
+      node_name: 'DE-01',
+      users_online: 7,
+      inbound_stats: [{ tag: 'VLESS_SELFSTEAL_WITH_NGINX', upload: '412.30 MiB', download: '3.12 GiB' }],
+      outbound_stats: [{ tag: 'DIRECT', upload: '398.10 MiB', download: '3.05 GiB' }],
+    },
+    {
+      node_uuid: 'fi-01',
+      node_name: 'FI-01',
+      users_online: 4,
+      inbound_stats: [{ tag: 'VLESS_SELFSTEAL_WITH_NGINX', upload: '201.50 MiB', download: '1.44 GiB' }],
+      outbound_stats: [{ tag: 'DIRECT', upload: '195.20 MiB', download: '1.40 GiB' }],
+    },
+  ],
+};
 
 export const PREVIEW_REVENUE_TIMESERIES: RevenuePoint[] = Array.from({ length: 31 }, (_, i) => {
   const date = new Date(Date.now() - (30 - i) * 24 * 60 * 60 * 1000);

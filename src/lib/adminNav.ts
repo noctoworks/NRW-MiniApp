@@ -71,14 +71,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { id: 'nodes', to: '/admin/nodes', label: 'Ноды', icon: Server, groupId: 'infra' },
   { id: 'regions', to: '/admin/regions', label: 'Регионы', icon: Globe, groupId: 'infra' },
   { id: 'traffic', to: '/admin/traffic', label: 'Трафик', icon: ChartLine, groupId: 'infra' },
-  {
-    id: 'monitoring',
-    to: '/admin/monitoring',
-    label: 'Мониторинг',
-    icon: Pulse,
-    groupId: 'infra',
-    comingSoon: 'Живые метрики нод (CPU/память/аптайм) — зависит от того, что именно отдаёт API Remnawave, ещё не проверяли.',
-  },
+  { id: 'monitoring', to: '/admin/monitoring', label: 'Мониторинг', icon: Pulse, groupId: 'infra' },
 
   { id: 'transactions', to: '/admin/transactions', label: 'Транзакции', icon: Wallet, groupId: 'finance' },
   { id: 'growth', to: '/admin/growth', label: 'Доход', icon: ChartLineArrowUp, groupId: 'finance' },

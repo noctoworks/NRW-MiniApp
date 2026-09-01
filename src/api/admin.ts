@@ -5,6 +5,7 @@ import {
   PREVIEW_COHORTS,
   PREVIEW_DEVICES,
   PREVIEW_LTV,
+  PREVIEW_MONITORING,
   PREVIEW_OVERVIEW,
   PREVIEW_NODES,
   PREVIEW_PLATEGA_RECONCILE,
@@ -32,6 +33,7 @@ import type {
   CampaignStats,
   CohortsResponse,
   LtvResponse,
+  MonitoringResponse,
   Node,
   OverviewResponse,
   PaginatedTransactions,
@@ -74,6 +76,11 @@ export async function getRecentPayments(limit = 10): Promise<RecentPayment[]> {
 export async function getNodes(): Promise<Node[]> {
   if (isPreview()) return PREVIEW_NODES;
   return (await apiClient.get<Node[]>('/cabinet/admin/nodes')).data;
+}
+
+export async function getMonitoring(): Promise<MonitoringResponse> {
+  if (isPreview()) return PREVIEW_MONITORING;
+  return (await apiClient.get<MonitoringResponse>('/cabinet/admin/monitoring')).data;
 }
 
 export async function listTransactions(params: {

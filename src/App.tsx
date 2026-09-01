@@ -28,6 +28,7 @@ const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'));
 const AdminPromoGroups = lazy(() => import('./pages/admin/AdminPromoGroups'));
 const AdminPromoCodes = lazy(() => import('./pages/admin/AdminPromoCodes'));
+const AdminMonitoring = lazy(() => import('./pages/admin/AdminMonitoring'));
 const AdminCampaigns = lazy(() => import('./pages/admin/AdminCampaigns'));
 const AdminLtv = lazy(() => import('./pages/admin/AdminLtv'));
 const AdminGrowth = lazy(() => import('./pages/admin/AdminGrowth'));
@@ -185,6 +186,14 @@ export default function App() {
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminPromoCodes />
+            </Suspense>
+          }
+        />
+        <Route
+          path="monitoring"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminMonitoring />
             </Suspense>
           }
         />
