@@ -94,6 +94,9 @@ export const PREVIEW_USERS_LIST: AdminUserListResponse = {
 
 export const PREVIEW_SUPPORT_THREADS: SupportThread[] = [
   {
+    ticket_id: 1,
+    status: 'open',
+    assigned_admin_name: null,
     user_id: 1,
     telegram_id: 577437701,
     username: 'danilvolkov666',
@@ -105,6 +108,9 @@ export const PREVIEW_SUPPORT_THREADS: SupportThread[] = [
 ];
 
 export const PREVIEW_SUPPORT_THREAD_DETAIL: SupportThreadDetail = {
+  ticket_id: 1,
+  status: 'open',
+  assigned_admin_name: null,
   user_id: 1,
   telegram_id: 577437701,
   username: 'danilvolkov666',

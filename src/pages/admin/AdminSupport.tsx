@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Avatar, Badge, Caption, Cell, List, Title } from '@telegram-apps/telegram-ui';
+import { Avatar, Card, Text } from '@gravity-ui/uikit';
 import { useNavigate } from 'react-router';
 import { listSupportThreads } from '../../api/admin';
 import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
@@ -29,41 +29,45 @@ export default function AdminSupport() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Title level="2" weight="2">
-        Обращения
-      </Title>
+      <Text variant="header-1">Обращения</Text>
 
       {isLoading ? (
-        <div className="text-sm text-muted">Загрузка…</div>
+        <Text variant="body-1" color="secondary">
+          Загрузка…
+        </Text>
       ) : isError || !data ? (
         <AdminErrorState onRetry={() => refetch()} />
       ) : data.length === 0 ? (
-        <div className="card !p-0">
-          <AdminEmptyState text="Обращений пока нет" />
-        </div>
+        <AdminEmptyState text="Обращений пока нет" />
       ) : (
-        <List className="card overflow-hidden !p-0">
+        <Card view="outlined" className="flex flex-col overflow-hidden">
           {data.map((thread) => {
             const label = thread.full_name || (thread.username ? `@${thread.username}` : `id${thread.telegram_id}`);
+            const preview = thread.last_message.length > 60 ? `${thread.last_message.slice(0, 60)}…` : thread.last_message;
             return (
-              <Cell
-                key={thread.user_id}
-                onClick={() => navigate(`/admin/support/${thread.user_id}`)}
-                before={<Avatar size={40} acronym={label.charAt(0).toUpperCase()} />}
-                subtitle={
-                  <Caption className="text-muted">
-                    {thread.last_message.length > 60 ? `${thread.last_message.slice(0, 60)}…` : thread.last_message}
-                    {' · '}
-                    {timeAgo(thread.last_message_at)}
-                  </Caption>
-                }
-                after={thread.unread ? <Badge type="dot" mode="critical" /> : undefined}
+              <div
+                key={thread.ticket_id}
+                onClick={() => navigate(`/admin/support/${thread.ticket_id}`)}
+                className="flex cursor-pointer items-center gap-3 border-t border-[var(--g-color-line-generic)] px-4 py-3 first:border-t-0"
               >
-                {label}
-              </Cell>
+                <Avatar size="m" text={label.charAt(0).toUpperCase()} />
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <Text variant="body-1" ellipsis>
+                    {label}
+                  </Text>
+                  <Text variant="caption-2" color="secondary" ellipsis>
+                    {thread.status === 'closed' && '✅ Закрыто · '}
+                    {preview} · {timeAgo(thread.last_message_at)}
+                    {thread.assigned_admin_name && ` · ведёт ${thread.assigned_admin_name}`}
+                  </Text>
+                </div>
+                {thread.status === 'open' && thread.unread && (
+                  <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: 'var(--g-color-base-danger-heavy)' }} />
+                )}
+              </div>
             );
           })}
-        </List>
+        </Card>
       )}
     </div>
   );

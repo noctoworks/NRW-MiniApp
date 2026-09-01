@@ -257,7 +257,12 @@ export interface AdminUserDetail {
 
 export type AdminUserFilter = 'all' | 'no_sub' | 'blocked' | 'blocked_bot';
 
+export type SupportTicketStatus = 'open' | 'closed';
+
 export interface SupportThread {
+  ticket_id: number;
+  status: SupportTicketStatus;
+  assigned_admin_name: string | null;
   user_id: number;
   telegram_id: number;
   username: string | null;
@@ -275,6 +280,9 @@ export interface SupportMessage {
 }
 
 export interface SupportThreadDetail {
+  ticket_id: number;
+  status: SupportTicketStatus;
+  assigned_admin_name: string | null;
   user_id: number;
   telegram_id: number;
   username: string | null;

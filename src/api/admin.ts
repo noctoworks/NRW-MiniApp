@@ -103,16 +103,26 @@ export async function listSupportThreads(): Promise<SupportThread[]> {
   return (await apiClient.get<SupportThread[]>('/cabinet/admin/support/threads')).data;
 }
 
-export async function getSupportThread(userId: number): Promise<SupportThreadDetail> {
+export async function getSupportThread(ticketId: number): Promise<SupportThreadDetail> {
   if (isPreview()) return PREVIEW_SUPPORT_THREAD_DETAIL;
-  return (await apiClient.get<SupportThreadDetail>(`/cabinet/admin/support/threads/${userId}`)).data;
+  return (await apiClient.get<SupportThreadDetail>(`/cabinet/admin/support/threads/${ticketId}`)).data;
 }
 
-export async function replySupportThread(userId: number, text: string): Promise<{ status: string }> {
+export async function replySupportThread(ticketId: number, text: string): Promise<{ status: string }> {
   if (isPreview()) return { status: 'sent' };
   return (
-    await apiClient.post<{ status: string }>(`/cabinet/admin/support/threads/${userId}/reply`, { text })
+    await apiClient.post<{ status: string }>(`/cabinet/admin/support/threads/${ticketId}/reply`, { text })
   ).data;
+}
+
+export async function closeSupportTicket(ticketId: number): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'closed' };
+  return (await apiClient.post<{ status: string }>(`/cabinet/admin/support/threads/${ticketId}/close`)).data;
+}
+
+export async function reopenSupportTicket(ticketId: number): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'open' };
+  return (await apiClient.post<{ status: string }>(`/cabinet/admin/support/threads/${ticketId}/reopen`)).data;
 }
 
 export async function massban(telegramIds: number[]): Promise<{ blocked_count: number; requested_count: number }> {

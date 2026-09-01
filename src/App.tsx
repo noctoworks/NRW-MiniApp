@@ -213,7 +213,7 @@ export default function App() {
           }
         />
         <Route
-          path="support/:userId"
+          path="support/:ticketId"
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminSupportThread />
