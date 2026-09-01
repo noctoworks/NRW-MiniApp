@@ -14,6 +14,7 @@ import {
   PREVIEW_RECENT_PAYMENTS,
   PREVIEW_REFERRAL_FUNNEL,
   PREVIEW_REVENUE_TIMESERIES,
+  PREVIEW_SALES_BREAKDOWN,
   PREVIEW_SUBSCRIPTION_LIST,
   PREVIEW_SUPPORT_THREAD_DETAIL,
   PREVIEW_SUPPORT_THREADS,
@@ -45,6 +46,7 @@ import type {
   RecentPayment,
   ReferralFunnelResponse,
   RevenuePoint,
+  SalesBreakdown,
   SubscriptionListResponse,
   SubscriptionStatus,
   SupportThread,
@@ -83,6 +85,11 @@ export async function getNodes(): Promise<Node[]> {
 export async function getMonitoring(): Promise<MonitoringResponse> {
   if (isPreview()) return PREVIEW_MONITORING;
   return (await apiClient.get<MonitoringResponse>('/cabinet/admin/monitoring')).data;
+}
+
+export async function getSalesBreakdown(): Promise<SalesBreakdown> {
+  if (isPreview()) return PREVIEW_SALES_BREAKDOWN;
+  return (await apiClient.get<SalesBreakdown>('/cabinet/admin/sales-breakdown')).data;
 }
 
 export async function listTransactions(params: {

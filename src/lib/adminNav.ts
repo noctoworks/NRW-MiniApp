@@ -1,5 +1,6 @@
 import {
   ChartColumn,
+  ChartColumnStacked,
   ChartLine,
   ChartLineArrowUp,
   Comments,
@@ -75,6 +76,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 
   { id: 'transactions', to: '/admin/transactions', label: 'Транзакции', icon: Wallet, groupId: 'finance' },
   { id: 'growth', to: '/admin/growth', label: 'Доход', icon: ChartLineArrowUp, groupId: 'finance' },
+  { id: 'sales', to: '/admin/sales', label: 'Продажи', icon: ChartColumnStacked, groupId: 'finance' },
   { id: 'ltv', to: '/admin/ltv', label: 'LTV и когорты', icon: ChartColumn, groupId: 'finance' },
 
   {

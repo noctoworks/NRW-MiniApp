@@ -16,6 +16,7 @@ import type {
   RecentPayment,
   ReferralFunnelResponse,
   RevenuePoint,
+  SalesBreakdown,
   SubscriptionListResponse,
   SupportThread,
   SupportThreadDetail,
@@ -61,6 +62,32 @@ export const PREVIEW_USER_NODE_TRAFFIC: UserNodeTraffic[] = [
   { node_uuid: 'de-01', node_name: 'DE-01', country_code: 'DE', total_bytes: 18_400_000_000 },
   { node_uuid: 'fi-01', node_name: 'FI-01', country_code: 'FI', total_bytes: 4_100_000_000 },
 ];
+
+export const PREVIEW_SALES_BREAKDOWN: SalesBreakdown = {
+  by_type: [
+    { type: 'subscription_payment', revenue_kopeks: 268000 },
+    { type: 'gift', revenue_kopeks: 44000 },
+  ],
+  by_provider: [
+    { provider: 'platega', revenue_kopeks: 241000 },
+    { provider: 'stars', revenue_kopeks: 58000 },
+    { provider: 'ton', revenue_kopeks: 13000 },
+  ],
+  by_weekday: [
+    { weekday: 0, revenue_kopeks: 41000 },
+    { weekday: 1, revenue_kopeks: 38000 },
+    { weekday: 2, revenue_kopeks: 52000 },
+    { weekday: 3, revenue_kopeks: 45000 },
+    { weekday: 4, revenue_kopeks: 61000 },
+    { weekday: 5, revenue_kopeks: 39000 },
+    { weekday: 6, revenue_kopeks: 36000 },
+  ],
+  active_subs_by_tariff: [
+    { tariff_name: 'Онлайн', active_count: 84 },
+    { tariff_name: 'VIP', active_count: 31 },
+    { tariff_name: 'Максимум', active_count: 13 },
+  ],
+};
 
 export const PREVIEW_MONITORING: MonitoringResponse = {
   panel: {

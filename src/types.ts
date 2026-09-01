@@ -461,3 +461,30 @@ export interface UserNodeTraffic {
   country_code: string;
   total_bytes: number;
 }
+
+export interface RevenueByType {
+  type: string;
+  revenue_kopeks: number;
+}
+
+export interface RevenueByProvider {
+  provider: string;
+  revenue_kopeks: number;
+}
+
+export interface RevenueByWeekday {
+  weekday: number;
+  revenue_kopeks: number;
+}
+
+export interface ActiveSubsByTariff {
+  tariff_name: string;
+  active_count: number;
+}
+
+export interface SalesBreakdown {
+  by_type: RevenueByType[];
+  by_provider: RevenueByProvider[];
+  by_weekday: RevenueByWeekday[];
+  active_subs_by_tariff: ActiveSubsByTariff[];
+}
