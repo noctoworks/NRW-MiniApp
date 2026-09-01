@@ -6,6 +6,7 @@ import type {
   Campaign,
   CampaignStats,
   CohortsResponse,
+  InfraBilling,
   LtvResponse,
   MonitoringResponse,
   Node,
@@ -101,6 +102,16 @@ export const PREVIEW_SALES_BREAKDOWN: SalesBreakdown = {
     { tariff_name: 'Онлайн', active_count: 84 },
     { tariff_name: 'VIP', active_count: 31 },
     { tariff_name: 'Максимум', active_count: 13 },
+  ],
+};
+
+export const PREVIEW_INFRA_BILLING: InfraBilling = {
+  total_spent: 312,
+  current_month_payments: 78,
+  upcoming_nodes_count: 2,
+  nodes: [
+    { node_uuid: 'de-01', node_name: 'DE-01', provider_name: 'Hetzner', next_billing_at: new Date(Date.now() + 12 * 86400_000).toISOString() },
+    { node_uuid: 'fi-01', node_name: 'FI-01', provider_name: 'OVH', next_billing_at: new Date(Date.now() + 3 * 86400_000).toISOString() },
   ],
 };
 

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, Label, Text } from '@gravity-ui/uikit';
 import { getNodes } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
+import InfraBillingCard from '../../components/admin/InfraBillingCard';
 import Loader from '../../components/Loader';
 import { countryFlag, formatTrafficGb } from '../../lib/format';
 
@@ -55,6 +56,8 @@ export default function AdminNodes() {
           ))
         )}
       </Card>
+
+      <InfraBillingCard />
     </div>
   );
 }

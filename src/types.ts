@@ -489,6 +489,20 @@ export interface SalesBreakdown {
   active_subs_by_tariff: ActiveSubsByTariff[];
 }
 
+export interface InfraBillingNode {
+  node_uuid: string | null;
+  node_name: string;
+  provider_name: string;
+  next_billing_at: string | null;
+}
+
+export interface InfraBilling {
+  total_spent: number;
+  current_month_payments: number;
+  upcoming_nodes_count: number;
+  nodes: InfraBillingNode[];
+}
+
 export interface SubscriptionPulse {
   new_today: number;
   renewals_today: number;

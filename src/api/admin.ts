@@ -5,6 +5,7 @@ import {
   PREVIEW_CAMPAIGNS,
   PREVIEW_COHORTS,
   PREVIEW_DEVICES,
+  PREVIEW_INFRA_BILLING,
   PREVIEW_LTV,
   PREVIEW_MONITORING,
   PREVIEW_OVERVIEW,
@@ -37,6 +38,7 @@ import type {
   Campaign,
   CampaignStats,
   CohortsResponse,
+  InfraBilling,
   LtvResponse,
   MonitoringResponse,
   Node,
@@ -84,6 +86,11 @@ export async function getRecentPayments(limit = 10): Promise<RecentPayment[]> {
 export async function getNodes(): Promise<Node[]> {
   if (isPreview()) return PREVIEW_NODES;
   return (await apiClient.get<Node[]>('/cabinet/admin/nodes')).data;
+}
+
+export async function getInfraBilling(): Promise<InfraBilling> {
+  if (isPreview()) return PREVIEW_INFRA_BILLING;
+  return (await apiClient.get<InfraBilling>('/cabinet/admin/infra-billing')).data;
 }
 
 export async function getMonitoring(): Promise<MonitoringResponse> {
