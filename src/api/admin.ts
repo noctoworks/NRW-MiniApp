@@ -18,6 +18,7 @@ import {
   PREVIEW_SUPPORT_THREAD_DETAIL,
   PREVIEW_SUPPORT_THREADS,
   PREVIEW_TRANSACTION_LIST,
+  PREVIEW_USER_NODE_TRAFFIC,
   PREVIEW_TRANSACTIONS,
   PREVIEW_USER_DETAIL,
   PREVIEW_USERS_LIST,
@@ -52,6 +53,7 @@ import type {
   TransactionListResponse,
   TransactionStatus,
   TransactionType,
+  UserNodeTraffic,
 } from '../types';
 
 function isPreview(): boolean {
@@ -229,6 +231,11 @@ export async function removeDevice(id: number, hwid: string): Promise<{ status: 
 export async function resetDevices(id: number): Promise<{ status: string }> {
   if (isPreview()) return { status: 'reset' };
   return (await apiClient.delete<{ status: string }>(`/cabinet/admin/users/${id}/devices`)).data;
+}
+
+export async function getUserTrafficByNode(id: number, days = 30): Promise<UserNodeTraffic[]> {
+  if (isPreview()) return PREVIEW_USER_NODE_TRAFFIC;
+  return (await apiClient.get<UserNodeTraffic[]>(`/cabinet/admin/users/${id}/traffic-by-node`, { params: { days } })).data;
 }
 
 export async function syncFromPanel(id: number): Promise<SyncResult> {

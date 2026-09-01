@@ -16,6 +16,7 @@ import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import DevicesSection from '../../components/admin/DevicesSection';
 import DualActionAmountForm from '../../components/admin/DualActionAmountForm';
 import GrantSubscriptionForm from '../../components/admin/GrantSubscriptionForm';
+import NodeTrafficSection from '../../components/admin/NodeTrafficSection';
 import ReferralCommissionForm from '../../components/admin/ReferralCommissionForm';
 import SyncSection from '../../components/admin/SyncSection';
 import TransactionsSection from '../../components/admin/TransactionsSection';
@@ -205,6 +206,7 @@ function AdminUserDetailContent() {
       {tab === 'devices' && (
         <div className="flex flex-col gap-4">
           <DevicesSection userId={userId} />
+          <NodeTrafficSection userId={userId} />
           <SyncSection userId={userId} />
         </div>
       )}

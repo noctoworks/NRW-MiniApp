@@ -454,3 +454,10 @@ export interface MonitoringResponse {
   panel: PanelStats;
   nodes: NodeMetric[];
 }
+
+export interface UserNodeTraffic {
+  node_uuid: string;
+  node_name: string;
+  country_code: string;
+  total_bytes: number;
+}

@@ -20,6 +20,7 @@ import type {
   SupportThread,
   SupportThreadDetail,
   TransactionListResponse,
+  UserNodeTraffic,
 } from '../types';
 
 /** Статичные данные для DEV-превью админки вне Telegram — никогда не
@@ -54,6 +55,11 @@ export const PREVIEW_NODES: Node[] = [
   { uuid: 'fi-01', name: 'FI-01', country_code: 'FI', is_connected: true, is_disabled: false, traffic_used_gb: 198.3 },
   { uuid: 'nl-01', name: 'NL-01', country_code: 'NL', is_connected: true, is_disabled: false, traffic_used_gb: 305.1 },
   { uuid: 'se-01', name: 'SE-01', country_code: 'SE', is_connected: false, is_disabled: false, traffic_used_gb: 89.4 },
+];
+
+export const PREVIEW_USER_NODE_TRAFFIC: UserNodeTraffic[] = [
+  { node_uuid: 'de-01', node_name: 'DE-01', country_code: 'DE', total_bytes: 18_400_000_000 },
+  { node_uuid: 'fi-01', node_name: 'FI-01', country_code: 'FI', total_bytes: 4_100_000_000 },
 ];
 
 export const PREVIEW_MONITORING: MonitoringResponse = {
