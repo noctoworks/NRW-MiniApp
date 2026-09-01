@@ -8,6 +8,7 @@ import {
   PREVIEW_OVERVIEW,
   PREVIEW_NODES,
   PREVIEW_PLATEGA_RECONCILE,
+  PREVIEW_PROMO_CODES,
   PREVIEW_PROMO_GROUPS,
   PREVIEW_RECENT_PAYMENTS,
   PREVIEW_REFERRAL_FUNNEL,
@@ -35,6 +36,8 @@ import type {
   OverviewResponse,
   PaginatedTransactions,
   PlategaReconcileMap,
+  PromoCode,
+  PromoCodeType,
   PromoGroup,
   RecentPayment,
   ReferralFunnelResponse,
@@ -254,6 +257,33 @@ export async function updatePromoGroup(
 export async function deletePromoGroup(id: number): Promise<{ status: string }> {
   if (isPreview()) return { status: 'deleted' };
   return (await apiClient.delete<{ status: string }>(`/cabinet/admin/promo-groups/${id}`)).data;
+}
+
+export async function listPromoCodes(): Promise<PromoCode[]> {
+  if (isPreview()) return PREVIEW_PROMO_CODES;
+  return (await apiClient.get<PromoCode[]>('/cabinet/admin/promo-codes')).data;
+}
+
+export async function createPromoCode(payload: {
+  code: string;
+  type: PromoCodeType;
+  value: number;
+  max_activations: number;
+}): Promise<PromoCode> {
+  if (isPreview()) {
+    return { id: Date.now(), activations_count: 0, expires_at: null, is_active: true, created_at: new Date().toISOString(), ...payload };
+  }
+  return (await apiClient.post<PromoCode>('/cabinet/admin/promo-codes', payload)).data;
+}
+
+export async function updatePromoCode(id: number, payload: { is_active: boolean }): Promise<PromoCode> {
+  if (isPreview()) return { ...PREVIEW_PROMO_CODES[0], ...payload };
+  return (await apiClient.patch<PromoCode>(`/cabinet/admin/promo-codes/${id}`, payload)).data;
+}
+
+export async function deletePromoCode(id: number): Promise<{ status: string }> {
+  if (isPreview()) return { status: 'deleted' };
+  return (await apiClient.delete<{ status: string }>(`/cabinet/admin/promo-codes/${id}`)).data;
 }
 
 export async function setUserPromoGroup(userId: number, promoGroupId: number | null): Promise<AdminUserDetail> {

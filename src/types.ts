@@ -387,6 +387,20 @@ export type TransactionStatus = 'pending' | 'completed' | 'failed';
 
 export type SubscriptionStatus = 'active' | 'expired' | 'disabled';
 
+export type PromoCodeType = 'balance' | 'days';
+
+export interface PromoCode {
+  id: number;
+  code: string;
+  type: PromoCodeType;
+  value: number;
+  max_activations: number;
+  activations_count: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
 export interface AdminSubscriptionListItem {
   user_id: number;
   telegram_id: number;

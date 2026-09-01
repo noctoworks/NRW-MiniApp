@@ -10,6 +10,7 @@ import type {
   OverviewResponse,
   PaginatedTransactions,
   PlategaReconcileMap,
+  PromoCode,
   PromoGroup,
   RecentPayment,
   ReferralFunnelResponse,
@@ -176,6 +177,31 @@ export const PREVIEW_USER_DETAIL: AdminUserDetail = {
 export const PREVIEW_PROMO_GROUPS: PromoGroup[] = [
   { id: 1, name: 'VIP', discount_percent: 20, users_count: 4 },
   { id: 2, name: 'Партнёры', discount_percent: 10, users_count: 12 },
+];
+
+export const PREVIEW_PROMO_CODES: PromoCode[] = [
+  {
+    id: 1,
+    code: 'SUMMER2026',
+    type: 'balance',
+    value: 50000,
+    max_activations: 100,
+    activations_count: 12,
+    expires_at: null,
+    is_active: true,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    code: 'WELCOME7',
+    type: 'days',
+    value: 7,
+    max_activations: 1000,
+    activations_count: 340,
+    expires_at: null,
+    is_active: false,
+    created_at: new Date().toISOString(),
+  },
 ];
 
 export const PREVIEW_CAMPAIGNS: Campaign[] = [
