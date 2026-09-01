@@ -6,6 +6,7 @@ import {
   PREVIEW_DEVICES,
   PREVIEW_LTV,
   PREVIEW_OVERVIEW,
+  PREVIEW_NODES,
   PREVIEW_PROMO_GROUPS,
   PREVIEW_RECENT_PAYMENTS,
   PREVIEW_REFERRAL_FUNNEL,
@@ -26,6 +27,7 @@ import type {
   CampaignStats,
   CohortsResponse,
   LtvResponse,
+  Node,
   OverviewResponse,
   PaginatedTransactions,
   PromoGroup,
@@ -54,6 +56,11 @@ export async function getRevenueTimeseries(days = 30): Promise<RevenuePoint[]> {
 export async function getRecentPayments(limit = 10): Promise<RecentPayment[]> {
   if (isPreview()) return PREVIEW_RECENT_PAYMENTS;
   return (await apiClient.get<RecentPayment[]>('/cabinet/admin/recent-payments', { params: { limit } })).data;
+}
+
+export async function getNodes(): Promise<Node[]> {
+  if (isPreview()) return PREVIEW_NODES;
+  return (await apiClient.get<Node[]>('/cabinet/admin/nodes')).data;
 }
 
 export async function getLtv(): Promise<LtvResponse> {

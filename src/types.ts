@@ -149,6 +149,15 @@ export interface OverviewResponse {
   total_traffic_gb: number;
 }
 
+export interface Node {
+  uuid: string;
+  name: string;
+  country_code: string;
+  is_connected: boolean;
+  is_disabled: boolean;
+  traffic_used_gb: number;
+}
+
 export interface RecentPayment {
   user_id: number;
   telegram_id: number;

@@ -7,6 +7,18 @@ export function formatDate(iso: string): string {
   return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+/** ISO country code -> флаг-эмодзи (regional indicator symbols, без внешних
+ * данных/библиотек). Пустой/незнакомый код (например "XX", когда панель
+ * Remnawave не заполнила регион ноды) — просто пустая строка, не мусор. */
+export function countryFlag(countryCode: string): string {
+  const code = countryCode.trim().toUpperCase();
+  // "XX" — реальное значение панели Remnawave для "регион не задан" (см.
+  // диалог 2026-09-01), не настоящий ISO-код — не пытаться рисовать для него флаг.
+  if (code.length !== 2 || code === 'XX' || !/^[A-Z]{2}$/.test(code)) return '';
+  const REGIONAL_INDICATOR_OFFSET = 127397;
+  return String.fromCodePoint(...[...code].map((c) => c.charCodeAt(0) + REGIONAL_INDICATOR_OFFSET));
+}
+
 /** Суммарный трафик (обычно уже в сотнях/тысячах ГБ на масштабе всего
  * сервиса) — TB читается быстрее, чем пятизначное число ГБ. */
 export function formatTrafficGb(gb: number): string {

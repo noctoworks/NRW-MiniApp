@@ -82,14 +82,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { id: 'campaigns', to: '/admin/campaigns', label: 'Кампании', icon: Flag, groupId: 'product' },
   { id: 'support', to: '/admin/support', label: 'Обращения', icon: Comments, groupId: 'product' },
 
-  {
-    id: 'nodes',
-    to: '/admin/nodes',
-    label: 'Ноды',
-    icon: Server,
-    groupId: 'infra',
-    comingSoon: 'Список нод со статусом онлайн/оффлайн и трафиком — панель Remnawave это отдаёт (GET /api/nodes), но в боте ещё не реализован вызов.',
-  },
+  { id: 'nodes', to: '/admin/nodes', label: 'Ноды', icon: Server, groupId: 'infra' },
   {
     id: 'regions',
     to: '/admin/regions',

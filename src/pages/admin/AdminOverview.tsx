@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { Server } from '@gravity-ui/icons';
-import { Button, Card, Icon, Text } from '@gravity-ui/uikit';
+import { Button, Card, Icon, Label, Text } from '@gravity-ui/uikit';
 import { useNavigate } from 'react-router';
-import { getOverview, getRecentPayments, getRevenueTimeseries } from '../../api/admin';
+import { getNodes, getOverview, getRecentPayments, getRevenueTimeseries } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
 import RevenueChart from '../../components/admin/RevenueChart';
-import { formatRub, formatTrafficGb } from '../../lib/format';
+import { countryFlag, formatRub, formatTrafficGb } from '../../lib/format';
 import { useAuthStore } from '../../store/auth';
 
 function getGreeting(): string {
@@ -33,6 +33,7 @@ export default function AdminOverview() {
   });
   const { data: timeseries } = useQuery({ queryKey: ['admin', 'revenue-timeseries'], queryFn: () => getRevenueTimeseries(30) });
   const { data: recentPayments } = useQuery({ queryKey: ['admin', 'recent-payments'], queryFn: () => getRecentPayments(8) });
+  const { data: nodes } = useQuery({ queryKey: ['admin', 'nodes'], queryFn: getNodes });
 
   if (isLoading) {
     return <Loader inline />;
@@ -93,12 +94,31 @@ export default function AdminOverview() {
               Все ноды
             </Button>
           </div>
-          <div className="flex flex-col items-center gap-2 px-4 pb-6 pt-2 text-center">
-            <Icon data={Server} size={24} className="opacity-50" />
-            <Text variant="body-2" color="secondary">
-              Статус нод скоро появится здесь
-            </Text>
-          </div>
+          {!nodes || nodes.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 px-4 pb-6 pt-2 text-center">
+              <Icon data={Server} size={24} className="opacity-50" />
+              <Text variant="body-2" color="secondary">
+                Нод не найдено
+              </Text>
+            </div>
+          ) : (
+            nodes.slice(0, 4).map((node) => (
+              <div
+                key={node.uuid}
+                className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-2.5 first:border-t-0"
+              >
+                <div className="flex items-center gap-2">
+                  {countryFlag(node.country_code) && (
+                    <span className="text-base leading-none">{countryFlag(node.country_code)}</span>
+                  )}
+                  <Text variant="body-2">{node.name}</Text>
+                </div>
+                <Label theme={node.is_disabled ? 'warning' : node.is_connected ? 'success' : 'danger'}>
+                  {node.is_disabled ? 'Отключена' : node.is_connected ? 'Online' : 'Offline'}
+                </Label>
+              </div>
+            ))
+          )}
         </Card>
 
         <Card view="outlined" className="flex flex-col">

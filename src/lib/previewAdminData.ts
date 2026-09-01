@@ -6,6 +6,7 @@ import type {
   CampaignStats,
   CohortsResponse,
   LtvResponse,
+  Node,
   OverviewResponse,
   PaginatedTransactions,
   PromoGroup,
@@ -41,6 +42,13 @@ export const PREVIEW_RECENT_PAYMENTS: RecentPayment[] = [
   { user_id: 1, telegram_id: 577437701, username: 'danilvolkov666', full_name: 'Данил', amount_kopeks: 24900, type: 'subscription_payment', created_at: new Date().toISOString() },
   { user_id: 2, telegram_id: 100200300, username: null, full_name: 'user892', amount_kopeks: 69900, type: 'subscription_payment', created_at: new Date(Date.now() - 3600_000).toISOString() },
   { user_id: 3, telegram_id: 100200301, username: 'user321', full_name: null, amount_kopeks: 24900, type: 'subscription_payment', created_at: new Date(Date.now() - 7200_000).toISOString() },
+];
+
+export const PREVIEW_NODES: Node[] = [
+  { uuid: 'de-01', name: 'DE-01', country_code: 'DE', is_connected: true, is_disabled: false, traffic_used_gb: 412.7 },
+  { uuid: 'fi-01', name: 'FI-01', country_code: 'FI', is_connected: true, is_disabled: false, traffic_used_gb: 198.3 },
+  { uuid: 'nl-01', name: 'NL-01', country_code: 'NL', is_connected: true, is_disabled: false, traffic_used_gb: 305.1 },
+  { uuid: 'se-01', name: 'SE-01', country_code: 'SE', is_connected: false, is_disabled: false, traffic_used_gb: 89.4 },
 ];
 
 export const PREVIEW_REVENUE_TIMESERIES: RevenuePoint[] = Array.from({ length: 31 }, (_, i) => {
