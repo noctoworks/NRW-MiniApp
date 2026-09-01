@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, SegmentedRadioGroup, Switch, Text } from '@gravity-ui/uikit';
-import { useState, type ReactNode } from 'react';
+import { Button, Card, Switch, Text } from '@gravity-ui/uikit';
+import { type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
   adjustBalance,
@@ -24,15 +24,6 @@ import UserMessageForm from '../../components/admin/UserMessageForm';
 import UserPromoGroupSelect from '../../components/admin/UserPromoGroupSelect';
 import { formatDate, formatRub } from '../../lib/format';
 import { confirmDialog } from '../../lib/nativeDialogs';
-
-type DetailTab = 'overview' | 'transactions' | 'devices' | 'settings';
-
-const TABS: { id: DetailTab; label: string }[] = [
-  { id: 'overview', label: 'Обзор' },
-  { id: 'transactions', label: 'Транзакции' },
-  { id: 'devices', label: 'Устройства' },
-  { id: 'settings', label: 'Настройки' },
-];
 
 function parsePositiveRub(raw: string): number | null {
   const amount = Number.parseFloat(raw.replace(',', '.'));
@@ -72,7 +63,6 @@ function AdminUserDetailContent() {
   const userId = Number(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<DetailTab>('overview');
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin', 'user', userId],
@@ -106,7 +96,7 @@ function AdminUserDetailContent() {
   };
 
   return (
-    <div className="flex max-w-2xl flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <Button view="flat" size="s" onClick={() => navigate('/admin/users')} className="self-start">
         ← К списку
       </Button>
@@ -131,44 +121,31 @@ function AdminUserDetailContent() {
         )}
       </div>
 
-      <Card view="outlined" className="flex flex-col">
-        <InfoRow label="Баланс">{formatRub(data.balance_kopeks)}</InfoRow>
-        <InfoRow label="Рефералы">
-          {data.referrals_invited_count} · {formatRub(data.referrals_earned_kopeks)}
-        </InfoRow>
-        <InfoRow label="Подписка">
-          {data.subscription
-            ? `${data.subscription.is_trial ? '🎁 триал' : '💎 ' + data.subscription.status} до ${formatDate(data.subscription.end_date)}`
-            : 'нет'}
-        </InfoRow>
-        <InfoRow label="Трафик">
-          {data.subscription
-            ? `${data.subscription.traffic_used_gb.toFixed(1)} / ${data.subscription.traffic_limit_gb || '∞'} ГБ`
-            : '—'}
-        </InfoRow>
-        <InfoRow label="Промогруппа">{data.promo_group_name ?? 'без скидки'}</InfoRow>
-      </Card>
+      {/* Всё на одном экране, в 3 колонки на широких — было по вкладкам и
+       * упиралось в max-w-2xl слева (см. диалог 2026-09-01: "разбросано по
+       * вкладкам... прижалось к левой части"). */}
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div className="flex flex-col gap-4">
+          <Card view="outlined" className="flex flex-col">
+            <InfoRow label="Баланс">{formatRub(data.balance_kopeks)}</InfoRow>
+            <InfoRow label="Рефералы">
+              {data.referrals_invited_count} · {formatRub(data.referrals_earned_kopeks)}
+            </InfoRow>
+            <InfoRow label="Подписка">
+              {data.subscription
+                ? `${data.subscription.is_trial ? '🎁 триал' : '💎 ' + data.subscription.status} до ${formatDate(data.subscription.end_date)}`
+                : 'нет'}
+            </InfoRow>
+            <InfoRow label="Трафик">
+              {data.subscription
+                ? `${data.subscription.traffic_used_gb.toFixed(1)} / ${data.subscription.traffic_limit_gb || '∞'} ГБ`
+                : '—'}
+            </InfoRow>
+            <InfoRow label="Промогруппа">{data.promo_group_name ?? 'без скидки'}</InfoRow>
+          </Card>
 
-      {/* Вкладки вместо одного нескончаемого блока (баланс + дни + сообщение +
-       * реферальный % + промогруппа + блок + удаление вперемешку) — частые
-       * действия (начислить/продлить) отдельно от разовых настроек, опасные
-       * (удаление) визуально отделены и не соседствуют с обычными (см.
-       * диалог "давай поправим админку" / research по CRM-паттернам:
-       * табы для записи с несколькими доменами данных, а не один скролл). */}
-      <SegmentedRadioGroup value={tab} onUpdate={(value) => setTab(value as DetailTab)}>
-        {TABS.map((t) => (
-          <SegmentedRadioGroup.Option key={t.id} value={t.id}>
-            {t.label}
-          </SegmentedRadioGroup.Option>
-        ))}
-      </SegmentedRadioGroup>
-
-      {tab === 'overview' && (
-        <Card view="outlined" className="flex flex-col gap-4 p-4">
-          <div>
-            <Text variant="subheader-1" className="mb-2 block">
-              Баланс
-            </Text>
+          <Card view="outlined" className="flex flex-col gap-3 p-4">
+            <Text variant="subheader-1">Баланс</Text>
             <DualActionAmountForm
               positiveLabel="Начислить"
               negativeLabel="Списать"
@@ -178,12 +155,10 @@ function AdminUserDetailContent() {
               presets={[100, 500, 1000]}
               onSubmit={async (amount) => { await adjustBalance(userId, amount); await invalidate(); }}
             />
-          </div>
+          </Card>
 
-          <div>
-            <Text variant="subheader-1" className="mb-2 block">
-              Подписка
-            </Text>
+          <Card view="outlined" className="flex flex-col gap-3 p-4">
+            <Text variant="subheader-1">Подписка</Text>
             {data.subscription ? (
               <DualActionAmountForm
                 positiveLabel="Продлить"
@@ -197,22 +172,18 @@ function AdminUserDetailContent() {
             ) : (
               <GrantSubscriptionForm onSubmit={async (days) => { await adjustSubscriptionDays(userId, days); await invalidate(); }} />
             )}
-          </div>
-        </Card>
-      )}
+          </Card>
+        </div>
 
-      {tab === 'transactions' && <TransactionsSection userId={userId} />}
-
-      {tab === 'devices' && (
         <div className="flex flex-col gap-4">
           <DevicesSection userId={userId} />
           <NodeTrafficSection userId={userId} />
           <SyncSection userId={userId} />
         </div>
-      )}
 
-      {tab === 'settings' && (
         <div className="flex flex-col gap-4">
+          <TransactionsSection userId={userId} />
+
           <Card view="outlined" className="flex flex-col">
             <div className="flex flex-col gap-4 p-4">
               <UserMessageForm onSubmit={(text) => messageUser(userId, text).then(() => undefined)} />
@@ -230,21 +201,21 @@ function AdminUserDetailContent() {
               <Switch checked={data.is_blocked} onUpdate={handleBlockToggle} />
             </div>
           </Card>
-
-          {/* Опасная зона — визуально отделена (заголовок + отступ), не
-           * соседствует вплотную с обычными переключателями выше. */}
-          <div>
-            <Text variant="subheader-1" color="danger" className="mb-2 block">
-              Опасная зона
-            </Text>
-            <Card view="outlined">
-              <Button view="flat-danger" size="l" onClick={handleDelete} width="max">
-                Удалить (заблокировать и обезличить)
-              </Button>
-            </Card>
-          </div>
         </div>
-      )}
+      </div>
+
+      {/* Опасная зона — визуально отделена (заголовок + отступ + свой ряд на
+       * всю ширину), не соседствует вплотную с обычными переключателями. */}
+      <div>
+        <Text variant="subheader-1" color="danger" className="mb-2 block">
+          Опасная зона
+        </Text>
+        <Card view="outlined" className="max-w-md">
+          <Button view="flat-danger" size="l" onClick={handleDelete} width="max">
+            Удалить (заблокировать и обезличить)
+          </Button>
+        </Card>
+      </div>
     </div>
   );
 }

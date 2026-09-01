@@ -3,7 +3,9 @@ import { Card, Pagination, Text } from '@gravity-ui/uikit';
 import { useState } from 'react';
 import { getUserTransactions } from '../../api/admin';
 import { formatDate, formatRub } from '../../lib/format';
+import { isIncomeTransaction, transactionLabel, transactionStatusLabel } from '../../lib/transactions';
 import AdminEmptyState, { AdminErrorState } from './AdminEmptyState';
+import AdminTransactionDetailDialog from './AdminTransactionDetailDialog';
 
 interface TransactionsSectionProps {
   userId: number;
@@ -11,6 +13,7 @@ interface TransactionsSectionProps {
 
 export default function TransactionsSection({ userId }: TransactionsSectionProps) {
   const [page, setPage] = useState(1);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin', 'user', userId, 'transactions', page],
     queryFn: () => getUserTransactions(userId, page),
@@ -31,17 +34,24 @@ export default function TransactionsSection({ userId }: TransactionsSectionProps
         <AdminEmptyState text="Транзакций нет" />
       ) : (
         data.items.map((t) => (
-          <div key={t.id} className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3">
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setSelectedId(t.id)}
+            className="flex items-center justify-between gap-2 border-t border-[var(--g-color-line-generic)] px-4 py-3 text-left hover:bg-[var(--g-color-base-simple-hover)]"
+          >
             <div className="flex flex-col">
-              <Text variant="body-1">{t.type}</Text>
+              <Text variant="body-1">{transactionLabel(t.type)}</Text>
               <Text variant="caption-2" color="secondary">
-                {formatDate(t.created_at)} · {t.status}
+                {formatDate(t.created_at)}
+                {transactionStatusLabel(t.status) ? ` · ${transactionStatusLabel(t.status)}` : ''}
               </Text>
             </div>
-            <Text variant="body-1" className="font-semibold">
+            <Text variant="body-1" color={isIncomeTransaction(t.type) ? 'positive' : 'primary'} className="font-semibold">
+              {isIncomeTransaction(t.type) ? '+' : '−'}
               {formatRub(t.amount_kopeks)}
             </Text>
-          </div>
+          </button>
         ))
       )}
       {data && data.total_pages > 1 && (
@@ -54,6 +64,8 @@ export default function TransactionsSection({ userId }: TransactionsSectionProps
           />
         </div>
       )}
+
+      <AdminTransactionDetailDialog transactionId={selectedId} onClose={() => setSelectedId(null)} />
     </Card>
   );
 }
