@@ -7,6 +7,7 @@ import {
   PREVIEW_LTV,
   PREVIEW_OVERVIEW,
   PREVIEW_NODES,
+  PREVIEW_PLATEGA_RECONCILE,
   PREVIEW_PROMO_GROUPS,
   PREVIEW_RECENT_PAYMENTS,
   PREVIEW_REFERRAL_FUNNEL,
@@ -31,6 +32,7 @@ import type {
   Node,
   OverviewResponse,
   PaginatedTransactions,
+  PlategaReconcileMap,
   PromoGroup,
   RecentPayment,
   ReferralFunnelResponse,
@@ -75,6 +77,11 @@ export async function listTransactions(params: {
 }): Promise<TransactionListResponse> {
   if (isPreview()) return PREVIEW_TRANSACTION_LIST;
   return (await apiClient.get<TransactionListResponse>('/cabinet/admin/transactions', { params })).data;
+}
+
+export async function getPlategaReconcile(days = 7): Promise<PlategaReconcileMap> {
+  if (isPreview()) return PREVIEW_PLATEGA_RECONCILE;
+  return (await apiClient.get<PlategaReconcileMap>('/cabinet/admin/transactions/platega-reconcile', { params: { days } })).data;
 }
 
 export async function getLtv(): Promise<LtvResponse> {

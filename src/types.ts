@@ -361,7 +361,13 @@ export interface AdminTransactionListItem extends AdminTransaction {
   telegram_id: number;
   username: string | null;
   full_name: string | null;
+  payment_provider: string | null;
+  payment_external_id: string | null;
 }
+
+/** recordId (== AdminTransactionListItem.payment_external_id для provider
+ * 'platega') -> статус транзакции по версии Platega. */
+export type PlategaReconcileMap = Record<string, string>;
 
 export interface TransactionListResponse {
   items: AdminTransactionListItem[];

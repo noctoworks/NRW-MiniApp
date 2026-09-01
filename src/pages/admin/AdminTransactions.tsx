@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
+import { Check, Xmark } from '@gravity-ui/icons';
 import { Table, useTable } from '@gravity-ui/table';
 import type { ColumnDef, SortingState } from '@gravity-ui/table/tanstack';
-import { Label, Pagination, SegmentedRadioGroup, Select, Text, TextInput } from '@gravity-ui/uikit';
+import { Button, Icon, Label, Pagination, SegmentedRadioGroup, Select, Text, TextInput } from '@gravity-ui/uikit';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { listTransactions } from '../../api/admin';
+import { getPlategaReconcile, listTransactions } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import { formatDate, formatRub } from '../../lib/format';
 import { isIncomeTransaction, transactionLabel, transactionStatusLabel } from '../../lib/transactions';
@@ -56,6 +57,19 @@ export default function AdminTransactions() {
       }),
   });
 
+  // Сверка с Platega — по требованию (кнопка), не на каждую загрузку страницы:
+  // это реальный запрос к боевому платёжному провайдеру (см. диалог
+  // 2026-09-01), не хочется дёргать его при каждой пагинации/фильтре.
+  const {
+    data: reconcile,
+    isFetching: isReconciling,
+    refetch: runReconcile,
+  } = useQuery({
+    queryKey: ['admin', 'transactions', 'platega-reconcile'],
+    queryFn: () => getPlategaReconcile(7),
+    enabled: false,
+  });
+
   const columns: ColumnDef<AdminTransactionListItem>[] = [
     {
       id: 'user',
@@ -99,6 +113,41 @@ export default function AdminTransactions() {
       header: 'Дата',
       size: 140,
       cell: ({ row }) => <Text variant="caption-2" color="secondary">{formatDate(row.original.created_at)}</Text>,
+    },
+    {
+      id: 'platega',
+      header: 'Platega',
+      size: 130,
+      // Сверяются только строки с provider='platega' — у остальных (топап
+      // админом, реферальный бонус) нет записи external_id в пространстве
+      // Platega, сверять там нечего (см. AdminTransactionListItem).
+      cell: ({ row }) => {
+        const { payment_provider, payment_external_id } = row.original;
+        if (payment_provider !== 'platega' || !payment_external_id) {
+          return (
+            <Text variant="caption-2" color="secondary">
+              —
+            </Text>
+          );
+        }
+        if (!reconcile) return null;
+        const plategaStatus = reconcile[payment_external_id];
+        return plategaStatus ? (
+          <div className="flex items-center gap-1">
+            <Icon data={Check} size={14} className="text-[var(--g-color-text-positive)]" />
+            <Text variant="caption-2" color="secondary">
+              {plategaStatus}
+            </Text>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <Icon data={Xmark} size={14} className="text-[var(--g-color-text-danger)]" />
+            <Text variant="caption-2" color="danger">
+              Нет у Platega
+            </Text>
+          </div>
+        );
+      },
     },
   ];
 
@@ -157,6 +206,9 @@ export default function AdminTransactions() {
             </SegmentedRadioGroup.Option>
           ))}
         </SegmentedRadioGroup>
+        <Button view="outlined" size="m" loading={isReconciling} onClick={() => runReconcile()} className="ml-auto">
+          Сверить с Platega (7 дн)
+        </Button>
       </div>
 
       {isLoading ? (

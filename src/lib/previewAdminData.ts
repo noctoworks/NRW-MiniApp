@@ -9,6 +9,7 @@ import type {
   Node,
   OverviewResponse,
   PaginatedTransactions,
+  PlategaReconcileMap,
   PromoGroup,
   RecentPayment,
   ReferralFunnelResponse,
@@ -209,14 +210,18 @@ export const PREVIEW_TRANSACTIONS: PaginatedTransactions = {
 };
 
 export const PREVIEW_TRANSACTION_LIST: TransactionListResponse = {
-  items: PREVIEW_USER_DETAIL.transactions.map((t) => ({
+  items: PREVIEW_USER_DETAIL.transactions.map((t, i) => ({
     ...t,
     user_id: PREVIEW_USER_DETAIL.id,
     telegram_id: PREVIEW_USER_DETAIL.telegram_id,
     username: PREVIEW_USER_DETAIL.username,
     full_name: PREVIEW_USER_DETAIL.full_name,
+    payment_provider: t.type === 'subscription_payment' ? 'platega' : null,
+    payment_external_id: t.type === 'subscription_payment' ? `preview-record-${i}` : null,
   })),
   total: PREVIEW_USER_DETAIL.transactions.length,
   page: 1,
   total_pages: 1,
 };
+
+export const PREVIEW_PLATEGA_RECONCILE: PlategaReconcileMap = { 'preview-record-0': 'CONFIRMED' };
