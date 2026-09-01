@@ -15,6 +15,7 @@ import type {
   RevenuePoint,
   SupportThread,
   SupportThreadDetail,
+  TransactionListResponse,
 } from '../types';
 
 /** Статичные данные для DEV-превью админки вне Telegram — никогда не
@@ -203,6 +204,19 @@ export const PREVIEW_DEVICES: AdminDevice[] = [
 export const PREVIEW_TRANSACTIONS: PaginatedTransactions = {
   items: PREVIEW_USER_DETAIL.transactions,
   total: 1,
+  page: 1,
+  total_pages: 1,
+};
+
+export const PREVIEW_TRANSACTION_LIST: TransactionListResponse = {
+  items: PREVIEW_USER_DETAIL.transactions.map((t) => ({
+    ...t,
+    user_id: PREVIEW_USER_DETAIL.id,
+    telegram_id: PREVIEW_USER_DETAIL.telegram_id,
+    username: PREVIEW_USER_DETAIL.username,
+    full_name: PREVIEW_USER_DETAIL.full_name,
+  })),
+  total: PREVIEW_USER_DETAIL.transactions.length,
   page: 1,
   total_pages: 1,
 };

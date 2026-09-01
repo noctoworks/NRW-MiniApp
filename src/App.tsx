@@ -35,6 +35,7 @@ const AdminSupport = lazy(() => import('./pages/admin/AdminSupport'));
 const AdminSupportThread = lazy(() => import('./pages/admin/AdminSupportThread'));
 const AdminComingSoon = lazy(() => import('./components/admin/AdminComingSoon'));
 const AdminNodes = lazy(() => import('./pages/admin/AdminNodes'));
+const AdminTransactions = lazy(() => import('./pages/admin/AdminTransactions'));
 
 function AdminLoading() {
   return <Loader />;
@@ -228,6 +229,14 @@ export default function App() {
           element={
             <Suspense fallback={<AdminLoading />}>
               <AdminNodes />
+            </Suspense>
+          }
+        />
+        <Route
+          path="transactions"
+          element={
+            <Suspense fallback={<AdminLoading />}>
+              <AdminTransactions />
             </Suspense>
           }
         />

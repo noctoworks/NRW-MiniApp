@@ -355,3 +355,20 @@ export interface PaginatedTransactions {
   page: number;
   total_pages: number;
 }
+
+export interface AdminTransactionListItem extends AdminTransaction {
+  user_id: number;
+  telegram_id: number;
+  username: string | null;
+  full_name: string | null;
+}
+
+export interface TransactionListResponse {
+  items: AdminTransactionListItem[];
+  total: number;
+  page: number;
+  total_pages: number;
+}
+
+export type TransactionType = 'topup' | 'subscription_payment' | 'referral_reward' | 'refund' | 'gift';
+export type TransactionStatus = 'pending' | 'completed' | 'failed';

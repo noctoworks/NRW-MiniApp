@@ -13,6 +13,7 @@ import {
   PREVIEW_REVENUE_TIMESERIES,
   PREVIEW_SUPPORT_THREAD_DETAIL,
   PREVIEW_SUPPORT_THREADS,
+  PREVIEW_TRANSACTION_LIST,
   PREVIEW_TRANSACTIONS,
   PREVIEW_USER_DETAIL,
   PREVIEW_USERS_LIST,
@@ -37,6 +38,9 @@ import type {
   SupportThread,
   SupportThreadDetail,
   SyncResult,
+  TransactionListResponse,
+  TransactionStatus,
+  TransactionType,
 } from '../types';
 
 function isPreview(): boolean {
@@ -61,6 +65,16 @@ export async function getRecentPayments(limit = 10): Promise<RecentPayment[]> {
 export async function getNodes(): Promise<Node[]> {
   if (isPreview()) return PREVIEW_NODES;
   return (await apiClient.get<Node[]>('/cabinet/admin/nodes')).data;
+}
+
+export async function listTransactions(params: {
+  query?: string;
+  type?: TransactionType;
+  status?: TransactionStatus;
+  page?: number;
+}): Promise<TransactionListResponse> {
+  if (isPreview()) return PREVIEW_TRANSACTION_LIST;
+  return (await apiClient.get<TransactionListResponse>('/cabinet/admin/transactions', { params })).data;
 }
 
 export async function getLtv(): Promise<LtvResponse> {

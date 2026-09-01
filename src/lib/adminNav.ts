@@ -108,14 +108,7 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     comingSoon: 'Живые метрики нод (CPU/память/аптайм) — зависит от того, что именно отдаёт API Remnawave, ещё не проверяли.',
   },
 
-  {
-    id: 'payments',
-    to: '/admin/payments',
-    label: 'Платежи',
-    icon: Wallet,
-    groupId: 'finance',
-    comingSoon: 'Общий список всех платежей — сейчас доступно только внутри карточки пользователя (вкладка «Транзакции»).',
-  },
+  { id: 'transactions', to: '/admin/transactions', label: 'Транзакции', icon: Wallet, groupId: 'finance' },
   { id: 'growth', to: '/admin/growth', label: 'Доход', icon: ChartLineArrowUp, groupId: 'finance' },
   { id: 'ltv', to: '/admin/ltv', label: 'LTV и когорты', icon: ChartColumn, groupId: 'finance' },
 
