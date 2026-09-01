@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Avatar, Card, Text } from '@gravity-ui/uikit';
+import { Avatar, Card, Label, Text } from '@gravity-ui/uikit';
 import { useNavigate } from 'react-router';
 import { listSupportThreads } from '../../api/admin';
 import AdminEmptyState, { AdminErrorState } from '../../components/admin/AdminEmptyState';
@@ -52,11 +52,17 @@ export default function AdminSupport() {
               >
                 <Avatar size="m" text={label.charAt(0).toUpperCase()} />
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <Text variant="body-1" ellipsis>
-                    {label}
-                  </Text>
+                  <div className="flex items-center gap-1.5">
+                    <Text variant="body-1" ellipsis>
+                      {label}
+                    </Text>
+                    {thread.status === 'closed' && (
+                      <Label theme="success" size="xs" className="shrink-0">
+                        Закрыто
+                      </Label>
+                    )}
+                  </div>
                   <Text variant="caption-2" color="secondary" ellipsis>
-                    {thread.status === 'closed' && '✅ Закрыто · '}
                     {preview} · {timeAgo(thread.last_message_at)}
                     {thread.assigned_admin_name && ` · ведёт ${thread.assigned_admin_name}`}
                   </Text>

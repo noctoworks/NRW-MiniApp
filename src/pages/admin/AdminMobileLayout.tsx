@@ -13,7 +13,7 @@ import { hapticSelection } from '../../lib/haptics';
  * приложение — только нативная Telegram BackButton (см. useTelegramBackButton),
  * без самодельной кнопки в шапке — она тут была лишней (см. диалог). Переход
  * МЕЖДУ разделами админки/в карточку пользователя обрабатывают сами страницы
- * (см. AdminUserDetail "← К списку"), единая Telegram BackButton не умеет быть
+ * (см. AdminUserDetail "К списку"), единая Telegram BackButton не умеет быть
  * контекстно-зависимой по вложенным роутам без отдельного учёта на каждой
  * странице. */
 export default function AdminMobileLayout() {
@@ -25,7 +25,7 @@ export default function AdminMobileLayout() {
 
   return (
     <AdminGravityTheme>
-      <div className="page">
+      <div className="min-h-screen px-4 pb-8" style={{ paddingTop: 'calc(1.5rem + var(--tg-total-safe-top, 0px))' }}>
         <Text variant="header-1" className="mb-4 block">
           Админка
         </Text>

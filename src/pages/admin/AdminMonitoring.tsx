@@ -1,11 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
-import { Card, Text } from '@gravity-ui/uikit';
+import { ArrowDown, ArrowUp } from '@gravity-ui/icons';
+import { Card, Icon, Text } from '@gravity-ui/uikit';
 import { getMonitoring } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
 import KpiTile from '../../components/admin/KpiTile';
 import Loader from '../../components/Loader';
 import { formatTrafficGb } from '../../lib/format';
 import type { NodeMetric } from '../../types';
+
+function TrafficStat({ upload, download }: { upload: string; download: string }) {
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <Text variant="caption-2" className="inline-flex items-center gap-0.5">
+        <Icon data={ArrowUp} size={11} />
+        {upload}
+      </Text>
+      <Text variant="caption-2" className="inline-flex items-center gap-0.5">
+        <Icon data={ArrowDown} size={11} />
+        {download}
+      </Text>
+    </div>
+  );
+}
 
 function formatUptime(seconds: number): string {
   const days = Math.floor(seconds / 86400);
@@ -34,21 +50,17 @@ function NodeMetricCard({ node }: { node: NodeMetric }) {
         {node.inbound_stats.map((s) => (
           <div key={`in-${s.tag}`} className="flex items-center justify-between gap-2">
             <Text variant="caption-2" color="secondary" ellipsis>
-              ↓ {s.tag}
+              {s.tag}
             </Text>
-            <Text variant="caption-2">
-              ↑{s.upload} ↓{s.download}
-            </Text>
+            <TrafficStat upload={s.upload} download={s.download} />
           </div>
         ))}
         {node.outbound_stats.map((s) => (
           <div key={`out-${s.tag}`} className="flex items-center justify-between gap-2">
             <Text variant="caption-2" color="secondary" ellipsis>
-              ↑ {s.tag}
+              {s.tag}
             </Text>
-            <Text variant="caption-2">
-              ↑{s.upload} ↓{s.download}
-            </Text>
+            <TrafficStat upload={s.upload} download={s.download} />
           </div>
         ))}
       </div>

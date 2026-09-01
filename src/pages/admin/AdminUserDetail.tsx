@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Switch, Text } from '@gravity-ui/uikit';
+import { ArrowLeft } from '@gravity-ui/icons';
+import { Alert, Button, Card, Icon, Label, Switch, Text } from '@gravity-ui/uikit';
 import { type ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import {
@@ -24,6 +25,19 @@ import UserMessageForm from '../../components/admin/UserMessageForm';
 import UserPromoGroupSelect from '../../components/admin/UserPromoGroupSelect';
 import { formatDate, formatRub } from '../../lib/format';
 import { confirmDialog } from '../../lib/nativeDialogs';
+import type { SubscriptionStatus } from '../../types';
+
+const SUBSCRIPTION_STATUS_THEME: Record<SubscriptionStatus, 'success' | 'danger' | 'warning'> = {
+  active: 'success',
+  expired: 'danger',
+  disabled: 'warning',
+};
+
+const SUBSCRIPTION_STATUS_LABEL: Record<SubscriptionStatus, string> = {
+  active: 'Активна',
+  expired: 'Истекла',
+  disabled: 'Отключена',
+};
 
 function parsePositiveRub(raw: string): number | null {
   const amount = Number.parseFloat(raw.replace(',', '.'));
@@ -41,7 +55,7 @@ function InfoRow({ label, children }: { label: string; children: ReactNode }) {
       <Text variant="caption-2" color="secondary">
         {label}
       </Text>
-      <Text variant="body-1">{children}</Text>
+      <div className="flex items-center gap-1.5">{children}</div>
     </div>
   );
 }
@@ -98,7 +112,8 @@ function AdminUserDetailContent() {
   return (
     <div className="flex flex-col gap-5">
       <Button view="flat" size="s" onClick={() => navigate('/admin/users')} className="self-start">
-        ← К списку
+        <Icon data={ArrowLeft} size={16} />
+        К списку
       </Button>
 
       <div>
@@ -115,9 +130,11 @@ function AdminUserDetailContent() {
           {data.username && `@${data.username} · `}telegram_id {data.telegram_id} · регистрация {formatDate(data.created_at)}
         </Text>
         {data.blocked_bot && (
-          <Text variant="body-2" color="warning" className="mt-2 block">
-            ⚠️ Пользователь заблокировал бота — сообщения не доставляются.
-          </Text>
+          <Alert
+            theme="warning"
+            message="Пользователь заблокировал бота — сообщения не доставляются."
+            className="mt-2"
+          />
         )}
       </div>
 
@@ -127,21 +144,44 @@ function AdminUserDetailContent() {
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="flex flex-col gap-4">
           <Card view="outlined" className="flex flex-col">
-            <InfoRow label="Баланс">{formatRub(data.balance_kopeks)}</InfoRow>
+            <InfoRow label="Баланс">
+              <Text variant="body-1">{formatRub(data.balance_kopeks)}</Text>
+            </InfoRow>
             <InfoRow label="Рефералы">
-              {data.referrals_invited_count} · {formatRub(data.referrals_earned_kopeks)}
+              <Text variant="body-1">
+                {data.referrals_invited_count} · {formatRub(data.referrals_earned_kopeks)}
+              </Text>
             </InfoRow>
             <InfoRow label="Подписка">
-              {data.subscription
-                ? `${data.subscription.is_trial ? '🎁 триал' : '💎 ' + data.subscription.status} до ${formatDate(data.subscription.end_date)}`
-                : 'нет'}
+              {data.subscription ? (
+                <>
+                  <Label
+                    theme={
+                      data.subscription.is_trial
+                        ? 'info'
+                        : (SUBSCRIPTION_STATUS_THEME[data.subscription.status as SubscriptionStatus] ?? 'success')
+                    }
+                  >
+                    {data.subscription.is_trial
+                      ? 'Триал'
+                      : (SUBSCRIPTION_STATUS_LABEL[data.subscription.status as SubscriptionStatus] ?? data.subscription.status)}
+                  </Label>
+                  <Text variant="body-1">до {formatDate(data.subscription.end_date)}</Text>
+                </>
+              ) : (
+                <Text variant="body-1">нет</Text>
+              )}
             </InfoRow>
             <InfoRow label="Трафик">
-              {data.subscription
-                ? `${data.subscription.traffic_used_gb.toFixed(1)} / ${data.subscription.traffic_limit_gb || '∞'} ГБ`
-                : '—'}
+              <Text variant="body-1">
+                {data.subscription
+                  ? `${data.subscription.traffic_used_gb.toFixed(1)} / ${data.subscription.traffic_limit_gb || '∞'} ГБ`
+                  : '—'}
+              </Text>
             </InfoRow>
-            <InfoRow label="Промогруппа">{data.promo_group_name ?? 'без скидки'}</InfoRow>
+            <InfoRow label="Промогруппа">
+              <Text variant="body-1">{data.promo_group_name ?? 'без скидки'}</Text>
+            </InfoRow>
           </Card>
 
           <Card view="outlined" className="flex flex-col gap-3 p-4">

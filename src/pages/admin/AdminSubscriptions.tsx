@@ -60,7 +60,6 @@ export default function AdminSubscriptions() {
       size: 200,
       cell: ({ row }) => (
         <Text variant="body-1" ellipsis>
-          {row.original.is_trial && '🎁 '}
           {userLabel(row.original)}
         </Text>
       ),
@@ -75,7 +74,12 @@ export default function AdminSubscriptions() {
       accessorKey: 'status',
       header: 'Статус',
       size: 120,
-      cell: ({ row }) => <Label theme={STATUS_THEME[row.original.status]}>{STATUS_LABEL[row.original.status]}</Label>,
+      cell: ({ row }) =>
+        row.original.is_trial ? (
+          <Label theme="info">Триал</Label>
+        ) : (
+          <Label theme={STATUS_THEME[row.original.status]}>{STATUS_LABEL[row.original.status]}</Label>
+        ),
     },
     {
       id: 'traffic',

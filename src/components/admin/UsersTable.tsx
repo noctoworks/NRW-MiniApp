@@ -43,7 +43,6 @@ const columns: ColumnDef<AdminUserListItem>[] = [
         <div className="flex items-center gap-2">
           <Avatar size="m" text={label.charAt(0).toUpperCase()} />
           <Text variant="body-1" ellipsis>
-            {user.has_active_subscription && (user.is_trial ? '🎁 ' : '💎 ')}
             {label}
           </Text>
         </div>

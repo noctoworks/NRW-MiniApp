@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Text } from '@gravity-ui/uikit';
+import { ArrowLeft } from '@gravity-ui/icons';
+import { Button, Card, Icon, Text } from '@gravity-ui/uikit';
 import { useNavigate, useParams } from 'react-router';
 import { closeSupportTicket, getSupportThread, reopenSupportTicket, replySupportThread } from '../../api/admin';
 import { AdminErrorState } from '../../components/admin/AdminEmptyState';
@@ -71,7 +72,8 @@ function AdminSupportThreadContent() {
   return (
     <div className="flex max-w-2xl flex-col gap-4">
       <Button view="flat" size="s" onClick={() => navigate('/admin/support')} className="self-start">
-        ← К обращениям
+        <Icon data={ArrowLeft} size={16} />
+        К обращениям
       </Button>
 
       <div className="flex items-start justify-between gap-2">
